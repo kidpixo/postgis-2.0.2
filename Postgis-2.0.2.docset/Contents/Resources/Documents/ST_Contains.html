@@ -1,0 +1,46 @@
+<html><head><meta http-equiv="Content-Type" content="text/html; charset=ISO-8859-1"><title>ST_Contains</title><link rel="stylesheet" href="style.css" type="text/css"><meta name="generator" content="DocBook XSL Stylesheets V1.69.1"><link rel="start" href="index.html" title="PostGIS 2.0.2SVN Manual"><link rel="up" href="reference.html#Spatial_Relationships_Measurements" title="8.8. Spatial Relationships and Measurements"><link rel="prev" href="ST_ClosestPoint.html" title="ST_ClosestPoint"><link rel="next" href="ST_ContainsProperly.html" title="ST_ContainsProperly"></head><body bgcolor="white" text="black" link="#0000FF" vlink="#840084" alink="#0000FF"><div class="navheader"><table width="100%" summary="Navigation header"><tr><th colspan="3" align="center">ST_Contains</th></tr><tr><td width="20%" align="left"><a accesskey="p" href="ST_ClosestPoint.html">Prev</a> </td><th width="60%" align="center">8.8. Spatial Relationships and Measurements</th><td width="20%" align="right"> <a accesskey="n" href="ST_ContainsProperly.html">Next</a></td></tr></table><hr></div><div class="refentry" lang="en"><a name="ST_Contains"></a><div class="titlepage"></div><div class="refnamediv"><h2>Name</h2><p>ST_Contains &#8212; Returns true if and only if no points of B lie in the exterior of A, and at least one point of the interior of B lies in the interior of A. </p></div><div class="refsynopsisdiv"><h2>Synopsis</h2><div class="funcsynopsis"><p><code class="funcdef">boolean <b class="fsfunc">ST_Contains</b>(</code>geometry 
+			<var class="pdparam">geomA</var>, geometry 
+			<var class="pdparam">geomB</var><code>)</code>;</p></div></div><div class="refsection" lang="en"><a name="id2927118"></a><h2>Description</h2><p>Geometry A contains Geometry B if and only if no points of B lie in the exterior of A, and at least one point of the interior of B lies in the interior of A.
+		An important subtlety of this definition is that A does not contain its boundary, but A does contain itself. Contrast that to <a href="ST_ContainsProperly.html" title="ST_ContainsProperly">ST_ContainsProperly</a> where geometry
+		A does not Contain Properly itself.</p><p>Returns TRUE if geometry B is completely inside geometry A. For this function to make
+		sense, the source geometries must both be of the same coordinate projection,
+		having the same SRID.  ST_Contains is the inverse of ST_Within.  So ST_Contains(A,B) implies ST_Within(B,A) except in the case of
+		invalid geometries where the result is always false regardless or not defined.</p><p>Performed by the GEOS module</p><div class="important" style="margin-left: 0.5in; margin-right: 0.5in;"><table border="0" summary="Important"><tr><td rowspan="2" align="center" valign="top" width="25"><img alt="[Important]" src="images/important.png"></td><th align="left"></th></tr><tr><td align="left" valign="top"><p>Do not call with a <code class="varname">GEOMETRYCOLLECTION</code> as an argument</p></td></tr></table></div><div class="important" style="margin-left: 0.5in; margin-right: 0.5in;"><table border="0" summary="Important"><tr><td rowspan="2" align="center" valign="top" width="25"><img alt="[Important]" src="images/important.png"></td><th align="left"></th></tr><tr><td align="left" valign="top"><p>Do not use this function with invalid geometries. You will get unexpected results.</p></td></tr></table></div><p>This function call will automatically include a bounding box
+			comparison that will make use of any indexes that are available on
+			the geometries. To avoid index use, use the function
+			_ST_Contains.</p><p>NOTE: this is the "allowable" version that returns a
+			boolean, not an integer.</p><p><span class="inlinemediaobject"><img src="images/check.png"></span>
+ This method implements the <a href="http://www.opengeospatial.org/standards/sfs" target="_top">OpenGIS Simple Features
+ Implementation Specification for SQL 1.1.</a> s2.1.1.2 // s2.1.13.3 
+		- same as within(geometry B, geometry A)</p><p><span class="inlinemediaobject"><img src="images/check.png"></span> This method implements the SQL/MM specification.	SQL-MM 3: 5.1.31</p><p>There are certain subtleties to ST_Contains and ST_Within that are not intuitively obvious.
+			For details check out <a href="http://lin-ear-th-inking.blogspot.com/2007/06/subtleties-of-ogc-covers-spatial.html" target="_top">Subtleties of OGC Covers, Contains, Within</a></p></div><div class="refsection" lang="en"><a name="id2927232"></a><h2>Examples</h2><p>The <code class="function">ST_Contains</code> predicate returns <code class="varname">TRUE</code> in all the following illustrations.</p><div class="informaltable"><table border="1"><colgroup><col><col></colgroup><tbody><tr><td><div class="informalfigure"><div class="mediaobject"><img src="images/st_contains01.png"><div class="caption"><p><code class="varname">LINESTRING</code> / <code class="varname">MULTIPOINT</code></p></div></div></div></td><td><div class="informalfigure"><div class="mediaobject"><img src="images/st_contains02.png"><div class="caption"><p><code class="varname">POLYGON</code> / <code class="varname">POINT</code></p></div></div></div></td></tr><tr><td><div class="informalfigure"><div class="mediaobject"><img src="images/st_contains03.png"><div class="caption"><p><code class="varname">POLYGON</code> / <code class="varname">LINESTRING</code></p></div></div></div></td><td><div class="informalfigure"><div class="mediaobject"><img src="images/st_contains04.png"><div class="caption"><p><code class="varname">POLYGON</code> / <code class="varname">POLYGON</code></p></div></div></div></td></tr></tbody></table></div><p>The <code class="function">ST_Contains</code> predicate returns <code class="varname">FALSE</code> in all the following illustrations.</p><div class="informaltable"><table border="1"><colgroup><col><col></colgroup><tbody><tr><td><div class="informalfigure"><div class="mediaobject"><img src="images/st_contains05.png"><div class="caption"><p><code class="varname">POLYGON</code> / <code class="varname">MULTIPOINT</code></p></div></div></div></td><td><div class="informalfigure"><div class="mediaobject"><img src="images/st_contains06.png"><div class="caption"><p><code class="varname">POLYGON</code> / <code class="varname">LINESTRING</code></p></div></div></div></td></tr></tbody></table></div><pre class="programlisting">
+-- A circle within a circle
+SELECT ST_Contains(smallc, bigc) As smallcontainsbig,
+	   ST_Contains(bigc,smallc) As bigcontainssmall,
+	   ST_Contains(bigc, ST_Union(smallc, bigc)) as bigcontainsunion,
+	   ST_Equals(bigc, ST_Union(smallc, bigc)) as bigisunion,
+	   ST_Covers(bigc, ST_ExteriorRing(bigc)) As bigcoversexterior,
+	   ST_Contains(bigc, ST_ExteriorRing(bigc)) As bigcontainsexterior
+FROM (SELECT ST_Buffer(ST_GeomFromText('POINT(1 2)'), 10) As smallc,
+			 ST_Buffer(ST_GeomFromText('POINT(1 2)'), 20) As bigc) As foo;
+
+-- Result
+  smallcontainsbig | bigcontainssmall | bigcontainsunion | bigisunion | bigcoversexterior | bigcontainsexterior
+------------------+------------------+------------------+------------+-------------------+---------------------
+ f                | t                | t                | t          | t        | f
+
+-- Example demonstrating difference between contains and contains properly
+SELECT ST_GeometryType(geomA) As geomtype, ST_Contains(geomA,geomA) AS acontainsa, ST_ContainsProperly(geomA, geomA) AS acontainspropa,
+   ST_Contains(geomA, ST_Boundary(geomA)) As acontainsba, ST_ContainsProperly(geomA, ST_Boundary(geomA)) As acontainspropba
+FROM (VALUES ( ST_Buffer(ST_Point(1,1), 5,1) ),
+			 ( ST_MakeLine(ST_Point(1,1), ST_Point(-1,-1) ) ),
+			 ( ST_Point(1,1) )
+	  ) As foo(geomA);
+
+  geomtype    | acontainsa | acontainspropa | acontainsba | acontainspropba
+--------------+------------+----------------+-------------+-----------------
+ST_Polygon    | t          | f              | f           | f
+ST_LineString | t          | f              | f           | f
+ST_Point      | t          | t              | f           | f
+
+ </pre></div><div class="refsection" lang="en"><a name="id2927499"></a><h2>See Also</h2><p><a href="ST_Boundary.html" title="ST_Boundary">ST_Boundary</a>, <a href="ST_ContainsProperly.html" title="ST_ContainsProperly">ST_ContainsProperly</a>, <a href="ST_Covers.html" title="ST_Covers">ST_Covers</a>, <a href="ST_CoveredBy.html" title="ST_CoveredBy">ST_CoveredBy</a>, <a href="ST_Equals.html" title="ST_Equals">ST_Equals</a>, <a href="ST_Within.html" title="ST_Within">ST_Within</a></p></div></div><div class="navfooter"><hr><table width="100%" summary="Navigation footer"><tr><td width="40%" align="left"><a accesskey="p" href="ST_ClosestPoint.html">Prev</a> </td><td width="20%" align="center"><a accesskey="u" href="reference.html#Spatial_Relationships_Measurements">Up</a></td><td width="40%" align="right"> <a accesskey="n" href="ST_ContainsProperly.html">Next</a></td></tr><tr><td width="40%" align="left" valign="top">ST_ClosestPoint </td><td width="20%" align="center"><a accesskey="h" href="index.html">Home</a></td><td width="40%" align="right" valign="top"> ST_ContainsProperly</td></tr></table></div></body></html>

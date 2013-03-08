@@ -1,0 +1,17 @@
+<html><head><meta http-equiv="Content-Type" content="text/html; charset=ISO-8859-1"><title>TopologySummary</title><link rel="stylesheet" href="style.css" type="text/css"><meta name="generator" content="DocBook XSL Stylesheets V1.69.1"><link rel="start" href="index.html" title="PostGIS 2.0.2SVN Manual"><link rel="up" href="Topology.html#Topology_ManagementFunctions" title="11.3. Topology and TopoGeometry Management"><link rel="prev" href="DropTopoGeometryColumn.html" title="DropTopoGeometryColumn"><link rel="next" href="ValidateTopology.html" title="ValidateTopology"></head><body bgcolor="white" text="black" link="#0000FF" vlink="#840084" alink="#0000FF"><div class="navheader"><table width="100%" summary="Navigation header"><tr><th colspan="3" align="center">TopologySummary</th></tr><tr><td width="20%" align="left"><a accesskey="p" href="DropTopoGeometryColumn.html">Prev</a> </td><th width="60%" align="center">11.3. Topology and TopoGeometry Management</th><td width="20%" align="right"> <a accesskey="n" href="ValidateTopology.html">Next</a></td></tr></table><hr></div><div class="refentry" lang="en"><a name="TopologySummary"></a><div class="titlepage"></div><div class="refnamediv"><h2>Name</h2><p>TopologySummary &#8212; Takes a topology name and provides summary totals of types of objects in topology</p></div><div class="refsynopsisdiv"><h2>Synopsis</h2><div class="funcsynopsis"><p><code class="funcdef">text <b class="fsfunc">TopologySummary</b>(</code>varchar  <var class="pdparam">topology_schema_name</var><code>)</code>;</p></div></div><div class="refsection" lang="en"><a name="id3074593"></a><h2>Description</h2><p>Takes a topology name and provides summary totals of types of objects in topology.</p><p>Availability: 2.0.0</p></div><div class="refsection" lang="en"><a name="id3074611"></a><h2>Examples</h2><pre class="programlisting">SELECT topology.topologysummary('city_data');
+                    topologysummary                     
+--------------------------------------------------------
+ Topology city_data (329), SRID 4326, precision: 0
+ 22 nodes, 24 edges, 10 faces, 29 topogeoms in 5 layers
+ Layer 1, type Polygonal (3), 9 topogeoms
+  Deploy: features.land_parcels.feature
+ Layer 2, type Puntal (1), 8 topogeoms
+  Deploy: features.traffic_signs.feature
+ Layer 3, type Lineal (2), 8 topogeoms
+  Deploy: features.city_streets.feature
+ Layer 4, type Polygonal (3), 3 topogeoms
+  Hierarchy level 1, child layer 1
+  Deploy: features.big_parcels.feature
+ Layer 5, type Puntal (1), 1 topogeoms
+  Hierarchy level 1, child layer 2
+  Deploy: features.big_signs.feature</pre></div><div class="refsection" lang="en"><a name="id3074639"></a><h2>See Also</h2><p><a href="Topology_Load_Tiger.html" title="Topology_Load_Tiger">Topology_Load_Tiger</a></p></div></div><div class="navfooter"><hr><table width="100%" summary="Navigation footer"><tr><td width="40%" align="left"><a accesskey="p" href="DropTopoGeometryColumn.html">Prev</a> </td><td width="20%" align="center"><a accesskey="u" href="Topology.html#Topology_ManagementFunctions">Up</a></td><td width="40%" align="right"> <a accesskey="n" href="ValidateTopology.html">Next</a></td></tr><tr><td width="40%" align="left" valign="top">DropTopoGeometryColumn </td><td width="20%" align="center"><a accesskey="h" href="index.html">Home</a></td><td width="40%" align="right" valign="top"> ValidateTopology</td></tr></table></div></body></html>

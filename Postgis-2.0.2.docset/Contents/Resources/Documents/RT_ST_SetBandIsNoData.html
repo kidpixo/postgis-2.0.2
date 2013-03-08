@@ -1,0 +1,70 @@
+<html><head><meta http-equiv="Content-Type" content="text/html; charset=ISO-8859-1"><title>ST_SetBandIsNoData</title><link rel="stylesheet" href="style.css" type="text/css"><meta name="generator" content="DocBook XSL Stylesheets V1.69.1"><link rel="start" href="index.html" title="PostGIS 2.0.2SVN Manual"><link rel="up" href="RT_reference.html#RasterBand_Editors" title="9.8. Raster Band Editors"><link rel="prev" href="RT_ST_SetBandNoDataValue.html" title="ST_SetBandNoDataValue"><link rel="next" href="RT_ST_Count.html" title="ST_Count"></head><body bgcolor="white" text="black" link="#0000FF" vlink="#840084" alink="#0000FF"><div class="navheader"><table width="100%" summary="Navigation header"><tr><th colspan="3" align="center">ST_SetBandIsNoData</th></tr><tr><td width="20%" align="left"><a accesskey="p" href="RT_ST_SetBandNoDataValue.html">Prev</a> </td><th width="60%" align="center">9.8. Raster Band Editors</th><td width="20%" align="right"> <a accesskey="n" href="RT_ST_Count.html">Next</a></td></tr></table><hr></div><div class="refentry" lang="en"><a name="RT_ST_SetBandIsNoData"></a><div class="titlepage"></div><div class="refnamediv"><h2>Name</h2><p>ST_SetBandIsNoData &#8212; Sets the isnodata flag of the band to TRUE. You may
+                want to call this function if ST_BandIsNoData(rast, band) !=
+                ST_BandIsNodata(rast, band, TRUE). This is, if the isnodata flag
+                is dirty. Band 1 is assumed if no band is specified.
+                </p></div><div class="refsynopsisdiv"><h2>Synopsis</h2><div class="funcsynopsis"><p><code class="funcdef">integer <b class="fsfunc">ST_SetBandIsNoData</b>(</code>raster  <var class="pdparam">rast</var>, integer  <var class="pdparam">band=1</var><code>)</code>;</p></div></div><div class="refsection" lang="en"><a name="id3031716"></a><h2>Description</h2><p>Sets the isnodata flag for the band to true. Band 1 is
+                assumed if not specified. This function should be called only
+                when the flag is considered dirty. This is, when the result
+                calling <a href="RT_ST_BandIsNoData.html" title="ST_BandIsNoData">ST_BandIsNoData</a> is different using
+                TRUE as last argument and without using it</p><p>Availability: 2.0.0</p><div class="note" style="margin-left: 0.5in; margin-right: 0.5in;"><table border="0" summary="Note"><tr><td rowspan="2" align="center" valign="top" width="25"><img alt="[Note]" src="images/note.png"></td><th align="left"></th></tr><tr><td align="left" valign="top"><p>Currently, the loader (raster2pgsql.py) is not able
+                to set the isnodata flag for bands. So, this is the fastest way
+                to set it to TRUE, without changing any other band value</p></td></tr></table></div></div><div class="refsection" lang="en"><a name="id3031749"></a><h2>Examples</h2><pre class="programlisting">
+-- Create dummy table with one raster column
+create table dummy_rast (rid integer, rast raster);
+
+-- Add raster with two bands, one pixel/band. In the first band, nodatavalue = pixel value = 3.
+-- In the second band, nodatavalue = 13, pixel value = 4
+insert into dummy_rast values(1,
+(
+'01' -- little endian (uint8 ndr)
+|| 
+'0000' -- version (uint16 0)
+||
+'0200' -- nBands (uint16 0)
+||
+'17263529ED684A3F' -- scaleX (float64 0.000805965234044584)
+||
+'F9253529ED684ABF' -- scaleY (float64 -0.00080596523404458)
+||
+'1C9F33CE69E352C0' -- ipX (float64 -75.5533328537098)
+||
+'718F0E9A27A44840' -- ipY (float64 49.2824585505576)
+||
+'ED50EB853EC32B3F' -- skewX (float64 0.000211812383858707)
+||
+'7550EB853EC32B3F' -- skewY (float64 0.000211812383858704)
+||
+'E6100000' -- SRID (int32 4326)
+||
+'0100' -- width (uint16 1)
+||
+'0100' -- height (uint16 1)
+||
+'4' -- hasnodatavalue set to true, isnodata value set to false (when it should be true)
+||
+'2' -- first band type (4BUI) 
+||
+'03' -- novalue==3
+||
+'03' -- pixel(0,0)==3 (same that nodata)
+||
+'0' -- hasnodatavalue set to false
+||
+'5' -- second band type (16BSI)
+||
+'0D00' -- novalue==13
+||
+'0400' -- pixel(0,0)==4
+)::raster
+);
+
+select st_bandisnodata(rast, 1) from dummy_rast where rid = 1; -- Expected false
+select st_bandisnodata(rast, 1, TRUE) from dummy_rast where rid = 1; -- Expected true
+
+-- The isnodata flag is dirty. We are going to set it to true
+update dummy_rast set rast = st_setbandisnodata(rast, 1) where rid = 1;
+
+
+select st_bandisnodata(rast, 1) from dummy_rast where rid = 1; -- Expected true
+
+                    </pre></div><div class="refsection" lang="en"><a name="id3031814"></a><h2>See Also</h2><p><a href="RT_ST_BandNoDataValue.html" title="ST_BandNoDataValue">ST_BandNoDataValue</a>, <a href="RT_ST_NumBands.html" title="ST_NumBands">ST_NumBands</a>, <a href="RT_ST_SetBandNoDataValue.html" title="ST_SetBandNoDataValue">ST_SetBandNoDataValue</a>, <a href="RT_ST_BandIsNoData.html" title="ST_BandIsNoData">ST_BandIsNoData</a></p></div></div><div class="navfooter"><hr><table width="100%" summary="Navigation footer"><tr><td width="40%" align="left"><a accesskey="p" href="RT_ST_SetBandNoDataValue.html">Prev</a> </td><td width="20%" align="center"><a accesskey="u" href="RT_reference.html#RasterBand_Editors">Up</a></td><td width="40%" align="right"> <a accesskey="n" href="RT_ST_Count.html">Next</a></td></tr><tr><td width="40%" align="left" valign="top">ST_SetBandNoDataValue </td><td width="20%" align="center"><a accesskey="h" href="index.html">Home</a></td><td width="40%" align="right" valign="top"> ST_Count</td></tr></table></div></body></html>

@@ -1,0 +1,30 @@
+<html><head><meta http-equiv="Content-Type" content="text/html; charset=ISO-8859-1"><title>ST_Raster2WorldCoordX</title><link rel="stylesheet" href="style.css" type="text/css"><meta name="generator" content="DocBook XSL Stylesheets V1.69.1"><link rel="start" href="index.html" title="PostGIS 2.0.2SVN Manual"><link rel="up" href="RT_reference.html#Raster_Accessors" title="9.4. Raster Accessors"><link rel="prev" href="RT_ST_ScaleY.html" title="ST_ScaleY"><link rel="next" href="RT_ST_Raster2WorldCoordY.html" title="ST_Raster2WorldCoordY"></head><body bgcolor="white" text="black" link="#0000FF" vlink="#840084" alink="#0000FF"><div class="navheader"><table width="100%" summary="Navigation header"><tr><th colspan="3" align="center">ST_Raster2WorldCoordX</th></tr><tr><td width="20%" align="left"><a accesskey="p" href="RT_ST_ScaleY.html">Prev</a> </td><th width="60%" align="center">9.4. Raster Accessors</th><td width="20%" align="right"> <a accesskey="n" href="RT_ST_Raster2WorldCoordY.html">Next</a></td></tr></table><hr></div><div class="refentry" lang="en"><a name="RT_ST_Raster2WorldCoordX"></a><div class="titlepage"></div><div class="refnamediv"><h2>Name</h2><p>ST_Raster2WorldCoordX &#8212; Returns the geometric X coordinate upper left of a raster, column and row. Numbering of columns
+					and rows starts at 1.</p></div><div class="refsynopsisdiv"><h2>Synopsis</h2><div class="funcsynopsis"><p><code class="funcdef">float8 <b class="fsfunc">ST_Raster2WorldCoordX</b>(</code>raster  <var class="pdparam">rast</var>, integer  <var class="pdparam">xcolumn</var><code>)</code>;</p><p><code class="funcdef">float8 <b class="fsfunc">ST_Raster2WorldCoordX</b>(</code>raster  <var class="pdparam">rast</var>, integer  <var class="pdparam">xcolumn</var>, integer  <var class="pdparam">yrow</var><code>)</code>;</p></div></div><div class="refsection" lang="en"><a name="id3025153"></a><h2>Description</h2><p>Returns the upper left X coordinate of a raster column row in geometric units of the georeferenced raster.
+					Numbering of columns and rows starts at 1 but if you pass in a negative number or number higher than number of
+						columns in raster, it will give you 
+					coordinates outside of the raster file to left or right with the assumption that the 
+					skew and pixel sizes are same as selected raster. </p><div class="note" style="margin-left: 0.5in; margin-right: 0.5in;"><table border="0" summary="Note"><tr><td rowspan="2" align="center" valign="top" width="25"><img alt="[Note]" src="images/note.png"></td><th align="left"></th></tr><tr><td align="left" valign="top"><p>For non-skewed rasters, providing the X column is sufficient.  For skewed rasters,
+						the georeferenced coordinate is a function of the ST_ScaleX and ST_SkewX and row and column.
+						An error will be raised if you give just the X column for a skewed raster.</p></td></tr></table></div></div><div class="refsection" lang="en"><a name="id3025179"></a><h2>Examples</h2><pre class="programlisting">
+-- non-skewed raster providing column is sufficient					
+SELECT rid, ST_Raster2WorldCoordX(rast,1) As x1coord, 
+	ST_Raster2WorldCoordX(rast,2) As x2coord,
+	ST_ScaleX(rast) As pixelx
+FROM dummy_rast;
+
+ rid |  x1coord   |  x2coord  | pixelx
+-----+------------+-----------+--------
+   1 |        0.5 |       2.5 |      2
+   2 | 3427927.75 | 3427927.8 |   0.05
+				</pre><pre class="programlisting">
+-- for fun lets skew it				
+SELECT rid, ST_Raster2WorldCoordX(rast, 1, 1) As x1coord, 
+	ST_Raster2WorldCoordX(rast, 2, 3) As x2coord,
+	ST_ScaleX(rast) As pixelx
+FROM (SELECT rid, ST_SetSkew(rast, 100.5, 0) As rast FROM dummy_rast) As foo;
+
+ rid |  x1coord   |  x2coord  | pixelx
+-----+------------+-----------+--------
+   1 |        0.5 |     203.5 |      2
+   2 | 3427927.75 | 3428128.8 |   0.05
+				</pre></div><div class="refsection" lang="en"><a name="id3025213"></a><h2>See Also</h2><p><a href="RT_ST_ScaleX.html" title="ST_ScaleX">ST_ScaleX</a>, <a href="RT_ST_Raster2WorldCoordY.html" title="ST_Raster2WorldCoordY">ST_Raster2WorldCoordY</a>, <a href="RT_ST_SetSkew.html" title="ST_SetSkew">ST_SetSkew</a>, <a href="RT_ST_SkewX.html" title="ST_SkewX">ST_SkewX</a></p></div></div><div class="navfooter"><hr><table width="100%" summary="Navigation footer"><tr><td width="40%" align="left"><a accesskey="p" href="RT_ST_ScaleY.html">Prev</a> </td><td width="20%" align="center"><a accesskey="u" href="RT_reference.html#Raster_Accessors">Up</a></td><td width="40%" align="right"> <a accesskey="n" href="RT_ST_Raster2WorldCoordY.html">Next</a></td></tr><tr><td width="40%" align="left" valign="top">ST_ScaleY </td><td width="20%" align="center"><a accesskey="h" href="index.html">Home</a></td><td width="40%" align="right" valign="top"> ST_Raster2WorldCoordY</td></tr></table></div></body></html>

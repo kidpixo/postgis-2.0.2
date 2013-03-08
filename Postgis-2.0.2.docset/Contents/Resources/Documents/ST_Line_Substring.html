@@ -1,0 +1,44 @@
+<html><head><meta http-equiv="Content-Type" content="text/html; charset=ISO-8859-1"><title>ST_Line_Substring</title><link rel="stylesheet" href="style.css" type="text/css"><meta name="generator" content="DocBook XSL Stylesheets V1.69.1"><link rel="start" href="index.html" title="PostGIS 2.0.2SVN Manual"><link rel="up" href="reference.html#Linear_Referencing" title="8.10. Linear Referencing"><link rel="prev" href="ST_Line_Locate_Point.html" title="ST_Line_Locate_Point"><link rel="next" href="ST_LocateAlong.html" title="ST_LocateAlong"></head><body bgcolor="white" text="black" link="#0000FF" vlink="#840084" alink="#0000FF"><div class="navheader"><table width="100%" summary="Navigation header"><tr><th colspan="3" align="center">ST_Line_Substring</th></tr><tr><td width="20%" align="left"><a accesskey="p" href="ST_Line_Locate_Point.html">Prev</a> </td><th width="60%" align="center">8.10. Linear Referencing</th><td width="20%" align="right"> <a accesskey="n" href="ST_LocateAlong.html">Next</a></td></tr></table><hr></div><div class="refentry" lang="en"><a name="ST_Line_Substring"></a><div class="titlepage"></div><div class="refnamediv"><h2>Name</h2><p>ST_Line_Substring &#8212; Return a linestring being a substring of the input one
+			starting and ending at the given fractions of total 2d length.
+			Second and third arguments are float8 values between 0 and
+			1.</p></div><div class="refsynopsisdiv"><h2>Synopsis</h2><div class="funcsynopsis"><p><code class="funcdef">geometry <b class="fsfunc">ST_Line_Substring</b>(</code>geometry  <var class="pdparam">a_linestring</var>, float  <var class="pdparam">startfraction</var>, float  <var class="pdparam">endfraction</var><code>)</code>;</p></div></div><div class="refsection" lang="en"><a name="id2959805"></a><h2>Description</h2><p>Return a linestring being a substring of the input one
+			starting and ending at the given fractions of total 2d length.
+			Second and third arguments are float8 values between 0 and
+			1. This only works with LINESTRINGs.
+			To use with contiguous MULTILINESTRINGs use in conjunction with <a href="ST_LineMerge.html" title="ST_LineMerge">ST_LineMerge</a>.</p><p>If 'start' and 'end' have the same value this is equivalent
+			to <a href="ST_Line_Interpolate_Point.html" title="ST_Line_Interpolate_Point">ST_Line_Interpolate_Point</a>.</p><p>See <a href="ST_Line_Locate_Point.html" title="ST_Line_Locate_Point">ST_Line_Locate_Point</a> for
+			computing the line location nearest to a Point.</p><div class="note" style="margin-left: 0.5in; margin-right: 0.5in;"><table border="0" summary="Note"><tr><td rowspan="2" align="center" valign="top" width="25"><img alt="[Note]" src="images/note.png"></td><th align="left"></th></tr><tr><td align="left" valign="top"><p>Since release 1.1.1 this function also interpolates M and
+			  Z values (when present), while prior releases set them to
+			  unspecified values.</p></td></tr></table></div><p>Availability: 1.1.0, Z and M supported added in 1.1.1</p><p><span class="inlinemediaobject"><img src="images/check.png"></span>
+ This function supports 3d and will not drop the z-index.</p></div><div class="refsection" lang="en"><a name="id2959875"></a><h2>Examples</h2><div class="informalfigure"><div class="mediaobject"><img src="images/st_line_substring01.png"><div class="caption"><p>A linestring seen with 1/3 midrange overlaid (0.333, 0.666) </p></div></div></div><pre class="programlisting">
+--Return the approximate 1/3 mid-range part of a linestring
+SELECT ST_AsText(ST_Line_SubString(ST_GeomFromText('LINESTRING(25 50, 100 125, 150 190)'), 0.333, 0.666));
+
+										   st_astext
+------------------------------------------------------------------------------------------------
+LINESTRING(69.2846934853974 94.2846934853974,100 125,111.700356260683 140.210463138888)
+
+--The below example simulates a while loop in
+--SQL using PostgreSQL generate_series() to cut all
+--linestrings in a table to 100 unit segments
+-- of which no segment is longer than 100 units
+-- units are measured in the SRID units of measurement
+-- It also assumes all geometries are LINESTRING or contiguous MULTILINESTRING
+--and no geometry is longer than 100 units*10000
+--for better performance you can reduce the 10000
+--to match max number of segments you expect
+
+SELECT field1, field2, ST_Line_Substring(the_geom, 100.00*n/length,
+  CASE
+	WHEN 100.00*(n+1) &lt; length THEN 100.00*(n+1)/length
+	ELSE 1
+  END) As the_geom
+FROM
+  (SELECT sometable.field1, sometable.field2,
+  ST_LineMerge(sometable.the_geom) AS the_geom,
+  ST_Length(sometable.the_geom) As length
+  FROM sometable
+  ) AS t
+CROSS JOIN generate_series(0,10000) AS n
+WHERE n*100.00/length &lt; 1;
+			</pre></div><div class="refsection" lang="en"><a name="id2959944"></a><h2>See Also</h2><p><a href="ST_Length.html" title="ST_Length">ST_Length</a>, <a href="ST_Line_Interpolate_Point.html" title="ST_Line_Interpolate_Point">ST_Line_Interpolate_Point</a>, <a href="ST_LineMerge.html" title="ST_LineMerge">ST_LineMerge</a></p></div></div><div class="navfooter"><hr><table width="100%" summary="Navigation footer"><tr><td width="40%" align="left"><a accesskey="p" href="ST_Line_Locate_Point.html">Prev</a> </td><td width="20%" align="center"><a accesskey="u" href="reference.html#Linear_Referencing">Up</a></td><td width="40%" align="right"> <a accesskey="n" href="ST_LocateAlong.html">Next</a></td></tr><tr><td width="40%" align="left" valign="top">ST_Line_Locate_Point </td><td width="20%" align="center"><a accesskey="h" href="index.html">Home</a></td><td width="40%" align="right" valign="top"> ST_LocateAlong</td></tr></table></div></body></html>

@@ -1,0 +1,61 @@
+<html><head><meta http-equiv="Content-Type" content="text/html; charset=ISO-8859-1"><title>ST_MapAlgebraExpr</title><link rel="stylesheet" href="style.css" type="text/css"><meta name="generator" content="DocBook XSL Stylesheets V1.69.1"><link rel="start" href="index.html" title="PostGIS 2.0.2SVN Manual"><link rel="up" href="RT_reference.html#Raster_Processing" title="9.11. Raster Processing"><link rel="prev" href="RT_ST_Intersection.html" title="ST_Intersection"><link rel="next" href="RT_ST_MapAlgebraExpr2.html" title="ST_MapAlgebraExpr"></head><body bgcolor="white" text="black" link="#0000FF" vlink="#840084" alink="#0000FF"><div class="navheader"><table width="100%" summary="Navigation header"><tr><th colspan="3" align="center">ST_MapAlgebraExpr</th></tr><tr><td width="20%" align="left"><a accesskey="p" href="RT_ST_Intersection.html">Prev</a> </td><th width="60%" align="center">9.11. Raster Processing</th><td width="20%" align="right"> <a accesskey="n" href="RT_ST_MapAlgebraExpr2.html">Next</a></td></tr></table><hr></div><div class="refentry" lang="en"><a name="RT_ST_MapAlgebraExpr"></a><div class="titlepage"></div><div class="refnamediv"><h2>Name</h2><p>ST_MapAlgebraExpr &#8212; 1 raster band version: Creates a new one band raster formed by applying a valid PostgreSQL algebraic operation on the input raster band and of pixeltype provided.  Band 1 is assumed if no band is specified.</p></div><div class="refsynopsisdiv"><h2>Synopsis</h2><div class="funcsynopsis"><p><code class="funcdef">raster <b class="fsfunc">ST_MapAlgebraExpr</b>(</code>raster  <var class="pdparam">rast</var>, integer  <var class="pdparam">band</var>, text  <var class="pdparam">pixeltype</var>, text  <var class="pdparam">expression</var>, double precision  <var class="pdparam">nodataval=NULL</var><code>)</code>;</p><p><code class="funcdef">raster <b class="fsfunc">ST_MapAlgebraExpr</b>(</code>raster  <var class="pdparam">rast</var>, text  <var class="pdparam">pixeltype</var>, text  <var class="pdparam">expression</var>, double precision  <var class="pdparam">nodataval=NULL</var><code>)</code>;</p></div></div><div class="refsection" lang="en"><a name="id3038826"></a><h2>Description</h2><p>Creates a new one band raster formed by applying a valid PostgreSQL algebraic operation defined by the <code class="varname">expression</code> on the input raster (<code class="varname">rast</code>). If no <code class="varname">band</code> is specified band 1 is assumed.  The new raster will have the same georeference, width, and height as the original raster but will only have one band.</p><p>If <code class="varname">pixeltype</code> is passed in, then the new raster will have a band of that pixeltype.  If pixeltype is passed NULL, then the new raster band will have the same pixeltype as the input <code class="varname">rast</code> band.</p><p>In the expression you can use the term
+                 <code class="varname">[rast]</code> to refer to the pixel value of
+                 the original band, <code class="varname">[rast.x]</code> to refer to
+                 the 1-based pixel column index, <code class="varname">[rast.y]</code>
+                 to refer to the 1-based pixel row index.</p><p>Availability: 2.0.0 </p></div><div class="refsection" lang="en"><a name="id3038888"></a><h2>Examples</h2><p>Create a new 1 band raster from our original that is  a function of modulo 2 of the original raster band.</p><pre class="programlisting">ALTER TABLE dummy_rast ADD COLUMN map_rast raster;
+UPDATE dummy_rast SET map_rast = ST_MapAlgebraExpr(rast,NULL,'mod([rast],2)') WHERE rid = 2;
+
+SELECT ST_Value(rast,1,i,j) As origval, ST_Value(map_rast, 1, i, j) As mapval
+FROM dummy_rast CROSS JOIN generate_series(1, 3) AS i CROSS JOIN generate_series(1,3) AS j
+WHERE rid = 2;
+
+ origval | mapval
+---------+--------
+     253 |      1
+     254 |      0
+     253 |      1
+     253 |      1
+     254 |      0
+     254 |      0
+     250 |      0
+     254 |      0
+     254 |      0
+				</pre><p>Create a new 1 band raster of pixel-type 2BUI from our original that is reclassified and set the nodata value to be 0.</p><pre class="programlisting">ALTER TABLE dummy_rast ADD COLUMN map_rast2 raster;
+UPDATE dummy_rast SET map_rast2 = ST_MapAlgebraExpr(rast,'2BUI','CASE WHEN [rast] BETWEEN 100 and 250 THEN 1 
+WHEN [rast] = 252 THEN 2 
+WHEN [rast] BETWEEN 253 and 254 THEN 3 ELSE 0 END', '0') WHERE rid = 2;
+
+SELECT DISTINCT ST_Value(rast,1,i,j) As origval, ST_Value(map_rast2, 1, i, j) As mapval
+FROM dummy_rast CROSS JOIN generate_series(1, 5) AS i CROSS JOIN generate_series(1,5) AS j
+WHERE rid = 2;
+
+ origval | mapval
+---------+--------
+     249 |      1
+     250 |      1
+     251 |
+     252 |      2
+     253 |      3
+     254 |      3
+     
+SELECT ST_BandPixelType(map_rast2) As b1pixtyp
+FROM dummy_rast WHERE rid = 2;
+
+ b1pixtyp
+----------
+ 2BUI</pre><div class="informaltable"><table border="1"><colgroup><col><col></colgroup><tbody><tr><td><div class="informalfigure"><div class="mediaobject"><img src="images/st_mapalgebraexpr01.png"><div class="caption"><p>original (column rast-view)</p></div></div></div>
+		 </td><td><div class="informalfigure"><div class="mediaobject"><img src="images/st_mapalgebraexpr02.png"><div class="caption"><p>rast_view_ma</p></div></div></div>
+		 </td></tr></tbody></table></div><p>Create a new 3 band raster same pixel type from our original 3 band raster with first band
+ altered by map algebra and remaining 2 bands unaltered.</p><pre class="programlisting">SELECT ST_AddBand(
+ST_AddBand(
+	ST_AddBand(
+		ST_MakeEmptyRaster(rast_view),
+			ST_MapAlgebraExpr(rast_view,1,NULL,'tan([rast])*[rast]')
+			), 
+		ST_Band(rast_view,2)
+			),
+	ST_Band(rast_view, 3) As rast_view_ma
+)
+FROM wind
+WHERE rid=167;		
+				</pre></div><div class="refsection" lang="en"><a name="id3039017"></a><h2>See Also</h2><p><a href="RT_ST_MapAlgebraExpr2.html" title="ST_MapAlgebraExpr">ST_MapAlgebraExpr</a>, <a href="RT_ST_MapAlgebraFct.html" title="ST_MapAlgebraFct">ST_MapAlgebraFct</a>, <a href="RT_ST_BandPixelType.html" title="ST_BandPixelType">ST_BandPixelType</a>, <a href="RT_ST_GeoReference.html" title="ST_GeoReference">ST_GeoReference</a>,  <a href="RT_ST_Value.html" title="ST_Value">ST_Value</a></p></div></div><div class="navfooter"><hr><table width="100%" summary="Navigation footer"><tr><td width="40%" align="left"><a accesskey="p" href="RT_ST_Intersection.html">Prev</a> </td><td width="20%" align="center"><a accesskey="u" href="RT_reference.html#Raster_Processing">Up</a></td><td width="40%" align="right"> <a accesskey="n" href="RT_ST_MapAlgebraExpr2.html">Next</a></td></tr><tr><td width="40%" align="left" valign="top">ST_Intersection </td><td width="20%" align="center"><a accesskey="h" href="index.html">Home</a></td><td width="40%" align="right" valign="top"> ST_MapAlgebraExpr</td></tr></table></div></body></html>

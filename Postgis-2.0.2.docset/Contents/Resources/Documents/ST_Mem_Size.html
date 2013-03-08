@@ -1,0 +1,31 @@
+<html><head><meta http-equiv="Content-Type" content="text/html; charset=ISO-8859-1"><title>ST_Mem_Size</title><link rel="stylesheet" href="style.css" type="text/css"><meta name="generator" content="DocBook XSL Stylesheets V1.69.1"><link rel="start" href="index.html" title="PostGIS 2.0.2SVN Manual"><link rel="up" href="reference.html#Miscellaneous_Functions" title="8.12. Miscellaneous Functions"><link rel="prev" href="Find_SRID.html" title="Find_SRID"><link rel="next" href="ST_Point_Inside_Circle.html" title="ST_Point_Inside_Circle"></head><body bgcolor="white" text="black" link="#0000FF" vlink="#840084" alink="#0000FF"><div class="navheader"><table width="100%" summary="Navigation header"><tr><th colspan="3" align="center">ST_Mem_Size</th></tr><tr><td width="20%" align="left"><a accesskey="p" href="Find_SRID.html">Prev</a> </td><th width="60%" align="center">8.12. Miscellaneous Functions</th><td width="20%" align="right"> <a accesskey="n" href="ST_Point_Inside_Circle.html">Next</a></td></tr></table><hr></div><div class="refentry" lang="en"><a name="ST_Mem_Size"></a><div class="titlepage"></div><div class="refnamediv"><h2>Name</h2><p>ST_Mem_Size &#8212; Returns the amount of space (in bytes) the geometry takes.</p></div><div class="refsynopsisdiv"><h2>Synopsis</h2><div class="funcsynopsis"><p><code class="funcdef">integer <b class="fsfunc">ST_Mem_Size</b>(</code>geometry  <var class="pdparam">geomA</var><code>)</code>;</p></div></div><div class="refsection" lang="en"><a name="id2965350"></a><h2>Description</h2><p>Returns the amount of space (in bytes) the geometry takes. </p><p>This is a nice compliment to PostgreSQL built in functions pg_size_pretty, pg_relation_size, pg_total_relation_size.</p><div class="note" style="margin-left: 0.5in; margin-right: 0.5in;"><table border="0" summary="Note"><tr><td rowspan="2" align="center" valign="top" width="25"><img alt="[Note]" src="images/note.png"></td><th align="left"></th></tr><tr><td align="left" valign="top"><p>pg_relation_size which gives the byte size of a table may return byte size lower than ST_Mem_Size. This is because
+		pg_relation_size does not add toasted table contribution and large geometries are stored in TOAST tables.</p><p>pg_total_relation_size - includes, the table, the toasted tables, and the indexes.</p></td></tr></table></div><p><span class="inlinemediaobject"><img src="images/check.png"></span>
+ This function supports 3d and will not drop the z-index.</p><p><span class="inlinemediaobject"><img src="images/check.png"></span>
+ This method supports Circular Strings and Curves</p><p><span class="inlinemediaobject"><img src="images/check.png"></span>
+ This function supports Polyhedral surfaces.</p><p><span class="inlinemediaobject"><img src="images/check.png"></span>
+ This function supports Triangles and Triangulated Irregular Network Surfaces (TIN).</p></div><div class="refsection" lang="en"><a name="id2965438"></a><h2>Examples</h2><pre class="programlisting">
+--Return how much byte space Boston takes up  in our Mass data set
+SELECT pg_size_pretty(SUM(ST_Mem_Size(the_geom))) as totgeomsum,
+pg_size_pretty(SUM(CASE WHEN town = 'BOSTON' THEN st_mem_size(the_geom) ELSE 0 END)) As bossum,
+CAST(SUM(CASE WHEN town = 'BOSTON' THEN st_mem_size(the_geom) ELSE 0 END)*1.00 /
+		SUM(st_mem_size(the_geom))*100 As numeric(10,2)) As perbos
+FROM towns;
+
+totgeomsum	bossum	perbos
+----------	------	------
+1522 kB		30 kB	1.99
+
+
+SELECT ST_Mem_Size(ST_GeomFromText('CIRCULARSTRING(220268 150415,220227 150505,220227 150406)'));
+
+---
+73
+
+--What percentage of our table is taken up by just the geometry
+SELECT pg_total_relation_size('public.neighborhoods') As fulltable_size, sum(ST_Mem_Size(the_geom)) As geomsize,
+sum(ST_Mem_Size(the_geom))*1.00/pg_total_relation_size('public.neighborhoods')*100 As pergeom
+FROM neighborhoods;
+fulltable_size geomsize  pergeom
+------------------------------------------------
+262144         96238	 36.71188354492187500000
+	</pre></div><div class="refsection" lang="en"><a name="id2965487"></a><h2>See Also</h2><p></p></div></div><div class="navfooter"><hr><table width="100%" summary="Navigation footer"><tr><td width="40%" align="left"><a accesskey="p" href="Find_SRID.html">Prev</a> </td><td width="20%" align="center"><a accesskey="u" href="reference.html#Miscellaneous_Functions">Up</a></td><td width="40%" align="right"> <a accesskey="n" href="ST_Point_Inside_Circle.html">Next</a></td></tr><tr><td width="40%" align="left" valign="top">Find_SRID </td><td width="20%" align="center"><a accesskey="h" href="index.html">Home</a></td><td width="40%" align="right" valign="top"> ST_Point_Inside_Circle</td></tr></table></div></body></html>

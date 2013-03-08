@@ -1,0 +1,33 @@
+<html><head><meta http-equiv="Content-Type" content="text/html; charset=ISO-8859-1"><title>ST_ClosestPoint</title><link rel="stylesheet" href="style.css" type="text/css"><meta name="generator" content="DocBook XSL Stylesheets V1.69.1"><link rel="start" href="index.html" title="PostGIS 2.0.2SVN Manual"><link rel="up" href="reference.html#Spatial_Relationships_Measurements" title="8.8. Spatial Relationships and Measurements"><link rel="prev" href="ST_Centroid.html" title="ST_Centroid"><link rel="next" href="ST_Contains.html" title="ST_Contains"></head><body bgcolor="white" text="black" link="#0000FF" vlink="#840084" alink="#0000FF"><div class="navheader"><table width="100%" summary="Navigation header"><tr><th colspan="3" align="center">ST_ClosestPoint</th></tr><tr><td width="20%" align="left"><a accesskey="p" href="ST_Centroid.html">Prev</a> </td><th width="60%" align="center">8.8. Spatial Relationships and Measurements</th><td width="20%" align="right"> <a accesskey="n" href="ST_Contains.html">Next</a></td></tr></table><hr></div><div class="refentry" lang="en"><a name="ST_ClosestPoint"></a><div class="titlepage"></div><div class="refnamediv"><h2>Name</h2><p>ST_ClosestPoint &#8212; Returns the 2-dimensional point on g1 that is closest to g2.  This is the first point of 
+			the shortest line.</p></div><div class="refsynopsisdiv"><h2>Synopsis</h2><div class="funcsynopsis"><p><code class="funcdef">geometry <b class="fsfunc">ST_ClosestPoint</b>(</code>geometry 
+			<var class="pdparam">g1</var>, geometry 
+			<var class="pdparam">g2</var><code>)</code>;</p></div></div><div class="refsection" lang="en"><a name="id2926917"></a><h2>Description</h2><p>Returns the 2-dimensional point on g1 that is closest to g2.  This is the first point of 
+			the shortest line. 	
+		</p><p>Availability: 1.5.0</p></div><div class="refsection" lang="en"><a name="id2926933"></a><h2>Examples</h2><div class="informaltable"><table border="1"><colgroup><col><col></colgroup><tbody><tr><td><div class="informalfigure"><div class="mediaobject"><img src="images/st_closestpoint01.png"><div class="caption"><p>Closest between point and linestring is the point itself, but closest
+							  				point between a linestring and point is the point on line string that is closest.</p></div></div></div><p>
+				</p><pre class="programlisting">
+SELECT ST_AsText(ST_ClosestPoint(pt,line)) AS cp_pt_line, 
+	ST_AsText(ST_ClosestPoint(line,pt)) As cp_line_pt
+FROM (SELECT 'POINT(100 100)'::geometry As pt, 
+		'LINESTRING (20 80, 98 190, 110 180, 50 75 )'::geometry As line
+	) As foo;
+
+	
+   cp_pt_line   |                cp_line_pt
+----------------+------------------------------------------
+ POINT(100 100) | POINT(73.0769230769231 115.384615384615)
+				</pre><p>
+						  </p></td><td><div class="informalfigure"><div class="mediaobject"><img src="images/st_closestpoint02.png"><div class="caption"><p>closest point on polygon A to polygon B</p></div></div></div><p>
+				</p><pre class="programlisting">
+SELECT ST_AsText(
+		ST_ClosestPoint(
+			ST_GeomFromText('POLYGON((175 150, 20 40, 50 60, 125 100, 175 150))'),
+			ST_Buffer(ST_GeomFromText('POINT(110 170)'), 20)
+			) 
+		) As ptwkt;
+		
+                  ptwkt
+------------------------------------------
+ POINT(140.752120669087 125.695053378061)
+				</pre><p>
+						</p></td></tr></tbody></table></div></div><div class="refsection" lang="en"><a name="id2927030"></a><h2>See Also</h2><p><a href="ST_Distance.html" title="ST_Distance">ST_Distance</a>, <a href="ST_LongestLine.html" title="ST_LongestLine">ST_LongestLine</a>, <a href="ST_ShortestLine.html" title="ST_ShortestLine">ST_ShortestLine</a>, <a href="ST_MaxDistance.html" title="ST_MaxDistance">ST_MaxDistance</a></p></div></div><div class="navfooter"><hr><table width="100%" summary="Navigation footer"><tr><td width="40%" align="left"><a accesskey="p" href="ST_Centroid.html">Prev</a> </td><td width="20%" align="center"><a accesskey="u" href="reference.html#Spatial_Relationships_Measurements">Up</a></td><td width="40%" align="right"> <a accesskey="n" href="ST_Contains.html">Next</a></td></tr><tr><td width="40%" align="left" valign="top">ST_Centroid </td><td width="20%" align="center"><a accesskey="h" href="index.html">Home</a></td><td width="40%" align="right" valign="top"> ST_Contains</td></tr></table></div></body></html>

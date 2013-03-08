@@ -1,0 +1,27 @@
+<html><head><meta http-equiv="Content-Type" content="text/html; charset=ISO-8859-1"><title>ST_ZMax</title><link rel="stylesheet" href="style.css" type="text/css"><meta name="generator" content="DocBook XSL Stylesheets V1.69.1"><link rel="start" href="index.html" title="PostGIS 2.0.2SVN Manual"><link rel="up" href="reference.html#Geometry_Accessors" title="8.4. Geometry Accessors"><link rel="prev" href="ST_Z.html" title="ST_Z"><link rel="next" href="ST_Zmflag.html" title="ST_Zmflag"></head><body bgcolor="white" text="black" link="#0000FF" vlink="#840084" alink="#0000FF"><div class="navheader"><table width="100%" summary="Navigation header"><tr><th colspan="3" align="center">ST_ZMax</th></tr><tr><td width="20%" align="left"><a accesskey="p" href="ST_Z.html">Prev</a> </td><th width="60%" align="center">8.4. Geometry Accessors</th><td width="20%" align="right"> <a accesskey="n" href="ST_Zmflag.html">Next</a></td></tr></table><hr></div><div class="refentry" lang="en"><a name="ST_ZMax"></a><div class="titlepage"></div><div class="refnamediv"><h2>Name</h2><p>ST_ZMax &#8212; Returns Z minima of a bounding box 2d or 3d or a geometry.</p></div><div class="refsynopsisdiv"><h2>Synopsis</h2><div class="funcsynopsis"><p><code class="funcdef">float <b class="fsfunc">ST_ZMax</b>(</code>box3d  <var class="pdparam">aGeomorBox2DorBox3D</var><code>)</code>;</p></div></div><div class="refsection" lang="en"><a name="id2893040"></a><h2>Description</h2><p>Returns Z maxima of a bounding box 2d or 3d or a geometry.</p><div class="note" style="margin-left: 0.5in; margin-right: 0.5in;"><table border="0" summary="Note"><tr><td rowspan="2" align="center" valign="top" width="25"><img alt="[Note]" src="images/note.png"></td><th align="left"></th></tr><tr><td align="left" valign="top"><p>Although this function is only defined for box3d, it will work for box2d and geometry because of the auto-casting behavior
+			defined for geometries and box2d.  However you can not feed it a geometry or box2d text representation, since that will not auto-cast.</p></td></tr></table></div><p><span class="inlinemediaobject"><img src="images/check.png"></span>
+ This function supports 3d and will not drop the z-index.</p><p><span class="inlinemediaobject"><img src="images/check.png"></span>
+ This method supports Circular Strings and Curves</p></div><div class="refsection" lang="en"><a name="id2893094"></a><h2>Examples</h2><pre class="programlisting">SELECT ST_ZMax('BOX3D(1 2 3, 4 5 6)');
+st_zmax
+-------
+6
+
+SELECT ST_ZMax(ST_GeomFromEWKT('LINESTRING(1 3 4, 5 6 7)'));
+st_zmax
+-------
+7
+
+SELECT ST_ZMax('BOX3D(-3 2 1, 3 4 1)' );
+st_zmax
+-------
+1
+--Observe THIS DOES NOT WORK because it will try to autocast the string representation to a BOX3D
+SELECT ST_ZMax('LINESTRING(1 3 4, 5 6 7)');
+
+--ERROR:  BOX3D parser - doesnt start with BOX3D(
+
+SELECT ST_ZMax(ST_GeomFromEWKT('CIRCULARSTRING(220268 150415 1,220227 150505 2,220227 150406 3)'));
+st_zmax
+--------
+3
+		</pre></div><div class="refsection" lang="en"><a name="id2893118"></a><h2>See Also</h2><p><a href="ST_GeomFromEWKT.html" title="ST_GeomFromEWKT">ST_GeomFromEWKT</a>, <a href="ST_XMin.html" title="ST_XMin">ST_XMin</a>, <a href="ST_XMax.html" title="ST_XMax">ST_XMax</a>, <a href="ST_YMax.html" title="ST_YMax">ST_YMax</a>, <a href="ST_YMin.html" title="ST_YMin">ST_YMin</a>, <a href="ST_ZMax.html" title="ST_ZMax">ST_ZMax</a></p></div></div><div class="navfooter"><hr><table width="100%" summary="Navigation footer"><tr><td width="40%" align="left"><a accesskey="p" href="ST_Z.html">Prev</a> </td><td width="20%" align="center"><a accesskey="u" href="reference.html#Geometry_Accessors">Up</a></td><td width="40%" align="right"> <a accesskey="n" href="ST_Zmflag.html">Next</a></td></tr><tr><td width="40%" align="left" valign="top">ST_Z </td><td width="20%" align="center"><a accesskey="h" href="index.html">Home</a></td><td width="40%" align="right" valign="top"> ST_Zmflag</td></tr></table></div></body></html>

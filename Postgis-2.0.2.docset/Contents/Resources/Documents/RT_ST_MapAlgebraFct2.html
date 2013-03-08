@@ -1,0 +1,108 @@
+<html><head><meta http-equiv="Content-Type" content="text/html; charset=ISO-8859-1"><title>ST_MapAlgebraFct</title><link rel="stylesheet" href="style.css" type="text/css"><meta name="generator" content="DocBook XSL Stylesheets V1.69.1"><link rel="start" href="index.html" title="PostGIS 2.0.2SVN Manual"><link rel="up" href="RT_reference.html#Raster_Processing" title="9.11. Raster Processing"><link rel="prev" href="RT_ST_MapAlgebraFct.html" title="ST_MapAlgebraFct"><link rel="next" href="RT_ST_MapAlgebraFctNgb.html" title="ST_MapAlgebraFctNgb"></head><body bgcolor="white" text="black" link="#0000FF" vlink="#840084" alink="#0000FF"><div class="navheader"><table width="100%" summary="Navigation header"><tr><th colspan="3" align="center">ST_MapAlgebraFct</th></tr><tr><td width="20%" align="left"><a accesskey="p" href="RT_ST_MapAlgebraFct.html">Prev</a> </td><th width="60%" align="center">9.11. Raster Processing</th><td width="20%" align="right"> <a accesskey="n" href="RT_ST_MapAlgebraFctNgb.html">Next</a></td></tr></table><hr></div><div class="refentry" lang="en"><a name="RT_ST_MapAlgebraFct2"></a><div class="titlepage"></div><div class="refnamediv"><h2>Name</h2><p>ST_MapAlgebraFct &#8212; 2 band version - Creates a new one band raster formed by applying a valid PostgreSQL function on the 2 input raster bands and of pixeltype prodived. Band 1 is assumed if no band is specified. Extent type defaults to INTERSECTION if not specified.</p></div><div class="refsynopsisdiv"><h2>Synopsis</h2><div class="funcsynopsis"><p><code class="funcdef">raster <b class="fsfunc">ST_MapAlgebraFct</b>(</code>raster <var class="pdparam">rast1</var>, raster <var class="pdparam">rast2</var>, regprocedure <var class="pdparam">tworastuserfunc</var>, text <var class="pdparam">pixeltype=same_as_rast1</var>, text <var class="pdparam">extenttype=INTERSECTION</var>, text[] <var class="pdparam">VARIADIC userargs</var><code>)</code>;</p><p><code class="funcdef">raster <b class="fsfunc">ST_MapAlgebraFct</b>(</code>raster <var class="pdparam">rast1</var>, integer <var class="pdparam">band1</var>, raster <var class="pdparam">rast2</var>, integer <var class="pdparam">band2</var>, regprocedure <var class="pdparam">tworastuserfunc</var>, text <var class="pdparam">pixeltype=same_as_rast1</var>, text <var class="pdparam">extenttype=INTERSECTION</var>, text[] <var class="pdparam">VARIADIC userargs</var><code>)</code>;</p></div></div><div class="refsection" lang="en"><a name="id3040913"></a><h2>Description</h2><p>Creates a new one band raster formed by applying a valid PostgreSQL function specified by the <code class="varname">tworastuserfunc</code> on the input raster <code class="varname">rast1</code>, <code class="varname">rast2</code>. If no <code class="varname">band1</code> or <code class="varname">band2</code> is specified, band 1 is assumed. The new raster will have the same georeference, width, and height as the original rasters but will only have one band.</p><p>If <code class="varname">pixeltype</code> is passed in, then the new raster will have a band of that pixeltype. If pixeltype is passed NULL or left out, then the new raster band will have the same pixeltype as the input <code class="varname">rast1</code> band.</p><p>The <code class="varname">tworastuserfunc</code> parameter must be the name and signature of an SQL or PL/pgSQL function, cast to a regprocedure. An example PL/pgSQL function example is:
+                </p><pre class="programlisting">CREATE OR REPLACE FUNCTION simple_function_for_two_rasters(pixel1 FLOAT, pixel2 FLOAT, pos INTEGER[], VARIADIC args TEXT[])
+    RETURNS FLOAT
+    AS $$ BEGIN
+        RETURN 0.0;
+    END; $$
+    LANGUAGE 'plpgsql' IMMUTABLE;</pre><p>
+
+                The <code class="varname">tworastuserfunc</code> may accept three or four arguments: a double precision value, a double precision value, an optional integer array, and a variadic text array. The first argument is the value of an individual raster cell in <code class="varname">rast1</code> (regardless of the raster datatype). The second argument is an individual raster cell value in <code class="varname">rast2</code>.  The third argument is the position of the current processing cell in the form '{x,y}'. The fourth argument indicates that all remaining parameters to <a href="RT_ST_MapAlgebraFct2.html" title="ST_MapAlgebraFct">ST_MapAlgebraFct</a> shall be passed through to the <code class="varname">tworastuserfunc</code>.</p><p>Passing a <span class="type">regprodedure</span> argument to a SQL function requires the full function signature to be passed, then cast to a <span class="type">regprocedure</span> type. To pass the above example PL/pgSQL function as an argument, the SQL for the argument is:</p><pre class="programlisting">'simple_function(double precision, double precision, integer[], text[])'::regprocedure</pre><p>Note that the argument contains the name of the function, the types of the function arguments, quotes around the name and argument types, and a cast to a <span class="type">regprocedure</span>.</p><p>The third argument to the <code class="varname">tworastuserfunc</code> is a <span class="type">variadic text</span> array. All trailing text arguments to any <a href="RT_ST_MapAlgebraFct2.html" title="ST_MapAlgebraFct">ST_MapAlgebraFct</a> call are passed through to the specified <code class="varname">tworastuserfunc</code>, and are contained in the <code class="varname">userargs</code> argument.</p><div class="note" style="margin-left: 0.5in; margin-right: 0.5in;"><table border="0" summary="Note"><tr><td rowspan="2" align="center" valign="top" width="25"><img alt="[Note]" src="images/note.png"></td><th align="left"></th></tr><tr><td align="left" valign="top"><p>For more information about the VARIADIC keyword, please refer to the PostgreSQL documentation and the "SQL Functions with Variable Numbers of Arguments" section of <a href="http://www.postgresql.org/docs/current/static/xfunc-sql.html" target="_top">Query Language (SQL) Functions</a>.</p></td></tr></table></div><div class="note" style="margin-left: 0.5in; margin-right: 0.5in;"><table border="0" summary="Note"><tr><td rowspan="2" align="center" valign="top" width="25"><img alt="[Note]" src="images/note.png"></td><th align="left"></th></tr><tr><td align="left" valign="top"><p>The <span class="type">text[]</span> argument to the <code class="varname">tworastuserfunc</code> is required, regardless of whether you choose to pass any arguments to your user function for processing or not.</p></td></tr></table></div><p>Availability: 2.0.0</p></div><div class="refsection" lang="en"><a name="id3041093"></a><h2>Example: Overlaying rasters on a canvas as separate bands</h2><pre class="programlisting">
+-- define our user defined function --
+CREATE OR REPLACE FUNCTION raster_mapalgebra_union(
+	rast1 double precision,
+	rast2 double precision,
+    pos integer[],
+	VARIADIC userargs text[]
+)
+	RETURNS double precision
+	AS $$
+	DECLARE
+	BEGIN
+		CASE
+			WHEN rast1 IS NOT NULL AND rast2 IS NOT NULL THEN
+				RETURN ((rast1 + rast2)/2.);
+			WHEN rast1 IS NULL AND rast2 IS NULL THEN
+				RETURN NULL;
+			WHEN rast1 IS NULL THEN
+				RETURN rast2;
+			ELSE
+				RETURN rast1;
+		END CASE;
+
+		RETURN NULL;
+	END;
+	$$ LANGUAGE 'plpgsql' IMMUTABLE COST 1000;
+
+-- prep our test table of rasters
+DROP TABLE IF EXISTS map_shapes;
+CREATE TABLE map_shapes(rid serial PRIMARY KEY, rast raster, bnum integer, descrip text);
+INSERT INTO map_shapes(rast,bnum, descrip)
+WITH mygeoms 
+    AS ( SELECT 2 As bnum, ST_Buffer(ST_Point(90,90),30) As geom, 'circle' As descrip
+            UNION ALL
+            SELECT 3 AS bnum, 
+                ST_Buffer(ST_GeomFromText('LINESTRING(50 50,150 150,150 50)'), 15) As geom, 'big road' As descrip
+            UNION ALL
+            SELECT 1 As bnum, 
+                ST_Translate(ST_Buffer(ST_GeomFromText('LINESTRING(60 50,150 150,150 50)'), 8,'join=bevel'), 10,-6) As geom, 'small road' As descrip
+            ),
+   -- define our canvas to be 1 to 1 pixel to geometry
+   canvas
+    AS ( SELECT ST_AddBand(ST_MakeEmptyRaster(250, 
+        250, 
+        ST_XMin(e)::integer, ST_YMax(e)::integer, 1, -1, 0, 0 ) , '8BUI'::text,0) As rast
+        FROM (SELECT ST_Extent(geom) As e,
+                    Max(ST_SRID(geom)) As srid 
+                    from mygeoms 
+                    ) As foo
+            )
+-- return our rasters aligned with our canvas
+SELECT ST_AsRaster(m.geom, canvas.rast, '8BUI', 240) As rast, bnum, descrip
+                FROM mygeoms AS m CROSS JOIN canvas
+UNION ALL 
+SELECT canvas.rast, 4, 'canvas'
+FROM canvas;
+
+-- Map algebra on single band rasters and then collect with ST_AddBand
+INSERT INTO map_shapes(rast,bnum,descrip)
+SELECT ST_AddBand(ST_AddBand(rasts[1], rasts[2]),rasts[3]), 4, 'map bands overlay fct union (canvas)'
+	FROM (SELECT ARRAY(SELECT ST_MapAlgebraFct(m1.rast, m2.rast, 
+			'raster_mapalgebra_union(double precision, double precision, integer[], text[])'::regprocedure, '8BUI', 'FIRST')
+                FROM map_shapes As m1 CROSS JOIN map_shapes As m2
+                	WHERE m1.descrip = 'canvas' AND m2.descrip &lt;&gt; 'canvas' ORDER BY m2.bnum) As rasts) As foo;
+
+          </pre><div class="informaltable"><table border="1"><colgroup><col></colgroup><tbody><tr><td><div class="informalfigure"><div class="mediaobject"><img src="images/st_mapalgebrafct2_01.png"><div class="caption"><p>map bands overlay (canvas) (R: small road, G: circle, B: big road)</p></div></div></div>
+		 </td></tr></tbody></table></div></div><div class="refsection" lang="en"><a name="id3041226"></a><h2>User Defined function that takes extra args</h2><pre class="programlisting">	
+CREATE OR REPLACE FUNCTION raster_mapalgebra_userargs(
+	rast1 double precision,
+	rast2 double precision,
+    pos integer[],
+	VARIADIC userargs text[]
+)
+	RETURNS double precision
+	AS $$
+	DECLARE
+	BEGIN
+		CASE
+			WHEN rast1 IS NOT NULL AND rast2 IS NOT NULL THEN
+				RETURN least(userargs[1]::integer,(rast1 + rast2)/2.);
+			WHEN rast1 IS NULL AND rast2 IS NULL THEN
+				RETURN userargs[2]::integer;
+			WHEN rast1 IS NULL THEN
+				RETURN greatest(rast2,random()*userargs[3]::integer)::integer;
+			ELSE
+				RETURN greatest(rast1, random()*userargs[4]::integer)::integer;
+		END CASE;
+
+		RETURN NULL;
+	END;
+	$$ LANGUAGE 'plpgsql' VOLATILE COST 1000;
+	
+SELECT ST_MapAlgebraFct(m1.rast, 1, m1.rast, 3,
+			'raster_mapalgebra_userargs(double precision, double precision, integer[], text[])'::regprocedure,
+				'8BUI', 'INTERSECT', '100','200','200','0') 
+                FROM map_shapes As m1
+                	WHERE m1.descrip = 'map bands overlay fct union (canvas)'; 
+</pre><p>
+	</p><div class="informalfigure"><div class="mediaobject"><img src="images/st_mapalgebrafct2_02.png"><div class="caption"><p>user defined with extra args and different bands from same raster</p></div></div></div><p>
+	</p></div><div class="refsection" lang="en"><a name="id3041280"></a><h2>See Also</h2><p><a href="RT_ST_MapAlgebraExpr2.html" title="ST_MapAlgebraExpr">ST_MapAlgebraExpr</a>, <a href="RT_ST_BandPixelType.html" title="ST_BandPixelType">ST_BandPixelType</a>, <a href="RT_ST_GeoReference.html" title="ST_GeoReference">ST_GeoReference</a>, <a href="RT_ST_SetValue.html" title="ST_SetValue">ST_SetValue</a></p></div></div><div class="navfooter"><hr><table width="100%" summary="Navigation footer"><tr><td width="40%" align="left"><a accesskey="p" href="RT_ST_MapAlgebraFct.html">Prev</a> </td><td width="20%" align="center"><a accesskey="u" href="RT_reference.html#Raster_Processing">Up</a></td><td width="40%" align="right"> <a accesskey="n" href="RT_ST_MapAlgebraFctNgb.html">Next</a></td></tr><tr><td width="40%" align="left" valign="top">ST_MapAlgebraFct </td><td width="20%" align="center"><a accesskey="h" href="index.html">Home</a></td><td width="40%" align="right" valign="top"> ST_MapAlgebraFctNgb</td></tr></table></div></body></html>

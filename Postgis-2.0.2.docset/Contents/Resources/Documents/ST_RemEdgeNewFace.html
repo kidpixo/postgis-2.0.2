@@ -1,0 +1,23 @@
+<html><head><meta http-equiv="Content-Type" content="text/html; charset=ISO-8859-1"><title>ST_RemEdgeNewFace</title><link rel="stylesheet" href="style.css" type="text/css"><meta name="generator" content="DocBook XSL Stylesheets V1.69.1"><link rel="start" href="index.html" title="PostGIS 2.0.2SVN Manual"><link rel="up" href="Topology.html#Topology_Editing" title="11.5. Topology Editors"><link rel="prev" href="ST_AddEdgeModFace.html" title="ST_AddEdgeModFace"><link rel="next" href="ST_RemEdgeModFace.html" title="ST_RemEdgeModFace"></head><body bgcolor="white" text="black" link="#0000FF" vlink="#840084" alink="#0000FF"><div class="navheader"><table width="100%" summary="Navigation header"><tr><th colspan="3" align="center">ST_RemEdgeNewFace</th></tr><tr><td width="20%" align="left"><a accesskey="p" href="ST_AddEdgeModFace.html">Prev</a> </td><th width="60%" align="center">11.5. Topology Editors</th><td width="20%" align="right"> <a accesskey="n" href="ST_RemEdgeModFace.html">Next</a></td></tr></table><hr></div><div class="refentry" lang="en"><a name="ST_RemEdgeNewFace"></a><div class="titlepage"></div><div class="refnamediv"><h2>Name</h2><p>ST_RemEdgeNewFace &#8212; 
+Removes an edge and, if the removed edge separated two faces,
+delete the original faces and replace them with a new face.
+        </p></div><div class="refsynopsisdiv"><h2>Synopsis</h2><div class="funcsynopsis"><p><code class="funcdef">integer <b class="fsfunc">ST_RemEdgeNewFace</b>(</code>varchar  <var class="pdparam">atopology</var>, integer  <var class="pdparam">anedge</var><code>)</code>;</p></div></div><div class="refsection" lang="en"><a name="id3076786"></a><h2>Description</h2><p>
+Removes an edge and, if the removed edge separated two faces,
+delete the original faces and replace them with a new face.
+		            </p><p>
+Returns the id of a newly created face or NULL, if no new face is created.
+No new face is created when the removed edge is dangling or isolated or 
+confined with the universe face (possibly making the universe flood into
+the face on the other side).
+		            </p><p>
+Updates all existing joined edges and relationships accordingly.
+		            </p><p>
+Refuses to remove an edge partecipating in the definition of an
+existing TopoGeometry.
+Refuses to heal two faces if any TopoGeometry is defined by only
+one of them (and not the other).
+		            </p><p>
+If any arguments are null, the given edge is unknown (must already exist in
+the <code class="varname">edge</code> table of the topology schema), the topology
+name is invalid then an error is thrown.
+                </p><p>Availability: 2.0 </p><p><span class="inlinemediaobject"><img src="images/check.png"></span> This method implements the SQL/MM specification. SQL-MM: Topo-Geo and Topo-Net 3: Routine Details:  X.3.14</p></div><div class="refsection" lang="en"><a name="id3076852"></a><h2>Examples</h2><p></p></div><div class="refsection" lang="en"><a name="id3076867"></a><h2>See Also</h2><p><a href="ST_RemEdgeModFace.html" title="ST_RemEdgeModFace">ST_RemEdgeModFace</a></p><p><a href="ST_AddEdgeNewFaces.html" title="ST_AddEdgeNewFaces">ST_AddEdgeNewFaces</a></p></div></div><div class="navfooter"><hr><table width="100%" summary="Navigation footer"><tr><td width="40%" align="left"><a accesskey="p" href="ST_AddEdgeModFace.html">Prev</a> </td><td width="20%" align="center"><a accesskey="u" href="Topology.html#Topology_Editing">Up</a></td><td width="40%" align="right"> <a accesskey="n" href="ST_RemEdgeModFace.html">Next</a></td></tr><tr><td width="40%" align="left" valign="top">ST_AddEdgeModFace </td><td width="20%" align="center"><a accesskey="h" href="index.html">Home</a></td><td width="40%" align="right" valign="top"> ST_RemEdgeModFace</td></tr></table></div></body></html>

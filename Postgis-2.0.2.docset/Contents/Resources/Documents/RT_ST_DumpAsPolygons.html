@@ -1,0 +1,24 @@
+<html><head><meta http-equiv="Content-Type" content="text/html; charset=ISO-8859-1"><title>ST_DumpAsPolygons</title><link rel="stylesheet" href="style.css" type="text/css"><meta name="generator" content="DocBook XSL Stylesheets V1.69.1"><link rel="start" href="index.html" title="PostGIS 2.0.2SVN Manual"><link rel="up" href="RT_reference.html#Raster_Processing" title="9.11. Raster Processing"><link rel="prev" href="RT_ST_ConvexHull.html" title="ST_ConvexHull"><link rel="next" href="RT_ST_Envelope.html" title="ST_Envelope"></head><body bgcolor="white" text="black" link="#0000FF" vlink="#840084" alink="#0000FF"><div class="navheader"><table width="100%" summary="Navigation header"><tr><th colspan="3" align="center">ST_DumpAsPolygons</th></tr><tr><td width="20%" align="left"><a accesskey="p" href="RT_ST_ConvexHull.html">Prev</a> </td><th width="60%" align="center">9.11. Raster Processing</th><td width="20%" align="right"> <a accesskey="n" href="RT_ST_Envelope.html">Next</a></td></tr></table><hr></div><div class="refentry" lang="en"><a name="RT_ST_DumpAsPolygons"></a><div class="titlepage"></div><div class="refnamediv"><h2>Name</h2><p>ST_DumpAsPolygons &#8212; Returns a set of geomval (geom,val) rows, from a given raster band.  If no band number is specified, band num defaults to 1.</p></div><div class="refsynopsisdiv"><h2>Synopsis</h2><div class="funcsynopsis"><p><code class="funcdef">setof geomval <b class="fsfunc">ST_DumpAsPolygons</b>(</code>raster  <var class="pdparam">rast</var>, integer  <var class="pdparam">band_num=1</var><code>)</code>;</p></div></div><div class="refsection" lang="en"><a name="id3037296"></a><h2>Description</h2><p>This is a set-returning function (SRF). It returns a set of
+				geomval rows, formed by a geometry (geom) and a pixel band value (val). 
+				Each polygon is the union of all pixels for that band that have the same pixel value denoted by val.</p><p>ST_DumpAsPolygon is useful for polygonizing rasters. It is the
+				reverse of a GROUP BY in that it creates new rows. For example it
+				can be used to expand a single raster into multiple POLYGONS/MULTIPOLYGONS.</p><p>Availability: Requires GDAL 1.7 or higher.</p><div class="note" style="margin-left: 0.5in; margin-right: 0.5in;"><table border="0" summary="Note"><tr><td rowspan="2" align="center" valign="top" width="25"><img alt="[Note]" src="images/note.png"></td><th align="left"></th></tr><tr><td align="left" valign="top"><p>If there is a no data value set for a band, pixels with that value will not be returned.</p></td></tr></table></div><div class="note" style="margin-left: 0.5in; margin-right: 0.5in;"><table border="0" summary="Note"><tr><td rowspan="2" align="center" valign="top" width="25"><img alt="[Note]" src="images/note.png"></td><th align="left"></th></tr><tr><td align="left" valign="top"><p>If you only care about count of pixels with a given value in a raster, it is faster to use <a href="RT_ST_ValueCount.html" title="ST_ValueCount">ST_ValueCount</a>.</p></td></tr></table></div></div><div class="refsection" lang="en"><a name="id3037338"></a><h2>Examples</h2><pre class="programlisting">SELECT val, ST_AsText(geom) As geomwkt
+FROM (
+SELECT (ST_DumpAsPolygons(rast)).*
+FROM dummy_rast 
+WHERE rid = 2
+) As foo
+WHERE val BETWEEN 249 and 251
+ORDER BY val;
+
+ val |                                                       geomwkt
+-----+--------------------------------------------------------------------------
+ 249 | POLYGON((3427927.95 5793243.95,3427927.95 5793243.85,3427928 5793243.85,
+ 		3427928 5793243.95,3427927.95 5793243.95))
+ 250 | POLYGON((3427927.75 5793243.9,3427927.75 5793243.85,3427927.8 5793243.85,
+ 		3427927.8 5793243.9,3427927.75 5793243.9))
+ 250 | POLYGON((3427927.8 5793243.8,3427927.8 5793243.75,3427927.85 5793243.75,
+ 		3427927.85 5793243.8, 3427927.8 5793243.8))
+ 251 | POLYGON((3427927.75 5793243.85,3427927.75 5793243.8,3427927.8 5793243.8,
+ 		3427927.8 5793243.85,3427927.75 5793243.85))
+			</pre></div><div class="refsection" lang="en"><a name="id3037364"></a><h2>See Also</h2><p><a href="geomval.html" title="geomval">geomval</a>, <a href="RT_ST_Value.html" title="ST_Value">ST_Value</a>, <a href="RT_ST_Polygon.html" title="ST_Polygon">ST_Polygon</a>, <a href="RT_ST_ValueCount.html" title="ST_ValueCount">ST_ValueCount</a></p></div></div><div class="navfooter"><hr><table width="100%" summary="Navigation footer"><tr><td width="40%" align="left"><a accesskey="p" href="RT_ST_ConvexHull.html">Prev</a> </td><td width="20%" align="center"><a accesskey="u" href="RT_reference.html#Raster_Processing">Up</a></td><td width="40%" align="right"> <a accesskey="n" href="RT_ST_Envelope.html">Next</a></td></tr><tr><td width="40%" align="left" valign="top">ST_ConvexHull </td><td width="20%" align="center"><a accesskey="h" href="index.html">Home</a></td><td width="40%" align="right" valign="top"> ST_Envelope</td></tr></table></div></body></html>

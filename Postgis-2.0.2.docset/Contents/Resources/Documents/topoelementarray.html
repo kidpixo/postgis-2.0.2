@@ -1,0 +1,21 @@
+<html><head><meta http-equiv="Content-Type" content="text/html; charset=ISO-8859-1"><title>topoelementarray</title><link rel="stylesheet" href="style.css" type="text/css"><meta name="generator" content="DocBook XSL Stylesheets V1.69.1"><link rel="start" href="index.html" title="PostGIS 2.0.2SVN Manual"><link rel="up" href="Topology.html#Topology_Domains" title="11.2. Topology Domains"><link rel="prev" href="topoelement.html" title="TopoElement"><link rel="next" href="AddTopoGeometryColumn.html" title="AddTopoGeometryColumn"></head><body bgcolor="white" text="black" link="#0000FF" vlink="#840084" alink="#0000FF"><div class="navheader"><table width="100%" summary="Navigation header"><tr><th colspan="3" align="center">topoelementarray</th></tr><tr><td width="20%" align="left"><a accesskey="p" href="topoelement.html">Prev</a> </td><th width="60%" align="center">11.2. Topology Domains</th><td width="20%" align="right"> <a accesskey="n" href="AddTopoGeometryColumn.html">Next</a></td></tr></table><hr></div><div class="refentry" lang="en"><a name="topoelementarray"></a><div class="titlepage"></div><div class="refnamediv"><h2>Name</h2><p>topoelementarray &#8212; An array of element_id,element_type values. a bidimensional array of integers: '{{id,type}, {id,type}, ...}'</p></div><div class="refsection" lang="en"><a name="id3073798"></a><h2>Description</h2><p>An array of 1 or more topoelements ( a bidimensional array of integers: '{{id,type}, {id,type}, ...}').  So an array of 1 or more arrays each having 2 integers generally used to return an array of sets of element id and element type of a topology relation.</p><p>For types currrently only 3 types are supported: <code class="varname">node</code>=1, <code class="varname">edge</code>=2, <code class="varname">face</code>=3</p></div><div class="refsection" lang="en"><a name="id3073827"></a><h2>Examples</h2><pre class="programlisting">SELECT '{{1,2},{4,3}}'::topology.topoelementarray As tea;
+  tea
+-------
+{{1,2},{4,3}}
+
+-- more verbose equivalent --
+SELECT ARRAY[ARRAY[1,2], ARRAY[4,3]]::topology.topoelementarray As tea;
+
+  tea
+-------
+{{1,2},{4,3}}
+
+--using the array agg function packaged with topology --
+SELECT topology.TopoElementArray_Agg(ARRAY[e,t]) As tea
+  FROM generate_series(1,4) As e CROSS JOIN generate_series(1,3) As t;
+  tea
+--------------------------------------------------------------------------
+{{1,1},{1,2},{1,3},{2,1},{2,2},{2,3},{3,1},{3,2},{3,3},{4,1},{4,2},{4,3}}
+                 </pre><pre class="programlisting">SELECT '{{1,2,4},{3,4,5}}'::topology.topoelementarray As tea;
+ERROR:  value for domain topology.topoelementarray violates check constraint "dimensions"
+                 </pre></div><div class="refsection" lang="en"><a name="id3073861"></a><h2>See Also</h2><p><a href="GetTopoGeomElementArray.html" title="GetTopoGeomElementArray">GetTopoGeomElementArray</a>, <a href="TopoElementArray_Agg.html" title="TopoElementArray_Agg">TopoElementArray_Agg</a></p></div></div><div class="navfooter"><hr><table width="100%" summary="Navigation footer"><tr><td width="40%" align="left"><a accesskey="p" href="topoelement.html">Prev</a> </td><td width="20%" align="center"><a accesskey="u" href="Topology.html#Topology_Domains">Up</a></td><td width="40%" align="right"> <a accesskey="n" href="AddTopoGeometryColumn.html">Next</a></td></tr><tr><td width="40%" align="left" valign="top">TopoElement </td><td width="20%" align="center"><a accesskey="h" href="index.html">Home</a></td><td width="40%" align="right" valign="top"> AddTopoGeometryColumn</td></tr></table></div></body></html>

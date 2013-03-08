@@ -1,0 +1,63 @@
+<html><head><meta http-equiv="Content-Type" content="text/html; charset=ISO-8859-1"><title>Populate_Geometry_Columns</title><link rel="stylesheet" href="style.css" type="text/css"><meta name="generator" content="DocBook XSL Stylesheets V1.69.1"><link rel="start" href="index.html" title="PostGIS 2.0.2SVN Manual"><link rel="up" href="reference.html#Management_Functions" title="8.2. Management Functions"><link rel="prev" href="PostGIS_Version.html" title="PostGIS_Version"><link rel="next" href="UpdateGeometrySRID.html" title="UpdateGeometrySRID"></head><body bgcolor="white" text="black" link="#0000FF" vlink="#840084" alink="#0000FF"><div class="navheader"><table width="100%" summary="Navigation header"><tr><th colspan="3" align="center">Populate_Geometry_Columns</th></tr><tr><td width="20%" align="left"><a accesskey="p" href="PostGIS_Version.html">Prev</a> </td><th width="60%" align="center">8.2. Management Functions</th><td width="20%" align="right"> <a accesskey="n" href="UpdateGeometrySRID.html">Next</a></td></tr></table><hr></div><div class="refentry" lang="en"><a name="Populate_Geometry_Columns"></a><div class="titlepage"></div><div class="refnamediv"><h2>Name</h2><p>Populate_Geometry_Columns &#8212; Ensures geometry columns are defined with type modifiers or have appropriate spatial constraints
+		This ensures they will be registered correctly in <code class="varname">geometry_columns</code> view. By default will convert all geometry 
+		    columns with no type modifier to ones with type modifiers. To get old behavior set <code class="varname">use_typmod=false</code></p></div><div class="refsynopsisdiv"><h2>Synopsis</h2><div class="funcsynopsis"><p><code class="funcdef">text <b class="fsfunc">Populate_Geometry_Columns</b>(</code>boolean  <var class="pdparam">use_typmod=true</var><code>)</code>;</p><p><code class="funcdef">int <b class="fsfunc">Populate_Geometry_Columns</b>(</code>oid <var class="pdparam">relation_oid</var>, boolean  <var class="pdparam">use_typmod=true</var><code>)</code>;</p></div></div><div class="refsection" lang="en"><a name="id2870199"></a><h2>Description</h2><p>Ensures geometry columns have appropriate type modifiers or spatial constraints to ensure they are registered correctly in <code class="varname">geometry_columns</code> table.</p><p>For backwards compatibility and for spatial needs such as tble inheritance where each child table may have different geometry type, the old check constraint behavior is still supported. 
+		If you need the old behavior, you need to pass in the new optional argument as false <code class="varname">use_typmod=false</code>. When this is done geometry columns will be created with no type modifiers
+		but will have 3 constraints defined.  In particular,
+		this means that every geometry column belonging to a table has at least
+		three constraints:</p><div class="itemizedlist"><ul type="disc"><li><p><code class="varname">enforce_dims_the_geom</code> - ensures every
+			geometry has the same dimension (see <a href="ST_NDims.html" title="ST_NDims">ST_NDims</a>)</p></li><li><p><code class="varname">enforce_geotype_the_geom</code> - ensures every
+			geometry is of the same type (see <a href="GeometryType.html" title="GeometryType">GeometryType</a>)</p></li><li><p><code class="varname">enforce_srid_the_geom</code> - ensures every
+			geometry is in the same projection (see <a href="ST_SRID.html" title="ST_SRID">ST_SRID</a>)</p></li></ul></div><p>If a table <code class="varname">oid</code> is provided, this function
+		tries to determine the srid, dimension, and geometry type of all
+		geometry columns in the table, adding constraints as necessary. If
+		successful, an appropriate row is inserted into the geometry_columns
+		table, otherwise, the exception is caught and an error notice is raised
+		describing the problem.</p><p>If the <code class="varname">oid</code> of a view is provided, as with a
+		table oid, this function tries to determine the srid, dimension, and
+		type of all the geometries in the view, inserting appropriate entries
+		into the <code class="varname">geometry_columns</code> table, but nothing is done
+		to enforce constraints.</p><p>The parameterless variant is a simple wrapper for the parameterized
+		variant that first truncates and repopulates the geometry_columns table
+		for every spatial table and view in the database, adding spatial
+		constraints to tables where appropriate.  It returns a summary of the
+		number of geometry columns detected in the database and the number that
+		were inserted into the <code class="varname">geometry_columns</code> table.  The
+		parameterized version simply returns the number of rows inserted into
+		the <code class="varname">geometry_columns</code> table.</p><p>Availability: 1.4.0</p><p>Changed: 2.0.0 By default, now uses type modifiers instead of check constraints to constrain geometry types.  You can still use check 
+		    constraint behavior instead by using the new  <code class="varname">use_typmod</code> and setting it to false.</p><p>Enhanced: 2.0.0 <code class="varname">use_typmod</code> optional argument was introduced that allows controlling if columns are created with typmodifiers or with check constraints.</p></div><div class="refsection" lang="en"><a name="id2870352"></a><h2>Examples</h2><pre class="programlisting">
+CREATE TABLE public.myspatial_table(gid serial, geom geometry);
+INSERT INTO myspatial_table(geom) VALUES(ST_GeomFromText('LINESTRING(1 2, 3 4)',4326) );
+-- This will now use typ modifiers.  For this to work, there must exist data
+SELECT Populate_Geometry_Columns('public.myspatial_table'::regclass);
+
+populate_geometry_columns
+--------------------------
+                        1
+                        
+                        
+\d myspatial_table
+
+                                   Table "public.myspatial_table"
+ Column |           Type            |                           Modifiers                           
+--------+---------------------------+---------------------------------------------------------------
+ gid    | integer                   | not null default nextval('myspatial_table_gid_seq'::regclass)
+ geom   | geometry(LineString,4326) | 
+</pre><pre class="programlisting">-- This will change the geometry columns to use constraints if they are not typmod or have constraints already.  
+--For this to work, there must exist data
+CREATE TABLE public.myspatial_table_cs(gid serial, geom geometry);
+INSERT INTO myspatial_table_cs(geom) VALUES(ST_GeomFromText('LINESTRING(1 2, 3 4)',4326) );
+SELECT Populate_Geometry_Columns('public.myspatial_table_cs'::regclass, false);
+populate_geometry_columns
+--------------------------
+                        1
+\d myspatial_table_cs
+
+                          Table "public.myspatial_table_cs"
+ Column |   Type   |                            Modifiers                             
+--------+----------+------------------------------------------------------------------
+ gid    | integer  | not null default nextval('myspatial_table_cs_gid_seq'::regclass)
+ geom   | geometry | 
+Check constraints:
+    "enforce_dims_geom" CHECK (st_ndims(geom) = 2)
+    "enforce_geotype_geom" CHECK (geometrytype(geom) = 'LINESTRING'::text OR geom IS NULL)
+    "enforce_srid_geom" CHECK (st_srid(geom) = 4326)</pre></div></div><div class="navfooter"><hr><table width="100%" summary="Navigation footer"><tr><td width="40%" align="left"><a accesskey="p" href="PostGIS_Version.html">Prev</a> </td><td width="20%" align="center"><a accesskey="u" href="reference.html#Management_Functions">Up</a></td><td width="40%" align="right"> <a accesskey="n" href="UpdateGeometrySRID.html">Next</a></td></tr><tr><td width="40%" align="left" valign="top">PostGIS_Version </td><td width="20%" align="center"><a accesskey="h" href="index.html">Home</a></td><td width="40%" align="right" valign="top"> UpdateGeometrySRID</td></tr></table></div></body></html>

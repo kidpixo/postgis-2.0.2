@@ -1,0 +1,84 @@
+<html><head><meta http-equiv="Content-Type" content="text/html; charset=ISO-8859-1"><title>ST_ValueCount</title><link rel="stylesheet" href="style.css" type="text/css"><meta name="generator" content="DocBook XSL Stylesheets V1.69.1"><link rel="start" href="index.html" title="PostGIS 2.0.2SVN Manual"><link rel="up" href="RT_reference.html#RasterBand_Stats" title="9.9. Raster Band Statistics and Analytics"><link rel="prev" href="RT_ST_SummaryStats.html" title="ST_SummaryStats"><link rel="next" href="RT_ST_AsBinary.html" title="ST_AsBinary"></head><body bgcolor="white" text="black" link="#0000FF" vlink="#840084" alink="#0000FF"><div class="navheader"><table width="100%" summary="Navigation header"><tr><th colspan="3" align="center">ST_ValueCount</th></tr><tr><td width="20%" align="left"><a accesskey="p" href="RT_ST_SummaryStats.html">Prev</a> </td><th width="60%" align="center">9.9. Raster Band Statistics and Analytics</th><td width="20%" align="right"> <a accesskey="n" href="RT_ST_AsBinary.html">Next</a></td></tr></table><hr></div><div class="refentry" lang="en"><a name="RT_ST_ValueCount"></a><div class="titlepage"></div><div class="refnamediv"><h2>Name</h2><p>ST_ValueCount &#8212; Returns a set of records containing a pixel band value  and count of the number of pixels in a given band of a raster (or a raster coverage) that have a given set of values.  If no band is specified defaults to band 1.  By default nodata value pixels are not counted. 
+				    and all other values in the pixel are output and pixel band values are rounded to the nearest integer.</p></div><div class="refsynopsisdiv"><h2>Synopsis</h2><div class="funcsynopsis"><p><code class="funcdef">SETOF record <b class="fsfunc">ST_ValueCount</b>(</code>raster  <var class="pdparam">rast</var>, integer  <var class="pdparam">nband=1</var>, boolean  <var class="pdparam">exclude_nodata_value=true</var>, double precision[]  <var class="pdparam">searchvalues=NULL</var>, double precision  <var class="pdparam">roundto=0</var>, double precision  <var class="pdparam">OUT value</var>, integer  <var class="pdparam">OUT count</var><code>)</code>;</p><p><code class="funcdef">SETOF record <b class="fsfunc">ST_ValueCount</b>(</code>raster  <var class="pdparam">rast</var>, integer  <var class="pdparam">nband</var>, double precision[]  <var class="pdparam">searchvalues</var>, double precision  <var class="pdparam">roundto=0</var>, double precision  <var class="pdparam">OUT value</var>, integer  <var class="pdparam">OUT count</var><code>)</code>;</p><p><code class="funcdef">SETOF record <b class="fsfunc">ST_ValueCount</b>(</code>raster  <var class="pdparam">rast</var>, double precision[]  <var class="pdparam">searchvalues</var>, double precision  <var class="pdparam">roundto=0</var>, double precision  <var class="pdparam">OUT value</var>, integer  <var class="pdparam">OUT count</var><code>)</code>;</p><p><code class="funcdef">bigint <b class="fsfunc">ST_ValueCount</b>(</code>raster  <var class="pdparam">rast</var>, double precision  <var class="pdparam">searchvalue</var>, double precision  <var class="pdparam">roundto=0</var><code>)</code>;</p><p><code class="funcdef">bigint <b class="fsfunc">ST_ValueCount</b>(</code>raster  <var class="pdparam">rast</var>, integer  <var class="pdparam">nband</var>, boolean  <var class="pdparam">exclude_nodata_value</var>, double precision  <var class="pdparam">searchvalue</var>, double precision  <var class="pdparam">roundto=0</var><code>)</code>;</p><p><code class="funcdef">bigint <b class="fsfunc">ST_ValueCount</b>(</code>raster  <var class="pdparam">rast</var>, integer  <var class="pdparam">nband</var>, double precision  <var class="pdparam">searchvalue</var>, double precision  <var class="pdparam">roundto=0</var><code>)</code>;</p><p><code class="funcdef">SETOF record <b class="fsfunc">ST_ValueCount</b>(</code>text  <var class="pdparam">rastertable</var>, text  <var class="pdparam">rastercolumn</var>, integer  <var class="pdparam">nband=1</var>, boolean  <var class="pdparam">exclude_nodata_value=true</var>, double precision[]  <var class="pdparam">searchvalues=NULL</var>, double precision  <var class="pdparam">roundto=0</var>, double precision  <var class="pdparam">OUT value</var>, integer  <var class="pdparam">OUT count</var><code>)</code>;</p><p><code class="funcdef">SETOF record <b class="fsfunc">ST_ValueCount</b>(</code>text  <var class="pdparam">rastertable</var>, text  <var class="pdparam">rastercolumn</var>, double precision[]  <var class="pdparam">searchvalues</var>, double precision  <var class="pdparam">roundto=0</var>, double precision  <var class="pdparam">OUT value</var>, integer  <var class="pdparam">OUT count</var><code>)</code>;</p><p><code class="funcdef">SETOF record <b class="fsfunc">ST_ValueCount</b>(</code>text  <var class="pdparam">rastertable</var>, text  <var class="pdparam">rastercolumn</var>, integer  <var class="pdparam">nband</var>, double precision[]  <var class="pdparam">searchvalues</var>, double precision  <var class="pdparam">roundto=0</var>, double precision  <var class="pdparam">OUT value</var>, integer  <var class="pdparam">OUT count</var><code>)</code>;</p><p><code class="funcdef">bigint<b class="fsfunc">ST_ValueCount</b>(</code>text  <var class="pdparam">rastertable</var>, text  <var class="pdparam">rastercolumn</var>, integer  <var class="pdparam">nband</var>, boolean  <var class="pdparam">exclude_nodata_value</var>, double precision  <var class="pdparam">searchvalue</var>, double precision  <var class="pdparam">roundto=0</var><code>)</code>;</p><p><code class="funcdef">bigint <b class="fsfunc">ST_ValueCount</b>(</code>text  <var class="pdparam">rastertable</var>, text  <var class="pdparam">rastercolumn</var>, double precision  <var class="pdparam">searchvalue</var>, double precision  <var class="pdparam">roundto=0</var><code>)</code>;</p><p><code class="funcdef">bigint <b class="fsfunc">ST_ValueCount</b>(</code>text  <var class="pdparam">rastertable</var>, text  <var class="pdparam">rastercolumn</var>, integer  <var class="pdparam">nband</var>, double precision  <var class="pdparam">searchvalue</var>, double precision  <var class="pdparam">roundto=0</var><code>)</code>;</p></div></div><div class="refsection" lang="en"><a name="id3034803"></a><h2>Description</h2><p>Returns a set of records with columns <code class="varname">value</code>  <code class="varname">count</code> which contain the pixel band value and count of pixels in the raster tile or raster coverage of selected band. </p><p>If no band is specified <code class="varname">nband</code> defaults to 1. If no <code class="varname">searchvalues</code> are specified, will return all pixel values found in the raster or raster coverage.  If one searchvalue is given, will return an integer instead of records denoting the count of pixels having that pixel band value</p><div class="note" style="margin-left: 0.5in; margin-right: 0.5in;"><table border="0" summary="Note"><tr><td rowspan="2" align="center" valign="top" width="25"><img alt="[Note]" src="images/note.png"></td><th align="left"></th></tr><tr><td align="left" valign="top"><p>If <code class="varname">exclude_nodata_value</code> is set to false, will also count pixels with no data.</p></td></tr></table></div><p>Availability: 2.0.0 </p></div><div class="refsection" lang="en"><a name="id3034851"></a><h2>Examples</h2><pre class="programlisting">
+UPDATE dummy_rast SET rast = ST_SetBandNoDataValue(rast,249) WHERE rid=2;
+--Example will count only pixels of band 1 that are not 249. --
+
+SELECT (pvc).*
+FROM (SELECT ST_ValueCount(rast) As pvc
+    FROM dummy_rast WHERE rid=2) As foo
+    ORDER BY (pvc).value;
+				    			    
+ value | count
+-------+-------
+   250 |     2
+   251 |     1
+   252 |     2
+   253 |     6
+   254 |    12
+   
+-- Example will coount all pixels of band 1 including 249 --
+SELECT (pvc).*
+FROM (SELECT ST_ValueCount(rast,1,false) As pvc
+    FROM dummy_rast WHERE rid=2) As foo
+    ORDER BY (pvc).value;
+				    
+ value | count
+-------+-------
+   249 |     2
+   250 |     2
+   251 |     1
+   252 |     2
+   253 |     6
+   254 |    12
+   
+-- Example will count only non-nodata value pixels of band 2
+SELECT (pvc).*
+FROM (SELECT ST_ValueCount(rast,2) As pvc
+    FROM dummy_rast WHERE rid=2) As foo
+    ORDER BY (pvc).value;
+ value | count
+-------+-------
+    78 |     1
+    79 |     1
+    88 |     1
+    89 |     1
+    96 |     1
+    97 |     1
+    98 |     1
+    99 |     2
+   112 |     2
+:				    
+
+				</pre><pre class="programlisting">
+--real live example.  Count all the pixels in an aerial raster tile band 2 intersecting a geometry 
+-- and return only the pixel band values that have a count &gt; 500
+SELECT (pvc).value, SUM((pvc).count) As total
+FROM (SELECT ST_ValueCount(rast,2) As pvc
+    FROM o_4_boston 
+        WHERE ST_Intersects(rast, 
+            ST_GeomFromText('POLYGON((224486 892151,224486 892200,224706 892200,224706 892151,224486 892151))',26986)
+             ) 
+        ) As foo
+    GROUP BY (pvc).value
+    HAVING SUM((pvc).count) &gt; 500
+    ORDER BY (pvc).value;
+    
+ value | total
+-------+-----
+    51 | 502
+    54 | 521
+</pre><pre class="programlisting">
+-- Just return count of pixels in each raster tile that have value of 100 of tiles that intersect  a specific geometry --
+SELECT rid, ST_ValueCount(rast,2,100) As count
+    FROM o_4_boston 
+        WHERE ST_Intersects(rast, 
+            ST_GeomFromText('POLYGON((224486 892151,224486 892200,224706 892200,224706 892151,224486 892151))',26986)
+             ) ;
+
+ rid | count
+-----+-------
+   1 |    56
+   2 |    95
+  14 |    37
+  15 |    64
+</pre></div><div class="refsection" lang="en"><a name="id3034928"></a><h2>See Also</h2><p><a href="RT_ST_Count.html" title="ST_Count">ST_Count</a>, <a href="RT_ST_SetBandNoDataValue.html" title="ST_SetBandNoDataValue">ST_SetBandNoDataValue</a></p></div></div><div class="navfooter"><hr><table width="100%" summary="Navigation footer"><tr><td width="40%" align="left"><a accesskey="p" href="RT_ST_SummaryStats.html">Prev</a> </td><td width="20%" align="center"><a accesskey="u" href="RT_reference.html#RasterBand_Stats">Up</a></td><td width="40%" align="right"> <a accesskey="n" href="RT_ST_AsBinary.html">Next</a></td></tr><tr><td width="40%" align="left" valign="top">ST_SummaryStats </td><td width="20%" align="center"><a accesskey="h" href="index.html">Home</a></td><td width="40%" align="right" valign="top"> ST_AsBinary</td></tr></table></div></body></html>

@@ -1,0 +1,63 @@
+<html><head><meta http-equiv="Content-Type" content="text/html; charset=ISO-8859-1"><title>ST_SameAlignment</title><link rel="stylesheet" href="style.css" type="text/css"><meta name="generator" content="DocBook XSL Stylesheets V1.69.1"><link rel="start" href="index.html" title="PostGIS 2.0.2SVN Manual"><link rel="up" href="RT_reference.html#Raster_Relationships" title="9.14. Raster and Raster Band Spatial Relationships"><link rel="prev" href="RT_ST_Intersects.html" title="ST_Intersects"><link rel="next" href="RT_FAQ.html" title="Chapter 10. PostGIS Raster Frequently Asked Questions"></head><body bgcolor="white" text="black" link="#0000FF" vlink="#840084" alink="#0000FF"><div class="navheader"><table width="100%" summary="Navigation header"><tr><th colspan="3" align="center">ST_SameAlignment</th></tr><tr><td width="20%" align="left"><a accesskey="p" href="RT_ST_Intersects.html">Prev</a> </td><th width="60%" align="center">9.14. Raster and Raster Band Spatial Relationships</th><td width="20%" align="right"> <a accesskey="n" href="RT_FAQ.html">Next</a></td></tr></table><hr></div><div class="refentry" lang="en"><a name="RT_ST_SameAlignment"></a><div class="titlepage"></div><div class="refnamediv"><h2>Name</h2><p>ST_SameAlignment &#8212; Returns true if rasters have same skew, scale, spatial ref and false if they don't with notice detailing issue.</p></div><div class="refsynopsisdiv"><h2>Synopsis</h2><div class="funcsynopsis"><p><code class="funcdef">boolean <b class="fsfunc">ST_SameAlignment</b>(</code>
+				  raster 
+				  <var class="pdparam">rastA</var>
+				, 
+				  raster 
+				  <var class="pdparam">rastB</var>
+				<code>)</code>;</p><p><code class="funcdef">boolean <b class="fsfunc">ST_SameAlignment</b>(</code>
+				  double precision 
+				  <var class="pdparam">ulx1</var>
+				, 
+				  double precision 
+				  <var class="pdparam">uly1</var>
+				, 
+				  double precision 
+				  <var class="pdparam">scalex1</var>
+				, 
+				  double precision 
+				  <var class="pdparam">scaley1</var>
+				, 
+				  double precision 
+				  <var class="pdparam">skewx1</var>
+				, 
+				  double precision 
+				  <var class="pdparam">skewy1</var>
+				, 
+				  double precision 
+				  <var class="pdparam">ulx2</var>
+				, 
+				  double precision 
+				  <var class="pdparam">uly2</var>
+				, 
+				  double precision 
+				  <var class="pdparam">scalex2</var>
+				, 
+				  double precision 
+				  <var class="pdparam">scaley2</var>
+				, 
+				  double precision 
+				  <var class="pdparam">skewx2</var>
+				, 
+				  double precision 
+				  <var class="pdparam">skewy2</var>
+				<code>)</code>;</p></div></div><div class="refsection" lang="en"><a name="id3044661"></a><h2>Description</h2><p>Returns true if the raster have same skew scale etc. Returns false if they don't and a NOTICE detailing the alignment issue.</p><p>Availability: 2.0.0</p></div><div class="refsection" lang="en"><a name="id3044676"></a><h2>Examples: Rasters</h2><pre class="programlisting">SELECT ST_SameAlignment(
+	ST_MakeEmptyRaster(1, 1, 0, 0, 1, 1, 0, 0),
+	ST_MakeEmptyRaster(1, 1, 0, 0, 1, 1, 0, 0)
+) as sm;
+
+sm
+----
+t
+</pre><pre class="programlisting">
+SELECT ST_SameAlignment(A.rast,b.rast)
+ FROM dummy_rast AS A CROSS JOIN dummy_rast AS B;
+
+ NOTICE:  The two rasters provided have different SRIDs
+NOTICE:  The two rasters provided have different SRIDs
+ st_samealignment
+------------------
+ t
+ f
+ f
+ f
+</pre></div><div class="refsection" lang="en"><a name="id3044701"></a><h2>See Also</h2><p><a href="using_raster.xml.html#RT_Loading_Rasters" title="5.1. Loading and Creating Rasters">Section 5.1, &#8220;Loading and Creating Rasters&#8221;</a>, <a href="RT_ST_MakeEmptyRaster.html" title="ST_MakeEmptyRaster">ST_MakeEmptyRaster</a></p></div></div><div class="navfooter"><hr><table width="100%" summary="Navigation footer"><tr><td width="40%" align="left"><a accesskey="p" href="RT_ST_Intersects.html">Prev</a> </td><td width="20%" align="center"><a accesskey="u" href="RT_reference.html#Raster_Relationships">Up</a></td><td width="40%" align="right"> <a accesskey="n" href="RT_FAQ.html">Next</a></td></tr><tr><td width="40%" align="left" valign="top">ST_Intersects </td><td width="20%" align="center"><a accesskey="h" href="index.html">Home</a></td><td width="40%" align="right" valign="top"> Chapter 10. PostGIS Raster Frequently Asked Questions</td></tr></table></div></body></html>

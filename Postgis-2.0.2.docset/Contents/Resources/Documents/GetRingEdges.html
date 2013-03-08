@@ -1,0 +1,16 @@
+<html><head><meta http-equiv="Content-Type" content="text/html; charset=ISO-8859-1"><title>GetRingEdges</title><link rel="stylesheet" href="style.css" type="text/css"><meta name="generator" content="DocBook XSL Stylesheets V1.69.1"><link rel="start" href="index.html" title="PostGIS 2.0.2SVN Manual"><link rel="up" href="Topology.html#Topology_Accessors" title="11.6. Topology Accessors"><link rel="prev" href="ST_GetFaceGeometry.html" title="ST_GetFaceGeometry"><link rel="next" href="GetNodeEdges.html" title="GetNodeEdges"></head><body bgcolor="white" text="black" link="#0000FF" vlink="#840084" alink="#0000FF"><div class="navheader"><table width="100%" summary="Navigation header"><tr><th colspan="3" align="center">GetRingEdges</th></tr><tr><td width="20%" align="left"><a accesskey="p" href="ST_GetFaceGeometry.html">Prev</a> </td><th width="60%" align="center">11.6. Topology Accessors</th><td width="20%" align="right"> <a accesskey="n" href="GetNodeEdges.html">Next</a></td></tr></table><hr></div><div class="refentry" lang="en"><a name="GetRingEdges"></a><div class="titlepage"></div><div class="refnamediv"><h2>Name</h2><p>GetRingEdges &#8212; 
+Returns an ordered set of edges forming a ring with the given edge .
+				</p></div><div class="refsynopsisdiv"><h2>Synopsis</h2><div class="funcsynopsis"><p><code class="funcdef">getfaceedges_returntype <b class="fsfunc">GetRingEdges</b>(</code>varchar  <var class="pdparam">atopology</var>, integer  <var class="pdparam">aring</var>, integer  <var class="pdparam">max_edges=null</var><code>)</code>;</p></div></div><div class="refsection" lang="en"><a name="id3079394"></a><h2>Description</h2><p>
+Returns an ordered set of edges forming a ring with the given edge.
+Each output consists of a sequence and a signed edge id.
+Sequence numbers start with value 1.
+A negative edge identifier means that the given edge is taken backward.
+You can pass a negative edge id to start walking backward.
+		</p><p>
+If <code class="varname">max_edges</code> is not null no more than those records
+are returned by that function. This is meant to be a safety parameter
+when dealing with possibly invalid topologies.
+		</p><p>Availability: 2.0 </p></div><div class="refsection" lang="en"><a name="id3079429"></a><h2>See Also</h2><p>
+<a href="ST_GetFaceEdges.html" title="ST_GetFaceEdges">ST_GetFaceEdges</a>,
+<a href="GetNodeEdges.html" title="GetNodeEdges">GetNodeEdges</a>
+				</p></div></div><div class="navfooter"><hr><table width="100%" summary="Navigation footer"><tr><td width="40%" align="left"><a accesskey="p" href="ST_GetFaceGeometry.html">Prev</a> </td><td width="20%" align="center"><a accesskey="u" href="Topology.html#Topology_Accessors">Up</a></td><td width="40%" align="right"> <a accesskey="n" href="GetNodeEdges.html">Next</a></td></tr><tr><td width="40%" align="left" valign="top">ST_GetFaceGeometry </td><td width="20%" align="center"><a accesskey="h" href="index.html">Home</a></td><td width="40%" align="right" valign="top"> GetNodeEdges</td></tr></table></div></body></html>

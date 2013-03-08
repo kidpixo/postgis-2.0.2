@@ -1,0 +1,61 @@
+<html><head><meta http-equiv="Content-Type" content="text/html; charset=ISO-8859-1"><title>ST_IsClosed</title><link rel="stylesheet" href="style.css" type="text/css"><meta name="generator" content="DocBook XSL Stylesheets V1.69.1"><link rel="start" href="index.html" title="PostGIS 2.0.2SVN Manual"><link rel="up" href="reference.html#Geometry_Accessors" title="8.4. Geometry Accessors"><link rel="prev" href="ST_InteriorRingN.html" title="ST_InteriorRingN"><link rel="next" href="ST_IsCollection.html" title="ST_IsCollection"></head><body bgcolor="white" text="black" link="#0000FF" vlink="#840084" alink="#0000FF"><div class="navheader"><table width="100%" summary="Navigation header"><tr><th colspan="3" align="center">ST_IsClosed</th></tr><tr><td width="20%" align="left"><a accesskey="p" href="ST_InteriorRingN.html">Prev</a> </td><th width="60%" align="center">8.4. Geometry Accessors</th><td width="20%" align="right"> <a accesskey="n" href="ST_IsCollection.html">Next</a></td></tr></table><hr></div><div class="refentry" lang="en"><a name="ST_IsClosed"></a><div class="titlepage"></div><div class="refnamediv"><h2>Name</h2><p>ST_IsClosed &#8212; Returns <code class="varname">TRUE</code> if the
+		<code class="varname">LINESTRING</code>'s start and end points are coincident. For Polyhedral surface is closed (volumetric).
+		</p></div><div class="refsynopsisdiv"><h2>Synopsis</h2><div class="funcsynopsis"><p><code class="funcdef">boolean <b class="fsfunc">ST_IsClosed</b>(</code>geometry  <var class="pdparam">g</var><code>)</code>;</p></div></div><div class="refsection" lang="en"><a name="id2888146"></a><h2>Description</h2><p>Returns <code class="varname">TRUE</code> if the <code class="varname">LINESTRING</code>'s
+		start and end points are coincident.  For Polyhedral Surfaces, it tells you if the surface is areal (open) or volumetric (closed).</p><p><span class="inlinemediaobject"><img src="images/check.png"></span>
+ This method implements the <a href="http://www.opengeospatial.org/standards/sfs" target="_top">OpenGIS Simple Features
+ Implementation Specification for SQL 1.1.</a></p><p><span class="inlinemediaobject"><img src="images/check.png"></span> This method implements the SQL/MM specification. SQL-MM 3: 7.1.5, 9.3.3</p><div class="note" style="margin-left: 0.5in; margin-right: 0.5in;"><table border="0" summary="Note"><tr><td rowspan="2" align="center" valign="top" width="25"><img alt="[Note]" src="images/note.png"></td><th align="left"></th></tr><tr><td align="left" valign="top"><p>SQL-MM defines the result of
+		  <code class="function">ST_IsClosed(<code class="varname">NULL</code>)</code> to be 0, while
+		  PostGIS returns <code class="varname">NULL</code>.</p></td></tr></table></div><p><span class="inlinemediaobject"><img src="images/check.png"></span>
+ This function supports 3d and will not drop the z-index.</p><p><span class="inlinemediaobject"><img src="images/check.png"></span>
+ This method supports Circular Strings and Curves</p><p>Enhanced: 2.0.0 support for Polyhedral surfaces was introduced.</p><p><span class="inlinemediaobject"><img src="images/check.png"></span>
+ This function supports Polyhedral surfaces.</p></div><div class="refsection" lang="en"><a name="id2888268"></a><h2>Line String and Point Examples</h2><pre class="programlisting">postgis=# SELECT ST_IsClosed('LINESTRING(0 0, 1 1)'::geometry);
+ st_isclosed
+-------------
+ f
+(1 row)
+
+postgis=# SELECT ST_IsClosed('LINESTRING(0 0, 0 1, 1 1, 0 0)'::geometry);
+ st_isclosed
+-------------
+ t
+(1 row)
+
+postgis=# SELECT ST_IsClosed('MULTILINESTRING((0 0, 0 1, 1 1, 0 0),(0 0, 1 1))'::geometry);
+ st_isclosed
+-------------
+ f
+(1 row)
+
+postgis=# SELECT ST_IsClosed('POINT(0 0)'::geometry);
+ st_isclosed
+-------------
+ t
+(1 row)
+
+postgis=# SELECT ST_IsClosed('MULTIPOINT((0 0), (1 1))'::geometry);
+ st_isclosed
+-------------
+ t
+(1 row)</pre></div><div class="refsection" lang="en"><a name="id2888290"></a><h2>Polyhedral Surface Examples</h2><pre class="programlisting">
+		-- A cube --
+		SELECT ST_IsClosed(ST_GeomFromEWKT('POLYHEDRALSURFACE( ((0 0 0, 0 0 1, 0 1 1, 0 1 0, 0 0 0)), 
+		((0 0 0, 0 1 0, 1 1 0, 1 0 0, 0 0 0)), ((0 0 0, 1 0 0, 1 0 1, 0 0 1, 0 0 0)), 
+		((1 1 0, 1 1 1, 1 0 1, 1 0 0, 1 1 0)), 
+		((0 1 0, 0 1 1, 1 1 1, 1 1 0, 0 1 0)), ((0 0 1, 1 0 1, 1 1 1, 0 1 1, 0 0 1)) )'));
+
+ st_isclosed
+-------------
+ t
+
+
+ -- Same as cube but missing a side --
+ SELECT ST_IsClosed(ST_GeomFromEWKT('POLYHEDRALSURFACE( ((0 0 0, 0 0 1, 0 1 1, 0 1 0, 0 0 0)), 
+		((0 0 0, 0 1 0, 1 1 0, 1 0 0, 0 0 0)), ((0 0 0, 1 0 0, 1 0 1, 0 0 1, 0 0 0)), 
+		((1 1 0, 1 1 1, 1 0 1, 1 0 0, 1 1 0)), 
+		((0 1 0, 0 1 1, 1 1 1, 1 1 0, 0 1 0)) )'));
+
+ st_isclosed
+-------------
+ f
+
+</pre></div><div class="refsection" lang="en"><a name="id2888314"></a><h2>See Also</h2><p><a href="ST_IsRing.html" title="ST_IsRing">ST_IsRing</a></p></div></div><div class="navfooter"><hr><table width="100%" summary="Navigation footer"><tr><td width="40%" align="left"><a accesskey="p" href="ST_InteriorRingN.html">Prev</a> </td><td width="20%" align="center"><a accesskey="u" href="reference.html#Geometry_Accessors">Up</a></td><td width="40%" align="right"> <a accesskey="n" href="ST_IsCollection.html">Next</a></td></tr><tr><td width="40%" align="left" valign="top">ST_InteriorRingN </td><td width="20%" align="center"><a accesskey="h" href="index.html">Home</a></td><td width="40%" align="right" valign="top"> ST_IsCollection</td></tr></table></div></body></html>

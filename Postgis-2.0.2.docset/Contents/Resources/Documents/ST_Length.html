@@ -1,0 +1,35 @@
+<html><head><meta http-equiv="Content-Type" content="text/html; charset=ISO-8859-1"><title>ST_Length</title><link rel="stylesheet" href="style.css" type="text/css"><meta name="generator" content="DocBook XSL Stylesheets V1.69.1"><link rel="start" href="index.html" title="PostGIS 2.0.2SVN Manual"><link rel="up" href="reference.html#Spatial_Relationships_Measurements" title="8.8. Spatial Relationships and Measurements"><link rel="prev" href="ST_Intersects.html" title="ST_Intersects"><link rel="next" href="ST_Length2D.html" title="ST_Length2D"></head><body bgcolor="white" text="black" link="#0000FF" vlink="#840084" alink="#0000FF"><div class="navheader"><table width="100%" summary="Navigation header"><tr><th colspan="3" align="center">ST_Length</th></tr><tr><td width="20%" align="left"><a accesskey="p" href="ST_Intersects.html">Prev</a> </td><th width="60%" align="center">8.8. Spatial Relationships and Measurements</th><td width="20%" align="right"> <a accesskey="n" href="ST_Length2D.html">Next</a></td></tr></table><hr></div><div class="refentry" lang="en"><a name="ST_Length"></a><div class="titlepage"></div><div class="refnamediv"><h2>Name</h2><p>ST_Length &#8212; Returns the 2d length of the geometry if it is a linestring or multilinestring. geometry are in units of spatial reference and geography are in meters (default spheroid)</p></div><div class="refsynopsisdiv"><h2>Synopsis</h2><div class="funcsynopsis"><p><code class="funcdef">float <b class="fsfunc">ST_Length</b>(</code>geometry <var class="pdparam">a_2dlinestring</var><code>)</code>;</p><p><code class="funcdef">float <b class="fsfunc">ST_Length</b>(</code>geography <var class="pdparam">geog</var>, boolean <var class="pdparam">use_spheroid=true</var><code>)</code>;</p></div></div><div class="refsection" lang="en"><a name="id2931248"></a><h2>Description</h2><p>For geometry: Returns the cartesian 2D length of the geometry if it is a linestring, multilinestring, ST_Curve, ST_MultiCurve.  0 is returned for
+				areal geometries.  For areal geometries use ST_Perimeter. Geometry: Measurements are in the units of the
+				spatial reference system of the geometry. Geography: Units are in meters and also acts as a Perimeter function for areal geogs.</p><p>Currently for geometry this is an alias for ST_Length2D, but this may change to support higher dimensions.</p><div class="warning" style="margin-left: 0.5in; margin-right: 0.5in;"><table border="0" summary="Warning"><tr><td rowspan="2" align="center" valign="top" width="25"><img alt="[Warning]" src="images/warning.png"></td><th align="left"></th></tr><tr><td align="left" valign="top"><p>Changed: 2.0.0 Breaking change -- in prior versions applying this to a MULTI/POLYGON of type geography would give you the perimeter of the POLYGON/MULTIPOLYGON.  In 2.0.0 
+			this was changed to return 0 to be in line with geometry behavior.  Please use ST_Perimeter if you want the perimeter of a polygon</p></td></tr></table></div><div class="note" style="margin-left: 0.5in; margin-right: 0.5in;"><table border="0" summary="Note"><tr><td rowspan="2" align="center" valign="top" width="25"><img alt="[Note]" src="images/note.png"></td><th align="left"></th></tr><tr><td align="left" valign="top"><p>For geography measurement defaults spheroid measurement.  To use the faster less accurate sphere use ST_Length(gg,false);</p></td></tr></table></div><p><span class="inlinemediaobject"><img src="images/check.png"></span>
+ This method implements the <a href="http://www.opengeospatial.org/standards/sfs" target="_top">OpenGIS Simple Features
+ Implementation Specification for SQL 1.1.</a> s2.1.5.1</p><p><span class="inlinemediaobject"><img src="images/check.png"></span> This method implements the SQL/MM specification. SQL-MM 3: 7.1.2, 9.3.4</p><p>Availability: 1.5.0 geography support was introduced in 1.5.</p></div><div class="refsection" lang="en"><a name="id2931326"></a><h2>Geometry Examples</h2><p>Return length in feet for line string. Note this is in feet because 2249 is
+				Mass State Plane Feet</p><pre class="programlisting">
+SELECT ST_Length(ST_GeomFromText('LINESTRING(743238 2967416,743238 2967450,743265 2967450,
+743265.625 2967416,743238 2967416)',2249));
+st_length
+---------
+ 122.630744000095
+
+
+--Transforming WGS 84 linestring to Massachusetts state plane meters
+SELECT ST_Length(
+	ST_Transform(
+		ST_GeomFromEWKT('SRID=4326;LINESTRING(-72.1260 42.45, -72.1240 42.45666, -72.123 42.1546)'),
+		26986
+	)
+);
+st_length
+---------
+34309.4563576191
+			</pre></div><div class="refsection" lang="en"><a name="id2931351"></a><h2>Geography Examples</h2><p>Return length of WGS 84 geography line</p><pre class="programlisting">
+			-- default calculation is using a sphere rather than spheroid
+SELECT ST_Length(the_geog) As length_spheroid,  ST_Length(the_geog,false) As length_sphere
+FROM (SELECT ST_GeographyFromText(
+'SRID=4326;LINESTRING(-72.1260 42.45, -72.1240 42.45666, -72.123 42.1546)') As the_geog)
+ As foo;
+ length_spheroid  |  length_sphere
+------------------+------------------
+ 34310.5703627305 | 34346.2060960742
+(1 row)
+			</pre></div><div class="refsection" lang="en"><a name="id2931374"></a><h2>See Also</h2><p><a href="ST_GeographyFromText.html" title="ST_GeographyFromText">ST_GeographyFromText</a>, <a href="ST_GeomFromEWKT.html" title="ST_GeomFromEWKT">ST_GeomFromEWKT</a>, <a href="ST_Length_Spheroid.html" title="ST_Length_Spheroid">ST_Length_Spheroid</a>, <a href="ST_Perimeter.html" title="ST_Perimeter">ST_Perimeter</a>, <a href="ST_Transform.html" title="ST_Transform">ST_Transform</a></p></div></div><div class="navfooter"><hr><table width="100%" summary="Navigation footer"><tr><td width="40%" align="left"><a accesskey="p" href="ST_Intersects.html">Prev</a> </td><td width="20%" align="center"><a accesskey="u" href="reference.html#Spatial_Relationships_Measurements">Up</a></td><td width="40%" align="right"> <a accesskey="n" href="ST_Length2D.html">Next</a></td></tr><tr><td width="40%" align="left" valign="top">ST_Intersects </td><td width="20%" align="center"><a accesskey="h" href="index.html">Home</a></td><td width="40%" align="right" valign="top"> ST_Length2D</td></tr></table></div></body></html>

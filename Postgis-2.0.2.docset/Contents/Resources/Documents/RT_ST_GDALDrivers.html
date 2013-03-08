@@ -1,0 +1,142 @@
+<html><head><meta http-equiv="Content-Type" content="text/html; charset=ISO-8859-1"><title>ST_GDALDrivers</title><link rel="stylesheet" href="style.css" type="text/css"><meta name="generator" content="DocBook XSL Stylesheets V1.69.1"><link rel="start" href="index.html" title="PostGIS 2.0.2SVN Manual"><link rel="up" href="RT_reference.html#Raster_Management_Functions" title="9.2. Raster Management"><link rel="prev" href="RT_PostGIS_Raster_Lib_Version.html" title="PostGIS_Raster_Lib_Version"><link rel="next" href="RT_ST_AddBand.html" title="ST_AddBand"></head><body bgcolor="white" text="black" link="#0000FF" vlink="#840084" alink="#0000FF"><div class="navheader"><table width="100%" summary="Navigation header"><tr><th colspan="3" align="center">ST_GDALDrivers</th></tr><tr><td width="20%" align="left"><a accesskey="p" href="RT_PostGIS_Raster_Lib_Version.html">Prev</a> </td><th width="60%" align="center">9.2. Raster Management</th><td width="20%" align="right"> <a accesskey="n" href="RT_ST_AddBand.html">Next</a></td></tr></table><hr></div><div class="refentry" lang="en"><a name="RT_ST_GDALDrivers"></a><div class="titlepage"></div><div class="refnamediv"><h2>Name</h2><p>ST_GDALDrivers &#8212; Returns a list of raster formats supported by your lib gdal.  These are the formats you can output your raster using ST_AsGDALRaster.</p></div><div class="refsynopsisdiv"><h2>Synopsis</h2><div class="funcsynopsis"><p><code class="funcdef">setof record <b class="fsfunc">ST_GDALDrivers</b>(</code>integer  <var class="pdparam">OUT idx</var>, text  <var class="pdparam">OUT short_name</var>, text  <var class="pdparam">OUT long_name</var>, text  <var class="pdparam">OUT create_options</var><code>)</code>;</p></div></div><div class="refsection" lang="en"><a name="id3020910"></a><h2>Description</h2><p>Returns a list of raster formats short_name,long_name and creator options of each format supported by your lib gdal.  Use the short_name as input in the <code class="varname">format</code> parameter of <a href="RT_ST_AsGDALRaster.html" title="ST_AsGDALRaster">ST_AsGDALRaster</a>.
+		Options vary depending on what drivers your libgdal was compiled with. <code class="varname">create_options</code> returns an xml formatted set of CreationOptionList/Option consisting of name and optional <code class="varname">type</code>, <code class="varname">description</code> and set of <code class="varname">VALUE</code> for each creator option for the specific driver.</p><p>Availability: 2.0.0 - requires GDAL &gt;= 1.6.0. </p></div><div class="refsection" lang="en"><a name="id3020956"></a><h2>Examples: List of Drivers</h2><pre class="programlisting">SELECT short_name, long_name
+FROM st_gdaldrivers()
+ORDER BY short_name;
+  short_name    |              long_name
+----------------+--------------------------------------
+AAIGrid         | Arc/Info ASCII Grid
+DTED            | DTED Elevation Raster
+EHdr            | ESRI .hdr Labelled
+FIT             | FIT Image
+GIF             | Graphics Interchange Format (.gif)
+GSAG            | Golden Software ASCII Grid (.grd)
+GSBG            | Golden Software Binary Grid (.grd)
+GTiff           | GeoTIFF
+HF2             | HF2/HFZ heightfield raster
+HFA             | Erdas Imagine Images (.img)
+ILWIS           | ILWIS Raster Map
+INGR            | Intergraph Raster
+JPEG            | JPEG JFIF
+KMLSUPEROVERLAY | Kml Super Overlay
+NITF            | National Imagery Transmission Format
+PNG             | Portable Network Graphics
+R               | R Object Data Store
+SAGA            | SAGA GIS Binary Grid (.sdat)
+SRTMHGT         | SRTMHGT File Format
+USGSDEM         | USGS Optional ASCII DEM (and CDED)
+VRT             | Virtual Raster
+XPM             | X11 PixMap Format
+
+</pre></div><div class="refsection" lang="en"><a name="id3020986"></a><h2>Example: List of options for each driver</h2><pre class="programlisting">-- Output the create options XML column of JPEG as a table  --
+-- Note you can use these creator options in ST_AsGDALRaster options argument
+SELECT (xpath('@name', g.opt))[1]::text As oname,
+       (xpath('@type', g.opt))[1]::text As otype,
+       (xpath('@description', g.opt))[1]::text As descrip
+FROM (SELECT unnest(xpath('/CreationOptionList/Option', create_options::xml)) As opt
+FROM  st_gdaldrivers()
+WHERE short_name = 'JPEG') As g;
+
+    oname    |  otype  |           descrip
+-------------+---------+-----------------------------
+ PROGRESSIVE | boolean |
+ QUALITY     | int     | good=100, bad=0, default=75
+ WORLDFILE   | boolean |
+</pre><pre class="programlisting">
+-- raw xml output for creator options for GeoTiff --
+SELECT create_options
+FROM st_gdaldrivers()
+WHERE short_name = 'GTiff';
+
+&lt;CreationOptionList&gt;
+    &lt;Option name="COMPRESS" type="string-select"&gt;
+        &lt;Value&gt;NONE&lt;/Value&gt;
+        &lt;Value&gt;LZW&lt;/Value&gt;
+        &lt;Value&gt;PACKBITS&lt;/Value&gt;
+        &lt;Value&gt;JPEG&lt;/Value&gt;
+        &lt;Value&gt;CCITTRLE&lt;/Value&gt;
+        &lt;Value&gt;CCITTFAX3&lt;/Value&gt;
+        &lt;Value&gt;CCITTFAX4&lt;/Value&gt;
+        &lt;Value&gt;DEFLATE&lt;/Value&gt;
+    &lt;/Option&gt;
+    &lt;Option name="PREDICTOR" type="int" description="Predictor Type"/&gt;
+    &lt;Option name="JPEG_QUALITY" type="int" description="JPEG quality 1-100" default="75"/&gt;
+    &lt;Option name="ZLEVEL" type="int" description="DEFLATE compression level 1-9" default="6"/&gt;
+    &lt;Option name="NBITS" type="int" description="BITS for sub-byte files (1-7), sub-uint16 (9-15), sub-uint32 (17-31)"/&gt;
+    &lt;Option name="INTERLEAVE" type="string-select" default="PIXEL"&gt;
+        &lt;Value&gt;BAND&lt;/Value&gt;
+        &lt;Value&gt;PIXEL&lt;/Value&gt;
+    &lt;/Option&gt;
+    &lt;Option name="TILED" type="boolean" description="Switch to tiled format"/&gt;
+    &lt;Option name="TFW" type="boolean" description="Write out world file"/&gt;
+    &lt;Option name="RPB" type="boolean" description="Write out .RPB (RPC) file"/&gt;
+    &lt;Option name="BLOCKXSIZE" type="int" description="Tile Width"/&gt;
+    &lt;Option name="BLOCKYSIZE" type="int" description="Tile/Strip Height"/&gt;
+    &lt;Option name="PHOTOMETRIC" type="string-select"&gt;
+        &lt;Value&gt;MINISBLACK&lt;/Value&gt;
+        &lt;Value&gt;MINISWHITE&lt;/Value&gt;
+        &lt;Value&gt;PALETTE&lt;/Value&gt;
+        &lt;Value&gt;RGB&lt;/Value&gt;
+        &lt;Value&gt;CMYK&lt;/Value&gt;
+        &lt;Value&gt;YCBCR&lt;/Value&gt;
+        &lt;Value&gt;CIELAB&lt;/Value&gt;
+        &lt;Value&gt;ICCLAB&lt;/Value&gt;
+        &lt;Value&gt;ITULAB&lt;/Value&gt;
+    &lt;/Option&gt;
+    &lt;Option name="SPARSE_OK" type="boolean" description="Can newly created files have missing blocks?" default="FALSE"/&gt;
+    &lt;Option name="ALPHA" type="boolean" description="Mark first extrasample as being alpha"/&gt;
+    &lt;Option name="PROFILE" type="string-select" default="GDALGeoTIFF"&gt;
+        &lt;Value&gt;GDALGeoTIFF&lt;/Value&gt;
+        &lt;Value&gt;GeoTIFF&lt;/Value&gt;
+        &lt;Value&gt;BASELINE&lt;/Value&gt;
+    &lt;/Option&gt;
+    &lt;Option name="PIXELTYPE" type="string-select"&gt;
+        &lt;Value&gt;DEFAULT&lt;/Value&gt;
+        &lt;Value&gt;SIGNEDBYTE&lt;/Value&gt;
+    &lt;/Option&gt;
+    &lt;Option name="BIGTIFF" type="string-select" description="Force creation of BigTIFF file"&gt;
+        &lt;Value&gt;YES&lt;/Value&gt;
+        &lt;Value&gt;NO&lt;/Value&gt;
+        &lt;Value&gt;IF_NEEDED&lt;/Value&gt;
+        &lt;Value&gt;IF_SAFER&lt;/Value&gt;
+    &lt;/Option&gt;
+    &lt;Option name="ENDIANNESS" type="string-select" default="NATIVE" description="Force endianness of created file. For DEBUG purpose mostly"&gt;
+        &lt;Value&gt;NATIVE&lt;/Value&gt;
+        &lt;Value&gt;INVERTED&lt;/Value&gt;
+        &lt;Value&gt;LITTLE&lt;/Value&gt;
+        &lt;Value&gt;BIG&lt;/Value&gt;
+    &lt;/Option&gt;
+    &lt;Option name="COPY_SRC_OVERVIEWS" type="boolean" default="NO" description="Force copy of overviews of source dataset (CreateCopy())"/&gt;
+&lt;/CreationOptionList&gt;
+
+-- Output the create options XML column for GTiff as a table  --
+SELECT (xpath('@name', g.opt))[1]::text As oname,
+       (xpath('@type', g.opt))[1]::text As otype,
+       (xpath('@description', g.opt))[1]::text As descrip,
+       array_to_string(xpath('Value/text()', g.opt),', ') As vals 
+FROM (SELECT unnest(xpath('/CreationOptionList/Option', create_options::xml)) As opt
+FROM  st_gdaldrivers()
+WHERE short_name = 'GTiff') As g;
+
+       oname        |     otype     |                               descrip                                |                                   vals                                    
+--------------------+---------------+----------------------------------------------------------------------+---------------------------------------------------------------------------
+ COMPRESS           | string-select |                                                                      | NONE, LZW, PACKBITS, JPEG, CCITTRLE, CCITTFAX3, CCITTFAX4, DEFLATE
+ PREDICTOR          | int           | Predictor Type                                                       | 
+ JPEG_QUALITY       | int           | JPEG quality 1-100                                                   | 
+ ZLEVEL             | int           | DEFLATE compression level 1-9                                        | 
+ NBITS              | int           | BITS for sub-byte files (1-7), sub-uint16 (9-15), sub-uint32 (17-31) | 
+ INTERLEAVE         | string-select |                                                                      | BAND, PIXEL
+ TILED              | boolean       | Switch to tiled format                                               | 
+ TFW                | boolean       | Write out world file                                                 | 
+ RPB                | boolean       | Write out .RPB (RPC) file                                            | 
+ BLOCKXSIZE         | int           | Tile Width                                                           | 
+ BLOCKYSIZE         | int           | Tile/Strip Height                                                    | 
+ PHOTOMETRIC        | string-select |                                                                      | MINISBLACK, MINISWHITE, PALETTE, RGB, CMYK, YCBCR, CIELAB, ICCLAB, ITULAB
+ SPARSE_OK          | boolean       | Can newly created files have missing blocks?                         | 
+ ALPHA              | boolean       | Mark first extrasample as being alpha                                | 
+ PROFILE            | string-select |                                                                      | GDALGeoTIFF, GeoTIFF, BASELINE
+ PIXELTYPE          | string-select |                                                                      | DEFAULT, SIGNEDBYTE
+ BIGTIFF            | string-select | Force creation of BigTIFF file                                       | YES, NO, IF_NEEDED, IF_SAFER
+ ENDIANNESS         | string-select | Force endianness of created file. For DEBUG purpose mostly           | NATIVE, INVERTED, LITTLE, BIG
+ COPY_SRC_OVERVIEWS | boolean       | Force copy of overviews of source dataset (CreateCopy())             | 
+(19 rows)
+</pre></div><div class="refsection" lang="en"><a name="id3021014"></a><h2>See Also</h2><p><a href="RT_ST_AsGDALRaster.html" title="ST_AsGDALRaster">ST_AsGDALRaster</a>, <a href="ST_SRID.html" title="ST_SRID">ST_SRID</a> </p></div></div><div class="navfooter"><hr><table width="100%" summary="Navigation footer"><tr><td width="40%" align="left"><a accesskey="p" href="RT_PostGIS_Raster_Lib_Version.html">Prev</a> </td><td width="20%" align="center"><a accesskey="u" href="RT_reference.html#Raster_Management_Functions">Up</a></td><td width="40%" align="right"> <a accesskey="n" href="RT_ST_AddBand.html">Next</a></td></tr><tr><td width="40%" align="left" valign="top">PostGIS_Raster_Lib_Version </td><td width="20%" align="center"><a accesskey="h" href="index.html">Home</a></td><td width="40%" align="right" valign="top"> ST_AddBand</td></tr></table></div></body></html>

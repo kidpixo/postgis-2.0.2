@@ -1,0 +1,33 @@
+<html><head><meta http-equiv="Content-Type" content="text/html; charset=ISO-8859-1"><title>ST_LocateAlong</title><link rel="stylesheet" href="style.css" type="text/css"><meta name="generator" content="DocBook XSL Stylesheets V1.69.1"><link rel="start" href="index.html" title="PostGIS 2.0.2SVN Manual"><link rel="up" href="reference.html#Linear_Referencing" title="8.10. Linear Referencing"><link rel="prev" href="ST_Line_Substring.html" title="ST_Line_Substring"><link rel="next" href="ST_LocateBetween.html" title="ST_LocateBetween"></head><body bgcolor="white" text="black" link="#0000FF" vlink="#840084" alink="#0000FF"><div class="navheader"><table width="100%" summary="Navigation header"><tr><th colspan="3" align="center">ST_LocateAlong</th></tr><tr><td width="20%" align="left"><a accesskey="p" href="ST_Line_Substring.html">Prev</a> </td><th width="60%" align="center">8.10. Linear Referencing</th><td width="20%" align="right"> <a accesskey="n" href="ST_LocateBetween.html">Next</a></td></tr></table><hr></div><div class="refentry" lang="en"><a name="ST_LocateAlong"></a><div class="titlepage"></div><div class="refnamediv"><h2>Name</h2><p>ST_LocateAlong &#8212; Return a derived geometry collection value with elements
+			that match the specified measure. Polygonal elements are not
+			supported.</p></div><div class="refsynopsisdiv"><h2>Synopsis</h2><div class="funcsynopsis"><p><code class="funcdef">geometry <b class="fsfunc">ST_LocateAlong</b>(</code>geometry  <var class="pdparam">ageom_with_measure</var>, float  <var class="pdparam">a_measure</var>, float  <var class="pdparam">offset</var><code>)</code>;</p></div></div><div class="refsection" lang="en"><a name="id2960038"></a><h2>Description</h2><p>Return a derived geometry collection value with elements
+		that match the specified measure. Polygonal elements are not
+		supported.</p><p>If an offset is provided, the resultant will be offset to the 
+		left or right of the input line by the specified number of units.
+		A positive offset will be to the left, and a negative one to the 
+		right.</p><p>Semantic is specified by: ISO/IEC CD 13249-3:200x(E) - Text
+		for Continuation CD Editing Meeting</p><p>Availability: 1.1.0 by old name ST_Locate_Along_Measure. </p><p>Changed: 2.0.0 in prior versions this used to be called ST_Locate_Along_Measure.  The old name has been deprecated and will be removed in the future but is still available.</p><div class="note" style="margin-left: 0.5in; margin-right: 0.5in;"><table border="0" summary="Note"><tr><td rowspan="2" align="center" valign="top" width="25"><img alt="[Note]" src="images/note.png"></td><th align="left"></th></tr><tr><td align="left" valign="top"><p>Use this function only for geometries with an M component</p></td></tr></table></div><p><span class="inlinemediaobject"><img src="images/check.png"></span>
+ This function supports M coordinates.</p></div><div class="refsection" lang="en"><a name="id2960092"></a><h2>Examples</h2><pre class="programlisting">SELECT ST_AsText(the_geom)
+		FROM
+		(SELECT ST_LocateAlong(
+			ST_GeomFromText('MULTILINESTRINGM((1 2 3, 3 4 2, 9 4 3),
+		(1 2 3, 5 4 5))'),3) As the_geom) As foo;
+
+						 st_asewkt
+-----------------------------------------------------------
+ MULTIPOINT M (1 2 3)
+
+--Geometry collections are difficult animals so dump them
+--to make them more digestable
+SELECT ST_AsText((ST_Dump(the_geom)).geom)
+	FROM
+	(SELECT ST_LocateAlong(
+			ST_GeomFromText('MULTILINESTRINGM((1 2 3, 3 4 2, 9 4 3),
+	(1 2 3, 5 4 5))'),3) As the_geom) As foo;
+
+   st_asewkt
+---------------
+ POINTM(1 2 3)
+ POINTM(9 4 3)
+ POINTM(1 2 3)
+	</pre></div><div class="refsection" lang="en"><a name="id2960118"></a><h2>See Also</h2><p><a href="ST_Dump.html" title="ST_Dump">ST_Dump</a>, <a href="ST_LocateBetween.html" title="ST_LocateBetween">ST_LocateBetween</a></p></div></div><div class="navfooter"><hr><table width="100%" summary="Navigation footer"><tr><td width="40%" align="left"><a accesskey="p" href="ST_Line_Substring.html">Prev</a> </td><td width="20%" align="center"><a accesskey="u" href="reference.html#Linear_Referencing">Up</a></td><td width="40%" align="right"> <a accesskey="n" href="ST_LocateBetween.html">Next</a></td></tr><tr><td width="40%" align="left" valign="top">ST_Line_Substring </td><td width="20%" align="center"><a accesskey="h" href="index.html">Home</a></td><td width="40%" align="right" valign="top"> ST_LocateBetween</td></tr></table></div></body></html>

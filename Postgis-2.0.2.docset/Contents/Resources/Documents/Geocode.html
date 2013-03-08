@@ -1,0 +1,80 @@
+<html><head><meta http-equiv="Content-Type" content="text/html; charset=ISO-8859-1"><title>Geocode</title><link rel="stylesheet" href="style.css" type="text/css"><meta name="generator" content="DocBook XSL Stylesheets V1.69.1"><link rel="start" href="index.html" title="PostGIS 2.0.2SVN Manual"><link rel="up" href="Extras.html#Tiger_Geocoder" title="12.1. Tiger Geocoder"><link rel="prev" href="Drop_State_Tables_Generate_Script.html" title="Drop_State_Tables_Generate_Script"><link rel="next" href="Geocode_Intersection.html" title="Geocode_Intersection"></head><body bgcolor="white" text="black" link="#0000FF" vlink="#840084" alink="#0000FF"><div class="navheader"><table width="100%" summary="Navigation header"><tr><th colspan="3" align="center">Geocode</th></tr><tr><td width="20%" align="left"><a accesskey="p" href="Drop_State_Tables_Generate_Script.html">Prev</a> </td><th width="60%" align="center">12.1. Tiger Geocoder</th><td width="20%" align="right"> <a accesskey="n" href="Geocode_Intersection.html">Next</a></td></tr></table><hr></div><div class="refentry" lang="en"><a name="Geocode"></a><div class="titlepage"></div><div class="refnamediv"><h2>Name</h2><p>Geocode &#8212; Takes in an address as a string (or other normalized address) and outputs a set of possible locations which include a point geometry in NAD 83 long lat, a normalized address for each, and the rating.  The lower the rating the more likely the match.  
+			Results are sorted by lowest rating first. Can optionally pass in maximum results, defaults to 10, and restrict_region (defaults to NULL)</p></div><div class="refsynopsisdiv"><h2>Synopsis</h2><div class="funcsynopsis"><p><code class="funcdef">setof record <b class="fsfunc">geocode</b>(</code>varchar  <var class="pdparam">address</var>, integer  <var class="pdparam">max_results=10</var>, geometry  <var class="pdparam">restrict_region=NULL</var>, norm_addy  <var class="pdparam">OUT addy</var>, geometry  <var class="pdparam">OUT geomout</var>, integer  <var class="pdparam">OUT rating</var><code>)</code>;</p><p><code class="funcdef">setof record <b class="fsfunc">geocode</b>(</code>norm_addy  <var class="pdparam">in_addy</var>, integer  <var class="pdparam">max_results=10</var>, geometry  <var class="pdparam">restrict_region=NULL</var>, norm_addy  <var class="pdparam">OUT addy</var>, geometry  <var class="pdparam">OUT geomout</var>, integer  <var class="pdparam">OUT rating</var><code>)</code>;</p></div></div><div class="refsection" lang="en"><a name="id3091175"></a><h2>Description</h2><p>Takes in an address as a string (or already normalized address) and outputs a set of possible locations which include a point geometry in NAD 83 long lat, a <code class="varname">normalized_address</code> (addy) for each, and the rating.  The lower the rating the more likely the match.  
+			Results are sorted by lowest rating first.  Uses Tiger data (edges,faces,addr), PostgreSQL fuzzy string matching (soundex,levenshtein) and PostGIS line interpolation functions to interpolate address along the Tiger edges. The higher the rating the less likely the geocode is right.
+			The geocoded point is defaulted to offset 10 meters from center-line off to side (L/R) of street address is located on.</p><p>Enhanced: 2.0.0 to support Tiger 2010 structured data and revised some logic to improve speed, accuracy of geocoding, and to offset point from centerline to side of street address is located on. New parameter max_results useful for specifying ot just return the best result.</p></div><div class="refsection" lang="en"><a name="id3090439"></a><h2>Examples: Basic</h2><p>The below examples timings are on a 3.0 GHZ single processor Windows 7 machine with 2GB ram running PostgreSQL 9.1rc1/PostGIS 2.0 loaded with all of MA,MN,CA, RI state Tiger data loaded.</p><p>Exact matches are faster to compute (61ms)</p><pre class="programlisting">SELECT g.rating, ST_X(g.geomout) As lon, ST_Y(g.geomout) As lat, 
+	(addy).address As stno, (addy).streetname As street, 
+	(addy).streettypeabbrev As styp, (addy).location As city, (addy).stateabbrev As st,(addy).zip 
+	FROM geocode('75 State Street, Boston MA 02109') As g;  
+ rating |        lon        |       lat        | stno | street | styp |  city  | st |  zip  
+--------+-------------------+------------------+------+--------+------+--------+----+-------
+      0 | -71.0556722990239 | 42.3589914927049 |   75 | State  | St   | Boston | MA | 02109
+</pre><p>Even if zip is not passed in the geocoder can guess (took about 122-150 ms)</p><pre class="programlisting">SELECT g.rating, ST_AsText(ST_SnapToGrid(g.geomout,0.00001)) As wktlonlat, 
+	(addy).address As stno, (addy).streetname As street, 
+	(addy).streettypeabbrev As styp, (addy).location As city, (addy).stateabbrev As st,(addy).zip 
+	FROM geocode('226 Hanover Street, Boston, MA',1) As g;  
+ rating |         wktlonlat         | stno | street  | styp |  city  | st |  zip  
+--------+---------------------------+------+---------+------+--------+----+-------
+      1 | POINT(-71.05528 42.36316) |  226 | Hanover | St   | Boston | MA | 02113
+</pre><p>Can handle misspellings and provides more than one possible solution with ratings and takes longer (500ms).</p><pre class="programlisting">SELECT g.rating, ST_AsText(ST_SnapToGrid(g.geomout,0.00001)) As wktlonlat, 
+    (addy).address As stno, (addy).streetname As street, 
+	(addy).streettypeabbrev As styp, (addy).location As city, (addy).stateabbrev As st,(addy).zip 
+	FROM geocode('31 - 37 Stewart Street, Boston, MA 02116') As g; 
+ rating |         wktlonlat         | stno | street | styp |  city  | st |  zip  
+--------+---------------------------+------+--------+------+--------+----+-------
+     70 | POINT(-71.06459 42.35113) |   31 | Stuart | St   | Boston | MA | 02116
+	</pre><p>Using to do a batch geocode of addresses. Easiest is to set <code class="varname">max_results=1</code>. Only process those not yet geocoded (have no rating).</p><pre class="programlisting">CREATE TABLE addresses_to_geocode(addid serial PRIMARY KEY, address text,
+		lon numeric, lat numeric, new_address text, rating integer);
+
+INSERT INTO addresses_to_geocode(address)
+VALUES ('529 Main Street, Boston MA, 02129'),
+ ('77 Massachusetts Avenue, Cambridge, MA 02139'),
+ ('25 Wizard of Oz, Walaford, KS 99912323'),
+ ('26 Capen Street, Medford, MA'),
+ ('124 Mount Auburn St, Cambridge, Massachusetts 02138'),
+ ('950 Main Street, Worcester, MA 01610');
+ 
+-- only update the first 3 addresses (323-704 ms -  there are caching and shared memory effects so first geocode you do is always slower) --
+-- for large numbers of addresses you don't want to update all at once
+-- since the whole geocode must commit at once 
+-- For this example we rejoin with LEFT JOIN 
+-- and set to rating to -1 rating if no match 
+-- to ensure we don't regeocode a bad address 
+UPDATE addresses_to_geocode
+  SET  (rating, new_address, lon, lat) 
+	= ( COALESCE((g.geo).rating,-1), pprint_addy((g.geo).addy),
+	   ST_X((g.geo).geomout)::numeric(8,5), ST_Y((g.geo).geomout)::numeric(8,5) )
+FROM (SELECT addid 
+	FROM addresses_to_geocode 
+	WHERE rating IS NULL ORDER BY addid LIMIT 3) As a
+	LEFT JOIN (SELECT addid, (geocode(address,1)) As geo
+    FROM addresses_to_geocode As ag
+	WHERE ag.rating IS NULL ORDER BY addid LIMIT 3) As g ON a.addid = g.addid
+WHERE a.addid = addresses_to_geocode.addid;
+
+result
+-----
+Query returned successfully: 3 rows affected, 480 ms execution time.
+
+SELECT * FROM addresses_to_geocode WHERE rating is not null;
+
+ addid |                   address                    |    lon    |   lat    |                new_address                | rating 
+-------+----------------------------------------------+-----------+----------+-------------------------------------------+--------
+     1 | 529 Main Street, Boston MA, 02129            | -71.07181 | 42.38359 | 529 Main St, Boston, MA 02129             |      0
+     2 | 77 Massachusetts Avenue, Cambridge, MA 02139 | -71.09428 | 42.35988 | 77 Massachusetts Ave, Cambridge, MA 02139 |      0
+     3 | 25 Wizard of Oz, Walaford, KS 99912323       |           |          |                                           |     -1
+</pre></div><div class="refsection" lang="en"><a name="id3090524"></a><h2>Examples: Using Geometry filter</h2><pre class="programlisting">
+SELECT g.rating, ST_AsText(ST_SnapToGrid(g.geomout,0.00001)) As wktlonlat, 
+    (addy).address As stno, (addy).streetname As street, 
+	(addy).streettypeabbrev As styp, 
+	(addy).location As city, (addy).stateabbrev As st,(addy).zip 
+  FROM geocode('100 Federal Street, MA',
+		3, 
+		(SELECT ST_Union(the_geom) 
+			FROM place WHERE statefp = '25' AND name = 'Lynn')::geometry
+		) As g;
+
+ rating |        wktlonlat         | stno | street  | styp | city | st |  zip
+--------+--------------------------+------+---------+------+------+----+-------
+      8 | POINT(-70.96796 42.4659) |  100 | Federal | St   | Lynn | MA | 01905
+Total query runtime: 245 ms.
+	      </pre></div><div class="refsection" lang="en"><a name="id3090552"></a><h2>See Also</h2><p><a href="Normalize_Address.html" title="Normalize_Address">Normalize_Address</a>, <a href="Pprint_Addy.html" title="Pprint_Addy">Pprint_Addy</a>, <a href="ST_AsText.html" title="ST_AsText">ST_AsText</a>, <a href="ST_SnapToGrid.html" title="ST_SnapToGrid">ST_SnapToGrid</a>, <a href="ST_X.html" title="ST_X">ST_X</a>, <a href="ST_Y.html" title="ST_Y">ST_Y</a></p></div></div><div class="navfooter"><hr><table width="100%" summary="Navigation footer"><tr><td width="40%" align="left"><a accesskey="p" href="Drop_State_Tables_Generate_Script.html">Prev</a> </td><td width="20%" align="center"><a accesskey="u" href="Extras.html#Tiger_Geocoder">Up</a></td><td width="40%" align="right"> <a accesskey="n" href="Geocode_Intersection.html">Next</a></td></tr><tr><td width="40%" align="left" valign="top">Drop_State_Tables_Generate_Script </td><td width="20%" align="center"><a accesskey="h" href="index.html">Home</a></td><td width="40%" align="right" valign="top"> Geocode_Intersection</td></tr></table></div></body></html>

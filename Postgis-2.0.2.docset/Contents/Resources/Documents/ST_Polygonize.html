@@ -1,0 +1,34 @@
+<html><head><meta http-equiv="Content-Type" content="text/html; charset=ISO-8859-1"><title>ST_Polygonize</title><link rel="stylesheet" href="style.css" type="text/css"><meta name="generator" content="DocBook XSL Stylesheets V1.69.1"><link rel="start" href="index.html" title="PostGIS 2.0.2SVN Manual"><link rel="up" href="reference.html#Geometry_Processing" title="8.9. Geometry Processing"><link rel="prev" href="ST_MinimumBoundingCircle.html" title="ST_MinimumBoundingCircle"><link rel="next" href="ST_Node.html" title="ST_Node"></head><body bgcolor="white" text="black" link="#0000FF" vlink="#840084" alink="#0000FF"><div class="navheader"><table width="100%" summary="Navigation header"><tr><th colspan="3" align="center">ST_Polygonize</th></tr><tr><td width="20%" align="left"><a accesskey="p" href="ST_MinimumBoundingCircle.html">Prev</a> </td><th width="60%" align="center">8.9. Geometry Processing</th><td width="20%" align="right"> <a accesskey="n" href="ST_Node.html">Next</a></td></tr></table><hr></div><div class="refentry" lang="en"><a name="ST_Polygonize"></a><div class="titlepage"></div><div class="refnamediv"><h2>Name</h2><p>ST_Polygonize &#8212; Aggregate. Creates a GeometryCollection containing possible
+			polygons formed from the constituent linework of a set of
+			geometries.</p></div><div class="refsynopsisdiv"><h2>Synopsis</h2><div class="funcsynopsis"><p><code class="funcdef">geometry <b class="fsfunc">ST_Polygonize</b>(</code>geometry set <var class="pdparam">geomfield</var><code>)</code>;</p><p><code class="funcdef">geometry <b class="fsfunc">ST_Polygonize</b>(</code>geometry[] <var class="pdparam">geom_array</var><code>)</code>;</p></div></div><div class="refsection" lang="en"><a name="id2949958"></a><h2>Description</h2><p>Creates a GeometryCollection containing possible
+			polygons formed from the constituent linework of a set of
+			geometries.</p><div class="note" style="margin-left: 0.5in; margin-right: 0.5in;"><table border="0" summary="Note"><tr><td rowspan="2" align="center" valign="top" width="25"><img alt="[Note]" src="images/note.png"></td><th align="left"></th></tr><tr><td align="left" valign="top"><p>Geometry Collections are often difficult to deal with with third party tools, so use ST_Polygonize in conjunction with  <a href="ST_Dump.html" title="ST_Dump">ST_Dump</a> to dump the polygons
+				out into individual polygons.</p></td></tr></table></div><div class="note" style="margin-left: 0.5in; margin-right: 0.5in;"><table border="0" summary="Note"><tr><td rowspan="2" align="center" valign="top" width="25"><img alt="[Note]" src="images/note.png"></td><th align="left"></th></tr><tr><td align="left" valign="top"><p>Input linework must be correctly noded for this function to work properly</p></td></tr></table></div><p>Availability: 1.0.0RC1 - requires GEOS &gt;= 2.1.0.</p></div><div class="refsection" lang="en"><a name="id2949998"></a><h2>Examples: Polygonizing single linestrings</h2><pre class="programlisting">
+SELECT ST_AsEWKT(ST_Polygonize(the_geom_4269)) As geomtextrep
+FROM (SELECT the_geom_4269 FROM ma.suffolk_edges ORDER BY tlid LIMIT 45) As foo;
+
+geomtextrep
+-------------------------------------
+ SRID=4269;GEOMETRYCOLLECTION(POLYGON((-71.040878 42.285678,-71.040943 42.2856,-71.04096 42.285752,-71.040878 42.285678)),
+ POLYGON((-71.17166 42.353675,-71.172026 42.354044,-71.17239 42.354358,-71.171794 42.354971,-71.170511 42.354855,
+ -71.17112 42.354238,-71.17166 42.353675)))
+(1 row)
+
+--Use ST_Dump to dump out the polygonize geoms into individual polygons
+SELECT ST_AsEWKT((ST_Dump(foofoo.polycoll)).geom) As geomtextrep
+FROM (SELECT ST_Polygonize(the_geom_4269) As polycoll
+	FROM (SELECT the_geom_4269 FROM ma.suffolk_edges
+		ORDER BY tlid LIMIT 45) As foo) As foofoo;
+
+geomtextrep
+------------------------
+ SRID=4269;POLYGON((-71.040878 42.285678,-71.040943 42.2856,-71.04096 42.285752,
+-71.040878 42.285678))
+ SRID=4269;POLYGON((-71.17166 42.353675,-71.172026 42.354044,-71.17239 42.354358
+,-71.171794 42.354971,-71.170511 42.354855,-71.17112 42.354238,-71.17166 42.353675))
+(2 rows)
+
+			  </pre></div><div class="refsection" lang="en"><a name="id2950029"></a><h2>See Also</h2><p>
+			<a href="ST_Node.html" title="ST_Node">ST_Node</a>,
+			<a href="ST_Dump.html" title="ST_Dump">ST_Dump</a>
+			</p></div></div><div class="navfooter"><hr><table width="100%" summary="Navigation footer"><tr><td width="40%" align="left"><a accesskey="p" href="ST_MinimumBoundingCircle.html">Prev</a> </td><td width="20%" align="center"><a accesskey="u" href="reference.html#Geometry_Processing">Up</a></td><td width="40%" align="right"> <a accesskey="n" href="ST_Node.html">Next</a></td></tr><tr><td width="40%" align="left" valign="top">ST_MinimumBoundingCircle </td><td width="20%" align="center"><a accesskey="h" href="index.html">Home</a></td><td width="40%" align="right" valign="top"> ST_Node</td></tr></table></div></body></html>

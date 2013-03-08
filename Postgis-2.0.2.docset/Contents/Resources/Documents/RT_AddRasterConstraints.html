@@ -1,0 +1,77 @@
+<html><head><meta http-equiv="Content-Type" content="text/html; charset=ISO-8859-1"><title>AddRasterConstraints</title><link rel="stylesheet" href="style.css" type="text/css"><meta name="generator" content="DocBook XSL Stylesheets V1.69.1"><link rel="start" href="index.html" title="PostGIS 2.0.2SVN Manual"><link rel="up" href="RT_reference.html#Raster_Management_Functions" title="9.2. Raster Management"><link rel="prev" href="summarystats.html" title="summarystats"><link rel="next" href="RT_DropRasterConstraints.html" title="DropRasterConstraints"></head><body bgcolor="white" text="black" link="#0000FF" vlink="#840084" alink="#0000FF"><div class="navheader"><table width="100%" summary="Navigation header"><tr><th colspan="3" align="center">AddRasterConstraints</th></tr><tr><td width="20%" align="left"><a accesskey="p" href="summarystats.html">Prev</a> </td><th width="60%" align="center">9.2. Raster Management</th><td width="20%" align="right"> <a accesskey="n" href="RT_DropRasterConstraints.html">Next</a></td></tr></table><hr></div><div class="refentry" lang="en"><a name="RT_AddRasterConstraints"></a><div class="titlepage"></div><div class="refnamediv"><h2>Name</h2><p>AddRasterConstraints &#8212; Adds raster constraints to a loaded raster table for a specific column that constrains spatial ref, scaling, blocksize, alignment, bands, band type and a flag to denote if raster column is regularly blocked. The table must be loaded with data for the constraints to be inferred. Returns true of the constraint setting was accomplished and if issues a notice.</p></div><div class="refsynopsisdiv"><h2>Synopsis</h2><div class="funcsynopsis"><p><code class="funcdef">boolean <b class="fsfunc">AddRasterConstraints</b>(</code>name 
+			<var class="pdparam">rasttable</var>, name 
+			<var class="pdparam">rastcolumn</var>, boolean 
+			<var class="pdparam">srid</var>, boolean 
+			<var class="pdparam">scale_x</var>, boolean 
+			<var class="pdparam">scale_y</var>, boolean 
+			<var class="pdparam">blocksize_x</var>, boolean 
+			<var class="pdparam">blocksize_y</var>, boolean 
+			<var class="pdparam">same_alignment</var>, boolean 
+			<var class="pdparam">regular_blocking</var>, boolean 
+				<var class="pdparam">num_bands=true</var>
+			, boolean 
+				<var class="pdparam">pixel_types=true</var>
+			, boolean 
+				<var class="pdparam">nodata_values=true</var>
+			, boolean 
+				<var class="pdparam">out_db=true</var>
+			, boolean 
+				<var class="pdparam">extent=true</var>
+			<code>)</code>;</p><p><code class="funcdef">boolean <b class="fsfunc">AddRasterConstraints</b>(</code>name 
+			<var class="pdparam">rasttable</var>, name 
+			<var class="pdparam">rastcolumn</var>, text[] 
+			<var class="pdparam">VARIADIC constraints</var><code>)</code>;</p><p><code class="funcdef">boolean <b class="fsfunc">AddRasterConstraints</b>(</code>name 
+			<var class="pdparam">rastschema</var>, name 
+			<var class="pdparam">rasttable</var>, name 
+			<var class="pdparam">rastcolumn</var>, text[] 
+			<var class="pdparam">VARIADIC constraints</var><code>)</code>;</p><p><code class="funcdef">boolean <b class="fsfunc">AddRasterConstraints</b>(</code>name 
+			<var class="pdparam">rastschema</var>, name 
+			<var class="pdparam">rasttable</var>, name 
+			<var class="pdparam">rastcolumn</var>, boolean 
+			<var class="pdparam">srid=true</var>, boolean 
+			<var class="pdparam">scale_x=true</var>, boolean 
+			<var class="pdparam">scale_y=true</var>, boolean 
+			<var class="pdparam">blocksize_x=true</var>, boolean 
+			<var class="pdparam">blocksize_y=true</var>, boolean 
+			<var class="pdparam">same_alignment=true</var>, boolean 
+			<var class="pdparam">regular_blocking=true</var>, boolean 
+			<var class="pdparam">num_bands=true</var>, boolean 
+			<var class="pdparam">pixel_types=true</var>, boolean 
+				<var class="pdparam">nodata_values=true</var>
+			, boolean 
+				<var class="pdparam">out_db=true</var>
+			, boolean 
+				<var class="pdparam">extent=true</var>
+			<code>)</code>;</p></div></div><div class="refsection" lang="en"><a name="id3019900"></a><h2>Description</h2><p>Generates constraints on a raster column that are used to display information in the <code class="varname">raster_columns</code> raster catalog. 
+		The <code class="varname">rastschema</code> is the name of the table schema the table resides in. The <code class="varname">srid</code>
+		must be an integer value reference to an entry in the SPATIAL_REF_SYS
+		table.</p><p><code class="varname">raster2pgsql</code> loader uses this function to register raster tables</p><p>Valid constraint names to pass in: refer to <a href="using_raster.xml.html#RT_Raster_Columns" title="5.2.1. Raster Columns Catalog">Section 5.2.1, &#8220;Raster Columns Catalog&#8221;</a> for more details.</p><div class="itemizedlist"><ul type="disc"><li><p><code class="varname">blocksize</code> sets both X and Y blocksize</p></li><li><p><code class="varname">blocksize_x</code> sets X tile (width in pixels of each tile)</p></li><li><p><code class="varname">blocksize_y</code> sets Y tile (height in pixels of each tile)</p></li><li><p><code class="varname">extent</code> computes extent of whole table and applys constraint all rasters must be within that extent</p></li><li><p><code class="varname">num_bands</code> number of bands</p></li><li><p><code class="varname">pixel_types</code> reads array of pixel types for each band ensure all band n have same pixel type</p></li><li><p><code class="varname">regular_blocking</code> apply informational flag to denote all tiles are regularly blocked</p></li><li><p><code class="varname">same_alignment</code> ensures they all have same alignment meaning any two tiles you compare will return true for. Refer to <a href="RT_ST_SameAlignment.html" title="ST_SameAlignment">ST_SameAlignment</a></p></li><li><p><code class="varname">srid</code> ensures all have same srid</p></li><li><p>More -- any listed as inputs into the above functions</p></li></ul></div><div class="note" style="margin-left: 0.5in; margin-right: 0.5in;"><table border="0" summary="Note"><tr><td rowspan="2" align="center" valign="top" width="25"><img alt="[Note]" src="images/note.png"></td><th align="left"></th></tr><tr><td align="left" valign="top"><p>This function infers the constraints from the data already present in the table.  As such for it to work, you must create the raster column first
+			and then load it with data.
+			</p></td></tr></table></div><div class="note" style="margin-left: 0.5in; margin-right: 0.5in;"><table border="0" summary="Note"><tr><td rowspan="2" align="center" valign="top" width="25"><img alt="[Note]" src="images/note.png"></td><th align="left"></th></tr><tr><td align="left" valign="top"><p>If you need to load more data in your tables after you have already applied constraints, you may want to run the DropRasterConstraints
+				if the extent of your data has changed.
+			</p></td></tr></table></div><p>Availability: 2.0.0</p></div><div class="refsection" lang="en"><a name="id3020048"></a><h2>Examples: Apply all possible constraints on column based on data</h2><pre class="programlisting">CREATE TABLE myrasters(rid SERIAL primary key, rast raster);
+INSERT INTO myrasters(rast)
+SELECT ST_AddBand(ST_MakeEmptyRaster(1000, 1000, 0.3, -0.3, 2, 2, 0, 0,4326), 1, '8BSI'::text, -129, NULL);
+
+SELECT AddRasterConstraints('myrasters'::name, 'rast'::name);
+
+
+-- verify if registered correctly in the raster_columns view --
+SELECT srid, scale_x, scale_y, blocksize_x, blocksize_y, num_bands, pixel_types, nodata_values
+	FROM raster_columns
+	WHERE r_table_name = 'myrasters';
+	
+ srid | scale_x | scale_y | blocksize_x | blocksize_y | num_bands | pixel_types| nodata_values
+------+---------+---------+-------------+-------------+-----------+-------------+---------------
+ 4326 |       2 |       2 |        1000 |        1000 |         1 | {8BSI}      | {0}
+		</pre></div><div class="refsection" lang="en"><a name="id3020074"></a><h2>Examples: Apply single constraint</h2><pre class="programlisting">CREATE TABLE public.myrasters2(rid SERIAL primary key, rast raster);
+INSERT INTO myrasters2(rast)
+SELECT ST_AddBand(ST_MakeEmptyRaster(1000, 1000, 0.3, -0.3, 2, 2, 0, 0,4326), 1, '8BSI'::text, -129, NULL);
+
+SELECT AddRasterConstraints('public'::name, 'myrasters2'::name, 'rast'::name,'regular_blocking', 'blocksize');
+-- get notice--
+NOTICE:  Adding regular blocking constraint
+INFO:  The regular_blocking constraint is just a flag indicating that the column "rast" is regularly blocked.  As no function exist yet to assert that a raster column is regularly blocked, it is up to the end-user to ensure that the column is truly regularly blocked.
+CONTEXT:  PL/pgSQL function "addrasterconstraints" line 85 at assignment
+NOTICE:  Adding blocksize-X constraint
+NOTICE:  Adding blocksize-Y constraint</pre></div><div class="refsection" lang="en"><a name="id3020100"></a><h2>See Also</h2><p><a href="using_raster.xml.html#RT_Raster_Columns" title="5.2.1. Raster Columns Catalog">Section 5.2.1, &#8220;Raster Columns Catalog&#8221;</a>, <a href="RT_ST_AddBand.html" title="ST_AddBand">ST_AddBand</a>, <a href="RT_ST_MakeEmptyRaster.html" title="ST_MakeEmptyRaster">ST_MakeEmptyRaster</a>, <a href="RT_DropRasterConstraints.html" title="DropRasterConstraints">DropRasterConstraints</a>, <a href="RT_ST_BandPixelType.html" title="ST_BandPixelType">ST_BandPixelType</a>, <a href="RT_ST_SRID.html" title="ST_SRID">ST_SRID</a></p></div></div><div class="navfooter"><hr><table width="100%" summary="Navigation footer"><tr><td width="40%" align="left"><a accesskey="p" href="summarystats.html">Prev</a> </td><td width="20%" align="center"><a accesskey="u" href="RT_reference.html#Raster_Management_Functions">Up</a></td><td width="40%" align="right"> <a accesskey="n" href="RT_DropRasterConstraints.html">Next</a></td></tr><tr><td width="40%" align="left" valign="top">summarystats </td><td width="20%" align="center"><a accesskey="h" href="index.html">Home</a></td><td width="40%" align="right" valign="top"> DropRasterConstraints</td></tr></table></div></body></html>

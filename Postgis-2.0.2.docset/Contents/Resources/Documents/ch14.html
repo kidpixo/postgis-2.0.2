@@ -1,0 +1,29 @@
+<html><head><meta http-equiv="Content-Type" content="text/html; charset=ISO-8859-1"><title>Chapter 14. Reporting Problems</title><link rel="stylesheet" href="style.css" type="text/css"><meta name="generator" content="DocBook XSL Stylesheets V1.69.1"><link rel="start" href="index.html" title="PostGIS 2.0.2SVN Manual"><link rel="up" href="index.html" title="PostGIS 2.0.2SVN Manual"><link rel="prev" href="PostGIS_Special_Functions_Index.html" title="Chapter 13. PostGIS Special Functions Index"><link rel="next" href="release_notes.html" title="Appendix A. Appendix"></head><body bgcolor="white" text="black" link="#0000FF" vlink="#840084" alink="#0000FF"><div class="navheader"><table width="100%" summary="Navigation header"><tr><th colspan="3" align="center">Chapter 14. Reporting Problems</th></tr><tr><td width="20%" align="left"><a accesskey="p" href="PostGIS_Special_Functions_Index.html">Prev</a> </td><th width="60%" align="center"> </th><td width="20%" align="right"> <a accesskey="n" href="release_notes.html">Next</a></td></tr></table><hr></div><div class="chapter" lang="en"><div class="titlepage"><div><div><h2 class="title"><a name="id3150312"></a>Chapter 14. Reporting Problems</h2></div></div></div><div class="toc"><p><b>Table of Contents</b></p><dl><dt><span class="sect1"><a href="ch14.html#id3150318">14.1. Reporting Software Bugs</a></span></dt><dt><span class="sect1"><a href="ch14.html#id3150351">14.2. Reporting Documentation Issues</a></span></dt></dl></div><div class="sect1" lang="en"><div class="titlepage"><div><div><h2 class="title" style="clear: both"><a name="id3150318"></a>14.1. Reporting Software Bugs</h2></div></div></div><p>Reporting bugs effectively is a fundamental way to help PostGIS
+    development. The most effective bug report is that enabling PostGIS
+    developers to reproduce it, so it would ideally contain a script
+    triggering it and every information regarding the environment in which it
+    was detected. Good enough info can be extracted running <code class="code">SELECT
+    postgis_full_version()</code> [for postgis] and <code class="code">SELECT
+    version()</code> [for postgresql].</p><p>If you aren't using the latest release, it's worth taking a look at
+    its <a href="http://svn.osgeo.org/postgis/trunk/NEWS" target="_top">release
+    changelog</a> first, to find out if your bug has already been
+    fixed.</p><p>Using the <a href="http://trac.osgeo.org/postgis/" target="_top">PostGIS bug
+    tracker</a> will ensure your reports are not discarded, and will keep
+    you informed on its handling process. Before reporting a new bug please
+    query the database to see if it is a known one, and if it is please add
+    any new information you have about it.</p><p>You might want to read Simon Tatham's paper about <a href="http://www.chiark.greenend.org.uk/~sgtatham/bugs.html" target="_top">How to Report
+    Bugs Effectively</a> before filing a new report.</p></div><div class="sect1" lang="en"><div class="titlepage"><div><div><h2 class="title" style="clear: both"><a name="id3150351"></a>14.2. Reporting Documentation Issues</h2></div></div></div><p>The documentation should accurately reflect the features and
+    behavior of the software. If it doesn't, it could be because of a software
+    bug or because the documentation is in error or deficient.</p><p>Documentation issues can also be reported to the <a href="http://trac.osgeo.org/postgis" target="_top">PostGIS bug
+    tracker</a>.</p><p>If your revision is trivial, just describe it in a new bug tracker
+    issue, being specific about its location in the documentation.</p><p>If your changes are more extensive, a Subversion patch is definitely
+    preferred. This is a four step process on Unix (assuming you already have
+    <a href="http://subversion.apache.org/" target="_top">Subversion</a>
+    installed):</p><div class="orderedlist"><ol type="1"><li><p>Check out a copy of PostGIS' Subversion trunk. On Unix,
+        type:</p><p><span><strong class="command">svn checkout
+        http://svn.osgeo.org/postgis/trunk/</strong></span></p><p>This will be stored in the directory ./trunk</p></li><li><p>Make your changes to the documentation with your favorite text
+        editor. On Unix, type (for example):</p><p><span><strong class="command">vim trunk/doc/postgis.xml</strong></span></p><p>Note that the documentation is written in DocBook XML rather than HTML,
+        so if you are not familiar with it please follow the example of the
+        rest of the documentation.</p></li><li><p>Make a patch file containing the differences from the master
+        copy of the documentation. On Unix, type:</p><p><span><strong class="command">svn diff trunk/doc/postgis.xml &gt;
+        doc.patch</strong></span></p></li><li><p>Attach the patch to a new issue in bug tracker.</p></li></ol></div></div></div><div class="navfooter"><hr><table width="100%" summary="Navigation footer"><tr><td width="40%" align="left"><a accesskey="p" href="PostGIS_Special_Functions_Index.html">Prev</a> </td><td width="20%" align="center"> </td><td width="40%" align="right"> <a accesskey="n" href="release_notes.html">Next</a></td></tr><tr><td width="40%" align="left" valign="top">Chapter 13. PostGIS Special Functions Index </td><td width="20%" align="center"><a accesskey="h" href="index.html">Home</a></td><td width="40%" align="right" valign="top"> Appendix A. Appendix</td></tr></table></div></body></html>

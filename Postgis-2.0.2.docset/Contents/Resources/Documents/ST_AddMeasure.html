@@ -1,0 +1,25 @@
+<html><head><meta http-equiv="Content-Type" content="text/html; charset=ISO-8859-1"><title>ST_AddMeasure</title><link rel="stylesheet" href="style.css" type="text/css"><meta name="generator" content="DocBook XSL Stylesheets V1.69.1"><link rel="start" href="index.html" title="PostGIS 2.0.2SVN Manual"><link rel="up" href="reference.html#Linear_Referencing" title="8.10. Linear Referencing"><link rel="prev" href="ST_InterpolatePoint.html" title="ST_InterpolatePoint"><link rel="next" href="AddAuth.html" title="AddAuth"></head><body bgcolor="white" text="black" link="#0000FF" vlink="#840084" alink="#0000FF"><div class="navheader"><table width="100%" summary="Navigation header"><tr><th colspan="3" align="center">ST_AddMeasure</th></tr><tr><td width="20%" align="left"><a accesskey="p" href="ST_InterpolatePoint.html">Prev</a> </td><th width="60%" align="center">8.10. Linear Referencing</th><td width="20%" align="right"> <a accesskey="n" href="AddAuth.html">Next</a></td></tr></table><hr></div><div class="refentry" lang="en"><a name="ST_AddMeasure"></a><div class="titlepage"></div><div class="refnamediv"><h2>Name</h2><p>ST_AddMeasure &#8212; Return a derived geometry with measure elements linearly interpolated between the start and end points. If the geometry has no measure dimension, one is added. If the geometry has a measure dimension, it is over-written with new values. Only LINESTRINGS and MULTILINESTRINGS are supported.</p></div><div class="refsynopsisdiv"><h2>Synopsis</h2><div class="funcsynopsis"><p><code class="funcdef">geometry <b class="fsfunc">ST_AddMeasure</b>(</code>geometry  <var class="pdparam">geom_mline</var>, float  <var class="pdparam">measure_start</var>, float  <var class="pdparam">measure_end</var><code>)</code>;</p></div></div><div class="refsection" lang="en"><a name="id2960667"></a><h2>Description</h2><p>Return a derived geometry with measure elements linearly interpolated between the start and end points. If the geometry has no measure dimension, one is added. If the geometry has a measure dimension, it is over-written with new values. Only LINESTRINGS and MULTILINESTRINGS are supported.</p><p>Availability: 1.5.0</p><p><span class="inlinemediaobject"><img src="images/check.png"></span>
+ This function supports 3d and will not drop the z-index.</p></div><div class="refsection" lang="en"><a name="id2960701"></a><h2>Examples</h2><pre class="programlisting">SELECT ST_AsText(ST_AddMeasure(
+ST_GeomFromEWKT('LINESTRING(1 0, 2 0, 4 0)'),1,4)) As ewelev;
+           ewelev             
+--------------------------------
+ LINESTRINGM(1 0 1,2 0 2,4 0 4)
+
+SELECT ST_AsText(ST_AddMeasure(
+ST_GeomFromEWKT('LINESTRING(1 0 4, 2 0 4, 4 0 4)'),10,40)) As ewelev;
+                 ewelev                 
+----------------------------------------
+ LINESTRING(1 0 4 10,2 0 4 20,4 0 4 40)
+
+SELECT ST_AsText(ST_AddMeasure(
+ST_GeomFromEWKT('LINESTRINGM(1 0 4, 2 0 4, 4 0 4)'),10,40)) As ewelev;
+                 ewelev                 
+----------------------------------------
+ LINESTRINGM(1 0 10,2 0 20,4 0 40)
+ 
+SELECT ST_AsText(ST_AddMeasure(
+ST_GeomFromEWKT('MULTILINESTRINGM((1 0 4, 2 0 4, 4 0 4),(1 0 4, 2 0 4, 4 0 4))'),10,70)) As ewelev;
+                             ewelev                              
+-----------------------------------------------------------------
+ MULTILINESTRINGM((1 0 10,2 0 20,4 0 40),(1 0 40,2 0 50,4 0 70))
+</pre></div></div><div class="navfooter"><hr><table width="100%" summary="Navigation footer"><tr><td width="40%" align="left"><a accesskey="p" href="ST_InterpolatePoint.html">Prev</a> </td><td width="20%" align="center"><a accesskey="u" href="reference.html#Linear_Referencing">Up</a></td><td width="40%" align="right"> <a accesskey="n" href="AddAuth.html">Next</a></td></tr><tr><td width="40%" align="left" valign="top">ST_InterpolatePoint </td><td width="20%" align="center"><a accesskey="h" href="index.html">Home</a></td><td width="40%" align="right" valign="top"> AddAuth</td></tr></table></div></body></html>

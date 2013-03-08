@@ -1,0 +1,21 @@
+<html><head><meta http-equiv="Content-Type" content="text/html; charset=ISO-8859-1"><title>ST_SetBandNoDataValue</title><link rel="stylesheet" href="style.css" type="text/css"><meta name="generator" content="DocBook XSL Stylesheets V1.69.1"><link rel="start" href="index.html" title="PostGIS 2.0.2SVN Manual"><link rel="up" href="RT_reference.html#RasterBand_Editors" title="9.8. Raster Band Editors"><link rel="prev" href="RT_ST_Transform.html" title="ST_Transform"><link rel="next" href="RT_ST_SetBandIsNoData.html" title="ST_SetBandIsNoData"></head><body bgcolor="white" text="black" link="#0000FF" vlink="#840084" alink="#0000FF"><div class="navheader"><table width="100%" summary="Navigation header"><tr><th colspan="3" align="center">ST_SetBandNoDataValue</th></tr><tr><td width="20%" align="left"><a accesskey="p" href="RT_ST_Transform.html">Prev</a> </td><th width="60%" align="center">9.8. Raster Band Editors</th><td width="20%" align="right"> <a accesskey="n" href="RT_ST_SetBandIsNoData.html">Next</a></td></tr></table><hr></div><div class="refentry" lang="en"><a name="RT_ST_SetBandNoDataValue"></a><div class="titlepage"></div><div class="refnamediv"><h2>Name</h2><p>ST_SetBandNoDataValue &#8212; Sets the value for the given band that represents no data. Band 1 is assumed if no band is specified.  To mark a band as having no nodata value, set the nodata value = NULL.</p></div><div class="refsynopsisdiv"><h2>Synopsis</h2><div class="funcsynopsis"><p><code class="funcdef">raster <b class="fsfunc">ST_SetBandNoDataValue</b>(</code>raster  <var class="pdparam">rast</var>, double precision  <var class="pdparam">nodatavalue</var><code>)</code>;</p><p><code class="funcdef">raster <b class="fsfunc">ST_SetBandNoDataValue</b>(</code>raster  <var class="pdparam">rast</var>, integer  <var class="pdparam">band</var>, double precision  <var class="pdparam">nodatavalue</var>, boolean  <var class="pdparam">forcechecking=false</var><code>)</code>;</p></div></div><div class="refsection" lang="en"><a name="id3031587"></a><h2>Description</h2><p>Sets the value that represents no data for the band.  Band 1 is assumed if not specified. This will effect <a href="RT_ST_Polygon.html" title="ST_Polygon">ST_Polygon</a> and <a href="RT_ST_ConvexHull.html" title="ST_ConvexHull">ST_ConvexHull</a> results.</p></div><div class="refsection" lang="en"><a name="id3031612"></a><h2>Examples</h2><pre class="programlisting">-- change just first band no data value
+UPDATE dummy_rast 
+	SET rast = ST_SetBandNoDataValue(rast,1, 254)  
+WHERE rid = 2;
+
+-- change no data band value of bands 1,2,3
+UPDATE dummy_rast 
+	SET rast = 
+		ST_SetBandNoDataValue(
+			ST_SetBandNoDataValue(
+				ST_SetBandNoDataValue(
+					rast,1, 254)
+				,2,99),
+				3,108)  
+		WHERE rid = 2;
+		
+-- wipe out the nodata value this will ensure all pixels are considered for all processing functions
+UPDATE dummy_rast 
+	SET rast = ST_SetBandNoDataValue(rast,1, NULL)  
+WHERE rid = 2;
+					</pre></div><div class="refsection" lang="en"><a name="id3031633"></a><h2>See Also</h2><p><a href="RT_ST_BandNoDataValue.html" title="ST_BandNoDataValue">ST_BandNoDataValue</a>, <a href="RT_ST_NumBands.html" title="ST_NumBands">ST_NumBands</a></p></div></div><div class="navfooter"><hr><table width="100%" summary="Navigation footer"><tr><td width="40%" align="left"><a accesskey="p" href="RT_ST_Transform.html">Prev</a> </td><td width="20%" align="center"><a accesskey="u" href="RT_reference.html#RasterBand_Editors">Up</a></td><td width="40%" align="right"> <a accesskey="n" href="RT_ST_SetBandIsNoData.html">Next</a></td></tr><tr><td width="40%" align="left" valign="top">ST_Transform </td><td width="20%" align="center"><a accesskey="h" href="index.html">Home</a></td><td width="40%" align="right" valign="top"> ST_SetBandIsNoData</td></tr></table></div></body></html>

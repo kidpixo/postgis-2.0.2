@@ -1,0 +1,15 @@
+<html><head><meta http-equiv="Content-Type" content="text/html; charset=ISO-8859-1"><title>ST_NewEdgeHeal</title><link rel="stylesheet" href="style.css" type="text/css"><meta name="generator" content="DocBook XSL Stylesheets V1.69.1"><link rel="start" href="index.html" title="PostGIS 2.0.2SVN Manual"><link rel="up" href="Topology.html#Topology_Editing" title="11.5. Topology Editors"><link rel="prev" href="ST_ModEdgeHeal.html" title="ST_ModEdgeHeal"><link rel="next" href="ST_MoveIsoNode.html" title="ST_MoveIsoNode"></head><body bgcolor="white" text="black" link="#0000FF" vlink="#840084" alink="#0000FF"><div class="navheader"><table width="100%" summary="Navigation header"><tr><th colspan="3" align="center">ST_NewEdgeHeal</th></tr><tr><td width="20%" align="left"><a accesskey="p" href="ST_ModEdgeHeal.html">Prev</a> </td><th width="60%" align="center">11.5. Topology Editors</th><td width="20%" align="right"> <a accesskey="n" href="ST_MoveIsoNode.html">Next</a></td></tr></table><hr></div><div class="refentry" lang="en"><a name="ST_NewEdgeHeal"></a><div class="titlepage"></div><div class="refnamediv"><h2>Name</h2><p>ST_NewEdgeHeal &#8212; 
+Heal two edges by deleting the node connecting them, deleting both edges,
+and replacing them with an edge whose direction is the same as the first
+edge provided.
+				</p></div><div class="refsynopsisdiv"><h2>Synopsis</h2><div class="funcsynopsis"><p><code class="funcdef">int <b class="fsfunc">ST_NewEdgeHeal</b>(</code>varchar  <var class="pdparam">atopology</var>, integer  <var class="pdparam">anedge</var>, integer  <var class="pdparam">anotheredge</var><code>)</code>;</p></div></div><div class="refsection" lang="en"><a name="id3077616"></a><h2>Description</h2><p>
+Heal two edges by deleting the node connecting them, deleting both edges,
+and replacing them with an edge whose direction is the same as the first
+edge provided.
+Returns the id of the new edge replacing the healed ones.
+Updates all existing joined edges and relationships accordingly.
+		</p><p>Availability: 2.0</p><p><span class="inlinemediaobject"><img src="images/check.png"></span> This method implements the SQL/MM specification. SQL-MM: Topo-Geo and Topo-Net 3: Routine Details:  X.3.9</p></div><div class="refsection" lang="en"><a name="id3077658"></a><h2>See Also</h2><p>
+				<a href="ST_ModEdgeHeal.html" title="ST_ModEdgeHeal">ST_ModEdgeHeal</a>
+				<a href="ST_ModEdgeSplit.html" title="ST_ModEdgeSplit">ST_ModEdgeSplit</a>
+				<a href="ST_NewEdgesSplit.html" title="ST_NewEdgesSplit">ST_NewEdgesSplit</a>
+				</p></div></div><div class="navfooter"><hr><table width="100%" summary="Navigation footer"><tr><td width="40%" align="left"><a accesskey="p" href="ST_ModEdgeHeal.html">Prev</a> </td><td width="20%" align="center"><a accesskey="u" href="Topology.html#Topology_Editing">Up</a></td><td width="40%" align="right"> <a accesskey="n" href="ST_MoveIsoNode.html">Next</a></td></tr><tr><td width="40%" align="left" valign="top">ST_ModEdgeHeal </td><td width="20%" align="center"><a accesskey="h" href="index.html">Home</a></td><td width="40%" align="right" valign="top"> ST_MoveIsoNode</td></tr></table></div></body></html>

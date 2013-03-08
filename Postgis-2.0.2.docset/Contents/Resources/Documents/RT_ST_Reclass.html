@@ -1,0 +1,56 @@
+<html><head><meta http-equiv="Content-Type" content="text/html; charset=ISO-8859-1"><title>ST_Reclass</title><link rel="stylesheet" href="style.css" type="text/css"><meta name="generator" content="DocBook XSL Stylesheets V1.69.1"><link rel="start" href="index.html" title="PostGIS 2.0.2SVN Manual"><link rel="up" href="RT_reference.html#Raster_Processing" title="9.11. Raster Processing"><link rel="prev" href="RT_ST_Polygon.html" title="ST_Polygon"><link rel="next" href="RT_ST_Union.html" title="ST_Union"></head><body bgcolor="white" text="black" link="#0000FF" vlink="#840084" alink="#0000FF"><div class="navheader"><table width="100%" summary="Navigation header"><tr><th colspan="3" align="center">ST_Reclass</th></tr><tr><td width="20%" align="left"><a accesskey="p" href="RT_ST_Polygon.html">Prev</a> </td><th width="60%" align="center">9.11. Raster Processing</th><td width="20%" align="right"> <a accesskey="n" href="RT_ST_Union.html">Next</a></td></tr></table><hr></div><div class="refentry" lang="en"><a name="RT_ST_Reclass"></a><div class="titlepage"></div><div class="refnamediv"><h2>Name</h2><p>ST_Reclass &#8212; Creates a new raster composed of band types reclassified from original.  The nband is the band to be changed.  If nband is not specified assumed to be 1.  All other bands are returned unchanged. 
+				    Use case: convert a 16BUI band to a 8BUI and so forth for simpler rendering as viewable formats.</p></div><div class="refsynopsisdiv"><h2>Synopsis</h2><div class="funcsynopsis"><p><code class="funcdef">raster <b class="fsfunc">ST_Reclass</b>(</code>raster  <var class="pdparam">rast</var>, integer  <var class="pdparam">nband</var>, text  <var class="pdparam">reclassexpr</var>, text  <var class="pdparam">pixeltype</var>, double precision  <var class="pdparam">nodataval=NULL</var><code>)</code>;</p><p><code class="funcdef">raster <b class="fsfunc">ST_Reclass</b>(</code>raster  <var class="pdparam">rast</var>, reclassarg[]  <var class="pdparam">VARIADIC reclassargset</var><code>)</code>;</p><p><code class="funcdef">raster <b class="fsfunc">ST_Reclass</b>(</code>raster  <var class="pdparam">rast</var>, text  <var class="pdparam">reclassexpr</var>, text  <var class="pdparam">pixeltype</var><code>)</code>;</p></div></div><div class="refsection" lang="en"><a name="id3042072"></a><h2>Description</h2><p>Creates a new raster formed by applying a valid PostgreSQL algebraic operation defined by the <code class="varname">reclassexpr</code> on the input raster (<code class="varname">rast</code>). If no <code class="varname">band</code> is specified
+        band 1 is assumed.  The new raster will have the same georeference, width, and height as the original raster.  Bands not designated will come back unchanged.
+        Refer to <a href="reclassarg.html" title="reclassarg">reclassarg</a> for description of valid reclassification expressions.</p><p>The bands of the new raster will have pixel type of <code class="varname">pixeltype</code>.  If <code class="varname">reclassargset</code> is passed in then each reclassarg defines behavior of each band generated.</p><p>Availability: 2.0.0 </p></div><div class="refsection" lang="en"><a name="id3042122"></a><h2>Examples Basic</h2><p>Create a new raster from the original where band 2 is converted from 8BUI to 4BUI and all values from 101-254 are set to nodata value.</p><pre class="programlisting">ALTER TABLE dummy_rast ADD COLUMN reclass_rast raster;
+UPDATE dummy_rast SET reclass_rast = ST_Reclass(rast,2,'0-87:1-10, 88-100:11-15, 101-254:0-0', '4BUI',0) WHERE rid = 2;
+
+SELECT i as col, j as row, ST_Value(rast,2,i,j) As origval, 
+    ST_Value(reclass_rast, 2, i, j) As reclassval, 
+    ST_Value(reclass_rast, 2, i, j, false) As reclassval_include_nodata
+FROM dummy_rast CROSS JOIN generate_series(1, 3) AS i CROSS JOIN generate_series(1,3) AS j
+WHERE rid = 2;
+
+ col | row | origval | reclassval | reclassval_include_nodata
+-----+-----+---------+------------+---------------------------
+   1 |   1 |      78 |          9 |                         9
+   2 |   1 |      98 |         14 |                        14
+   3 |   1 |     122 |            |                         0
+   1 |   2 |      96 |         14 |                        14
+   2 |   2 |     118 |            |                         0
+   3 |   2 |     180 |            |                         0
+   1 |   3 |      99 |         15 |                        15
+   2 |   3 |     112 |            |                         0
+   3 |   3 |     169 |            |                         0</pre></div><div class="refsection" lang="en"><a name="id3042160"></a><h2>Example: Advanced using multiple reclassargs</h2><p>Create a new raster from the original where band 1,2,3 is converted to 1BB,4BUI, 4BUI respectively and reclassified.
+				    Note this uses the variadic <code class="varname">reclassarg</code> argument which can take as input an indefinite number of reclassargs (theoretically as many bands as you have) </p><pre class="programlisting">UPDATE dummy_rast SET reclass_rast = 
+    ST_Reclass(rast,
+        ROW(2,'0-87]:1-10, (87-100]:11-15, (101-254]:0-0', '4BUI',NULL)::reclassarg,
+        ROW(1,'0-253]:1, 254:0', '1BB', NULL)::reclassarg,
+        ROW(3,'0-70]:1, (70-86:2, [86-150):3, [150-255:4', '4BUI', NULL)::reclassarg
+        ) WHERE rid = 2;
+
+SELECT i as col, j as row,ST_Value(rast,1,i,j) As ov1,  ST_Value(reclass_rast, 1, i, j) As rv1, 
+    ST_Value(rast,2,i,j) As ov2, ST_Value(reclass_rast, 2, i, j) As rv2, 
+    ST_Value(rast,3,i,j) As ov3, ST_Value(reclass_rast, 3, i, j) As rv3
+FROM dummy_rast CROSS JOIN generate_series(1, 3) AS i CROSS JOIN generate_series(1,3) AS j
+WHERE rid = 2;
+
+col | row | ov1 | rv1 | ov2 | rv2 | ov3 | rv3
+----+-----+-----+-----+-----+-----+-----+-----
+  1 |   1 | 253 |   1 |  78 |   9 |  70 |   1
+  2 |   1 | 254 |   0 |  98 |  14 |  86 |   3
+  3 |   1 | 253 |   1 | 122 |   0 | 100 |   3
+  1 |   2 | 253 |   1 |  96 |  14 |  80 |   2
+  2 |   2 | 254 |   0 | 118 |   0 | 108 |   3
+  3 |   2 | 254 |   0 | 180 |   0 | 162 |   4
+  1 |   3 | 250 |   1 |  99 |  15 |  90 |   3
+  2 |   3 | 254 |   0 | 112 |   0 | 108 |   3
+  3 |   3 | 254 |   0 | 169 |   0 | 175 |   4</pre></div><div class="refsection" lang="en"><a name="id3042204"></a><h2>Example: Advanced Map a single band 32BF raster to multiple viewable bands</h2><p>Create a new 3 band (8BUI,8BUI,8BUI viewable raster) from a raster that has only one 32bf band </p><pre class="programlisting">
+ALTER TABLE wind ADD COLUMN rast_view raster;
+UPDATE wind 
+	set rast_view = ST_AddBand( NULL,
+        ARRAY[
+        	ST_Reclass(rast, 1,'0.1-10]:1-10,9-10]:11,(11-33:0'::text, '8BUI'::text,0),
+        	ST_Reclass(rast,1, '11-33):0-255,[0-32:0,(34-1000:0'::text, '8BUI'::text,0),  
+        	ST_Reclass(rast,1,'0-32]:0,(32-100:100-255'::text, '8BUI'::text,0)
+        	]
+        	) ;</pre></div><div class="refsection" lang="en"><a name="id3042229"></a><h2>See Also</h2><p><a href="RT_ST_AddBand.html" title="ST_AddBand">ST_AddBand</a>, <a href="RT_ST_Band.html" title="ST_Band">ST_Band</a>, <a href="RT_ST_BandPixelType.html" title="ST_BandPixelType">ST_BandPixelType</a>, <a href="RT_ST_MakeEmptyRaster.html" title="ST_MakeEmptyRaster">ST_MakeEmptyRaster</a>,  <a href="reclassarg.html" title="reclassarg">reclassarg</a>, <a href="RT_ST_Value.html" title="ST_Value">ST_Value</a></p></div></div><div class="navfooter"><hr><table width="100%" summary="Navigation footer"><tr><td width="40%" align="left"><a accesskey="p" href="RT_ST_Polygon.html">Prev</a> </td><td width="20%" align="center"><a accesskey="u" href="RT_reference.html#Raster_Processing">Up</a></td><td width="40%" align="right"> <a accesskey="n" href="RT_ST_Union.html">Next</a></td></tr><tr><td width="40%" align="left" valign="top">ST_Polygon </td><td width="20%" align="center"><a accesskey="h" href="index.html">Home</a></td><td width="40%" align="right" valign="top"> ST_Union</td></tr></table></div></body></html>

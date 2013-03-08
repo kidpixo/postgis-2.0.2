@@ -1,0 +1,33 @@
+<html><head><meta http-equiv="Content-Type" content="text/html; charset=ISO-8859-1"><title>ST_3DDistance</title><link rel="stylesheet" href="style.css" type="text/css"><meta name="generator" content="DocBook XSL Stylesheets V1.69.1"><link rel="start" href="index.html" title="PostGIS 2.0.2SVN Manual"><link rel="up" href="reference.html#Spatial_Relationships_Measurements" title="8.8. Spatial Relationships and Measurements"><link rel="prev" href="ST_3DClosestPoint.html" title="ST_3DClosestPoint"><link rel="next" href="ST_3DDWithin.html" title="ST_3DDWithin"></head><body bgcolor="white" text="black" link="#0000FF" vlink="#840084" alink="#0000FF"><div class="navheader"><table width="100%" summary="Navigation header"><tr><th colspan="3" align="center">ST_3DDistance</th></tr><tr><td width="20%" align="left"><a accesskey="p" href="ST_3DClosestPoint.html">Prev</a> </td><th width="60%" align="center">8.8. Spatial Relationships and Measurements</th><td width="20%" align="right"> <a accesskey="n" href="ST_3DDWithin.html">Next</a></td></tr></table><hr></div><div class="refentry" lang="en"><a name="ST_3DDistance"></a><div class="titlepage"></div><div class="refnamediv"><h2>Name</h2><p>ST_3DDistance &#8212; For geometry type Returns the 3-dimensional cartesian minimum distance (based on spatial ref) between two geometries in
+		projected units. </p></div><div class="refsynopsisdiv"><h2>Synopsis</h2><div class="funcsynopsis"><p><code class="funcdef">float <b class="fsfunc">ST_3DDistance</b>(</code>geometry 
+			<var class="pdparam">g1</var>, geometry 
+			<var class="pdparam">g2</var><code>)</code>;</p></div></div><div class="refsection" lang="en"><a name="id2924694"></a><h2>Description</h2><p>For geometry type returns the 3-dimensional minimum cartesian distance between two geometries in
+		projected units (spatial ref units).</p><p><span class="inlinemediaobject"><img src="images/check.png"></span>
+ This function supports 3d and will not drop the z-index.</p><p><span class="inlinemediaobject"><img src="images/check.png"></span>
+ This function supports Polyhedral surfaces.</p><p><span class="inlinemediaobject"><img src="images/check.png"></span> This method implements the SQL/MM specification. SQL-MM ?</p><p>Availability: 2.0.0</p></div><div class="refsection" lang="en"><a name="id2924759"></a><h2>Examples</h2><pre class="programlisting">
+-- Geometry example - units in meters (SRID: 2163 US National Atlas Equal area) (3D point and line compared 2D point and line)
+-- Note: currently no vertical datum support so Z is not transformed and assumed to be same units as final.
+SELECT ST_3DDistance(
+			ST_Transform(ST_GeomFromEWKT('SRID=4326;POINT(-72.1235 42.3521 4)'),2163),
+			ST_Transform(ST_GeomFromEWKT('SRID=4326;LINESTRING(-72.1260 42.45 15, -72.123 42.1546 20)'),2163)
+		) As dist_3d,
+		ST_Distance(
+			ST_Transform(ST_GeomFromText('POINT(-72.1235 42.3521)',4326),2163),
+			ST_Transform(ST_GeomFromText('LINESTRING(-72.1260 42.45, -72.123 42.1546)', 4326),2163)
+		) As dist_2d;
+
+     dist_3d      |     dist_2d
+------------------+-----------------
+ 127.295059324629 | 126.66425605671
+</pre><pre class="programlisting">
+-- Multilinestring and polygon both 3d and 2d distance
+-- Same example as 3D closest point example
+SELECT ST_3DDistance(poly, mline) As dist3d,
+    ST_Distance(poly, mline) As dist2d 
+        FROM (SELECT  ST_GeomFromEWKT('POLYGON((175 150 5, 20 40 5, 35 45 5, 50 60 5, 100 100 5, 175 150 5))') As poly,
+                ST_GeomFromEWKT('MULTILINESTRING((175 155 2, 20 40 20, 50 60 -2, 125 100 1, 175 155 1),
+                (1 10 2, 5 20 1))') As mline ) As foo;
+      dist3d       | dist2d
+-------------------+--------
+ 0.716635696066337 |      0          
+</pre></div><div class="refsection" lang="en"><a name="id2924799"></a><h2>See Also</h2><p><a href="ST_Distance.html" title="ST_Distance">ST_Distance</a>, <a href="ST_3DClosestPoint.html" title="ST_3DClosestPoint">ST_3DClosestPoint</a>, <a href="ST_3DDWithin.html" title="ST_3DDWithin">ST_3DDWithin</a>, <a href="ST_3DMaxDistance.html" title="ST_3DMaxDistance">ST_3DMaxDistance</a>, <a href="ST_3DShortestLine.html" title="ST_3DShortestLine">ST_3DShortestLine</a>, <a href="ST_Transform.html" title="ST_Transform">ST_Transform</a></p></div></div><div class="navfooter"><hr><table width="100%" summary="Navigation footer"><tr><td width="40%" align="left"><a accesskey="p" href="ST_3DClosestPoint.html">Prev</a> </td><td width="20%" align="center"><a accesskey="u" href="reference.html#Spatial_Relationships_Measurements">Up</a></td><td width="40%" align="right"> <a accesskey="n" href="ST_3DDWithin.html">Next</a></td></tr><tr><td width="40%" align="left" valign="top">ST_3DClosestPoint </td><td width="20%" align="center"><a accesskey="h" href="index.html">Home</a></td><td width="40%" align="right" valign="top"> ST_3DDWithin</td></tr></table></div></body></html>

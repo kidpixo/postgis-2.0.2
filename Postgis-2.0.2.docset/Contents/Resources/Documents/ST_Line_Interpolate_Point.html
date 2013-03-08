@@ -1,0 +1,32 @@
+<html><head><meta http-equiv="Content-Type" content="text/html; charset=ISO-8859-1"><title>ST_Line_Interpolate_Point</title><link rel="stylesheet" href="style.css" type="text/css"><meta name="generator" content="DocBook XSL Stylesheets V1.69.1"><link rel="start" href="index.html" title="PostGIS 2.0.2SVN Manual"><link rel="up" href="reference.html#Linear_Referencing" title="8.10. Linear Referencing"><link rel="prev" href="ST_UnaryUnion.html" title="ST_UnaryUnion"><link rel="next" href="ST_Line_Locate_Point.html" title="ST_Line_Locate_Point"></head><body bgcolor="white" text="black" link="#0000FF" vlink="#840084" alink="#0000FF"><div class="navheader"><table width="100%" summary="Navigation header"><tr><th colspan="3" align="center">ST_Line_Interpolate_Point</th></tr><tr><td width="20%" align="left"><a accesskey="p" href="ST_UnaryUnion.html">Prev</a> </td><th width="60%" align="center">8.10. Linear Referencing</th><td width="20%" align="right"> <a accesskey="n" href="ST_Line_Locate_Point.html">Next</a></td></tr></table><hr></div><div class="refentry" lang="en"><a name="ST_Line_Interpolate_Point"></a><div class="titlepage"></div><div class="refnamediv"><h2>Name</h2><p>ST_Line_Interpolate_Point &#8212; Returns a point interpolated along a line. Second argument is a float8 between 0 and 1
+			representing fraction of total length of linestring the point has to be located.</p></div><div class="refsynopsisdiv"><h2>Synopsis</h2><div class="funcsynopsis"><p><code class="funcdef">geometry <b class="fsfunc">ST_Line_Interpolate_Point</b>(</code>geometry  <var class="pdparam">a_linestring</var>, float  <var class="pdparam">a_fraction</var><code>)</code>;</p></div></div><div class="refsection" lang="en"><a name="id2959426"></a><h2>Description</h2><p>Returns a point interpolated along a line. First argument
+			must be a LINESTRING. Second argument is a float8 between 0 and 1
+			representing fraction of total linestring length the point has to be located.</p><p>See <a href="ST_Line_Locate_Point.html" title="ST_Line_Locate_Point">ST_Line_Locate_Point</a> for
+			computing the line location nearest to a Point.</p><div class="note" style="margin-left: 0.5in; margin-right: 0.5in;"><table border="0" summary="Note"><tr><td rowspan="2" align="center" valign="top" width="25"><img alt="[Note]" src="images/note.png"></td><th align="left"></th></tr><tr><td align="left" valign="top"><p>Since release 1.1.1 this function also interpolates M and
+			  Z values (when present), while prior releases set them to
+			  0.0.</p></td></tr></table></div><p>Availability: 0.8.2, Z and M supported added in 1.1.1</p><p><span class="inlinemediaobject"><img src="images/check.png"></span>
+ This function supports 3d and will not drop the z-index.</p></div><div class="refsection" lang="en"><a name="id2959480"></a><h2>Examples</h2><div class="informalfigure"><div class="mediaobject"><img src="images/st_line_interpolate_point01.png"><div class="caption"><p>A linestring with the interpolated point at 20% position (0.20) </p></div></div></div><pre class="programlisting">--Return point 20% along 2d line
+SELECT ST_AsEWKT(ST_Line_Interpolate_Point(the_line, 0.20))
+	FROM (SELECT ST_GeomFromEWKT('LINESTRING(25 50, 100 125, 150 190)') as the_line) As foo;
+   st_asewkt
+----------------
+ POINT(51.5974135047432 76.5974135047432)
+
+</pre><pre class="programlisting">
+--Return point mid-way of 3d line
+SELECT ST_AsEWKT(ST_Line_Interpolate_Point(the_line, 0.5))
+	FROM (SELECT ST_GeomFromEWKT('LINESTRING(1 2 3, 4 5 6, 6 7 8)') as the_line) As foo;
+
+	st_asewkt
+--------------------
+ POINT(3.5 4.5 5.5)
+
+
+--find closest point on a line to a point or other geometry
+ SELECT ST_AsText(ST_Line_Interpolate_Point(foo.the_line, ST_Line_Locate_Point(foo.the_line, ST_GeomFromText('POINT(4 3)'))))
+FROM (SELECT ST_GeomFromText('LINESTRING(1 2, 4 5, 6 7)') As the_line) As foo;
+   st_astext
+----------------
+ POINT(3 4)
+
+</pre></div><div class="refsection" lang="en"><a name="id2959537"></a><h2>See Also</h2><p><a href="ST_AsText.html" title="ST_AsText">ST_AsText</a>, <a href="ST_AsEWKT.html" title="ST_AsEWKT">ST_AsEWKT</a>, <a href="ST_Length.html" title="ST_Length">ST_Length</a>, <a href="ST_Line_Locate_Point.html" title="ST_Line_Locate_Point">ST_Line_Locate_Point</a></p></div></div><div class="navfooter"><hr><table width="100%" summary="Navigation footer"><tr><td width="40%" align="left"><a accesskey="p" href="ST_UnaryUnion.html">Prev</a> </td><td width="20%" align="center"><a accesskey="u" href="reference.html#Linear_Referencing">Up</a></td><td width="40%" align="right"> <a accesskey="n" href="ST_Line_Locate_Point.html">Next</a></td></tr><tr><td width="40%" align="left" valign="top">ST_UnaryUnion </td><td width="20%" align="center"><a accesskey="h" href="index.html">Home</a></td><td width="40%" align="right" valign="top"> ST_Line_Locate_Point</td></tr></table></div></body></html>

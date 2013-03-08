@@ -1,0 +1,77 @@
+<html><head><meta http-equiv="Content-Type" content="text/html; charset=ISO-8859-1"><title>AsGML</title><link rel="stylesheet" href="style.css" type="text/css"><meta name="generator" content="DocBook XSL Stylesheets V1.69.1"><link rel="start" href="index.html" title="PostGIS 2.0.2SVN Manual"><link rel="up" href="Topology.html#TopoGeometry_Outputs" title="11.10. TopoGeometry Outputs"><link rel="prev" href="GetTopoGeomElements.html" title="GetTopoGeomElements"><link rel="next" href="Extras.html" title="Chapter 12. PostGIS Extras"></head><body bgcolor="white" text="black" link="#0000FF" vlink="#840084" alink="#0000FF"><div class="navheader"><table width="100%" summary="Navigation header"><tr><th colspan="3" align="center">AsGML</th></tr><tr><td width="20%" align="left"><a accesskey="p" href="GetTopoGeomElements.html">Prev</a> </td><th width="60%" align="center">11.10. TopoGeometry Outputs</th><td width="20%" align="right"> <a accesskey="n" href="Extras.html">Next</a></td></tr></table><hr></div><div class="refentry" lang="en"><a name="AsGML"></a><div class="titlepage"></div><div class="refnamediv"><h2>Name</h2><p>AsGML &#8212; Returns the GML representation of a topogeometry.</p></div><div class="refsynopsisdiv"><h2>Synopsis</h2><div class="funcsynopsis"><p><code class="funcdef">text <b class="fsfunc">AsGML</b>(</code>topogeometry  <var class="pdparam">tg</var><code>)</code>;</p><p><code class="funcdef">text <b class="fsfunc">AsGML</b>(</code>topogeometry  <var class="pdparam">tg</var>, text  <var class="pdparam">nsprefix_in</var><code>)</code>;</p><p><code class="funcdef">text <b class="fsfunc">AsGML</b>(</code>topogeometry  <var class="pdparam">tg</var>, regclass  <var class="pdparam">visitedTable</var><code>)</code>;</p><p><code class="funcdef">text <b class="fsfunc">AsGML</b>(</code>topogeometry  <var class="pdparam">tg</var>, regclass  <var class="pdparam">visitedTable</var>, text  <var class="pdparam">nsprefix</var><code>)</code>;</p><p><code class="funcdef">text <b class="fsfunc">AsGML</b>(</code>topogeometry  <var class="pdparam">tg</var>, text  <var class="pdparam">nsprefix_in</var>, integer  <var class="pdparam">precision</var>, integer  <var class="pdparam">options</var><code>)</code>;</p><p><code class="funcdef">text <b class="fsfunc">AsGML</b>(</code>topogeometry  <var class="pdparam">tg</var>, text  <var class="pdparam">nsprefix_in</var>, integer  <var class="pdparam">precision</var>, integer  <var class="pdparam">options</var>, regclass  <var class="pdparam">visitedTable</var><code>)</code>;</p><p><code class="funcdef">text <b class="fsfunc">AsGML</b>(</code>topogeometry  <var class="pdparam">tg</var>, text  <var class="pdparam">nsprefix_in</var>, integer  <var class="pdparam">precision</var>, integer  <var class="pdparam">options</var>, regclass  <var class="pdparam">visitedTable</var>, text  <var class="pdparam">idprefix</var><code>)</code>;</p><p><code class="funcdef">text <b class="fsfunc">AsGML</b>(</code>topogeometry  <var class="pdparam">tg</var>, text  <var class="pdparam">nsprefix_in</var>, integer  <var class="pdparam">precision</var>, integer  <var class="pdparam">options</var>, regclass  <var class="pdparam">visitedTable</var>, text  <var class="pdparam">idprefix</var>, int  <var class="pdparam">gmlversion</var><code>)</code>;</p></div></div><div class="refsection" lang="en"><a name="id3081665"></a><h2>Description</h2><p>Returns the GML representation of a topogeometry in version GML3 format. If no <code class="varname">nsprefix_in</code> is specified then <code class="varname">gml</code> is used. Pass in an empty string for nsprefix to get a non-qualified name space. The precision (default: 15) and options (default 1) parameters, if given, are passed untouched to the underlying call to ST_AsGML.</p><p>
+The <code class="varname">visitedTable</code> parameter, if given, is used for keeping track of the visited Node and Edge elements so to use cross-references (xlink:xref) rather than duplicating definitions. The table is expected to have (at least) two integer fields: 'element_type' and 'element_id'. The calling user must have both read and write privileges on the given table.
+For best performance, an index should be defined on
+<code class="varname">element_type</code> and <code class="varname">element_id</code>, 
+in that order. Such index would be created automatically by adding a unique
+constraint to the fields. Example:
+</p><pre class="programlisting">
+CREATE TABLE visited (
+  element_type integer, element_id integer,
+  unique(element_type, element_id)
+);
+</pre><p>
+		</p><p>The <code class="varname">idprefix</code> parameter, if given, will be prepended to Edge and Node tag identifiers.</p><p>The <code class="varname">gmlver</code> parameter, if given, will be passed to the underlying ST_AsGML. Defaults to 3.</p><p>Availability: 2.0.0 </p></div><div class="refsection" lang="en"><a name="id3081742"></a><h2>Examples</h2><p>This uses the topo geometry we created in <a href="CreateTopoGeom.html" title="CreateTopoGeom">CreateTopoGeom</a></p><pre class="programlisting">SELECT topology.AsGML(topo) As rdgml 
+  FROM ri.roads 
+  WHERE road_name = 'Unknown';
+  
+-- rdgml--
+&lt;gml:TopoCurve&gt;
+    &lt;gml:directedEdge&gt;
+        &lt;gml:Edge gml:id="E1"&gt;
+            &lt;gml:directedNode orientation="-"&gt;
+                &lt;gml:Node gml:id="N1"/&gt;
+            &lt;/gml:directedNode&gt;
+            &lt;gml:directedNode&gt;&lt;/gml:directedNode&gt;
+            &lt;gml:curveProperty&gt;
+                &lt;gml:Curve srsName="urn:ogc:def:crs:EPSG::3438"&gt;
+                    &lt;gml:segments&gt;
+                        &lt;gml:LineStringSegment&gt;
+                            &lt;gml:posList srsDimension="2"&gt;384744 236928 384750 236923 384769 236911 384799 236895 384811 236890 
+                            384833 236884 384844 236882 384866 236881 384879 236883 384954 236898 385087 236932 385117 236938 
+                            385167 236938 385203 236941 385224 236946 385233 236950 385241 236956 385254 236971 
+                            385260 236979 385268 236999 385273 237018 385273 237037 385271 237047 385267 237057 385225 237125 
+                            385210 237144 385192 237161 385167 237192 385162 237202 385159 237214 385159 237227 385162 237241 
+                            385166 237256 385196 237324 385209 237345 385234 237375 385237 237383 385238 237399 385236 237407 
+                            385227 237419 385213 237430 385193 237439 385174 237451 385170 237455 385169 237460 385171 237475 
+                            385181 237503 385190 237521 385200 237533 385206 237538 385213 237541 385221 237542 385235 237540 385242 237541 
+                            385249 237544 385260 237555 385270 237570 385289 237584 385292 237589 385291 237596 385284 237630&lt;/gml:posList&gt;
+                        &lt;/gml:LineStringSegment&gt;
+                    &lt;/gml:segments&gt;
+                &lt;/gml:Curve&gt;
+            &lt;/gml:curveProperty&gt;
+        &lt;/gml:Edge&gt;
+    &lt;/gml:directedEdge&gt;
+&lt;/gml:TopoCurve&gt;		
+</pre><p>Same exercise as previous without namespace</p><pre class="programlisting">SELECT topology.AsGML(topo,'') As rdgml 
+  FROM ri.roads 
+  WHERE road_name = 'Unknown';
+  
+-- rdgml--
+&lt;TopoCurve&gt;
+    &lt;directedEdge&gt;
+        &lt;Edge id="E1"&gt;
+            &lt;directedNode orientation="-"&gt;
+                &lt;Node id="N1"/&gt;
+            &lt;/directedNode&gt;
+            &lt;directedNode&gt;&lt;/directedNode&gt;
+            &lt;curveProperty&gt;
+                &lt;Curve srsName="urn:ogc:def:crs:EPSG::3438"&gt;
+                    &lt;segments&gt;
+                        &lt;LineStringSegment&gt;
+                            &lt;posList srsDimension="2"&gt;384744 236928 384750 236923 384769 236911 384799 236895 384811 236890 
+                            384833 236884 384844 236882 384866 236881 384879 236883 384954 236898 385087 236932 385117 236938 
+                            385167 236938 385203 236941 385224 236946 385233 236950 385241 236956 385254 236971 
+                            385260 236979 385268 236999 385273 237018 385273 237037 385271 237047 385267 237057 385225 237125 
+                            385210 237144 385192 237161 385167 237192 385162 237202 385159 237214 385159 237227 385162 237241 
+                            385166 237256 385196 237324 385209 237345 385234 237375 385237 237383 385238 237399 385236 237407 
+                            385227 237419 385213 237430 385193 237439 385174 237451 385170 237455 385169 237460 385171 237475 
+                            385181 237503 385190 237521 385200 237533 385206 237538 385213 237541 385221 237542 385235 237540 385242 237541 
+                            385249 237544 385260 237555 385270 237570 385289 237584 385292 237589 385291 237596 385284 237630&lt;/posList&gt;
+                         &lt;/LineStringSegment&gt;
+                    &lt;/segments&gt;
+                &lt;/Curve&gt;
+            &lt;/curveProperty&gt;
+        &lt;/Edge&gt;
+    &lt;/directedEdge&gt;
+&lt;/TopoCurve&gt;		
+</pre></div><div class="refsection" lang="en"><a name="id3081775"></a><h2>See Also</h2><p><a href="CreateTopoGeom.html" title="CreateTopoGeom">CreateTopoGeom</a>, <a href="ST_CreateTopoGeo.html" title="ST_CreateTopoGeo">ST_CreateTopoGeo</a></p></div></div><div class="navfooter"><hr><table width="100%" summary="Navigation footer"><tr><td width="40%" align="left"><a accesskey="p" href="GetTopoGeomElements.html">Prev</a> </td><td width="20%" align="center"><a accesskey="u" href="Topology.html#TopoGeometry_Outputs">Up</a></td><td width="40%" align="right"> <a accesskey="n" href="Extras.html">Next</a></td></tr><tr><td width="40%" align="left" valign="top">GetTopoGeomElements </td><td width="20%" align="center"><a accesskey="h" href="index.html">Home</a></td><td width="40%" align="right" valign="top"> Chapter 12. PostGIS Extras</td></tr></table></div></body></html>

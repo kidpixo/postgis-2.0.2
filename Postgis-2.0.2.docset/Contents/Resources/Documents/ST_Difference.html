@@ -1,0 +1,34 @@
+<html><head><meta http-equiv="Content-Type" content="text/html; charset=ISO-8859-1"><title>ST_Difference</title><link rel="stylesheet" href="style.css" type="text/css"><meta name="generator" content="DocBook XSL Stylesheets V1.69.1"><link rel="start" href="index.html" title="PostGIS 2.0.2SVN Manual"><link rel="up" href="reference.html#Geometry_Processing" title="8.9. Geometry Processing"><link rel="prev" href="ST_CurveToLine.html" title="ST_CurveToLine"><link rel="next" href="ST_Dump.html" title="ST_Dump"></head><body bgcolor="white" text="black" link="#0000FF" vlink="#840084" alink="#0000FF"><div class="navheader"><table width="100%" summary="Navigation header"><tr><th colspan="3" align="center">ST_Difference</th></tr><tr><td width="20%" align="left"><a accesskey="p" href="ST_CurveToLine.html">Prev</a> </td><th width="60%" align="center">8.9. Geometry Processing</th><td width="20%" align="right"> <a accesskey="n" href="ST_Dump.html">Next</a></td></tr></table><hr></div><div class="refentry" lang="en"><a name="ST_Difference"></a><div class="titlepage"></div><div class="refnamediv"><h2>Name</h2><p>ST_Difference &#8212; Returns a geometry that represents that part of geometry A
+			that does not intersect with geometry B.</p></div><div class="refsynopsisdiv"><h2>Synopsis</h2><div class="funcsynopsis"><p><code class="funcdef">geometry <b class="fsfunc">ST_Difference</b>(</code>geometry  <var class="pdparam">geomA</var>, geometry  <var class="pdparam">geomB</var><code>)</code>;</p></div></div><div class="refsection" lang="en"><a name="id2947822"></a><h2>Description</h2><p>Returns a geometry that represents that part of geometry A
+			that does not intersect with geometry B.  One can think of this as GeometryA - ST_Intersection(A,B).  If A is completely contained in B
+			then an empty geometry collection is returned.</p><div class="note" style="margin-left: 0.5in; margin-right: 0.5in;"><table border="0" summary="Note"><tr><td rowspan="2" align="center" valign="top" width="25"><img alt="[Note]" src="images/note.png"></td><th align="left"></th></tr><tr><td align="left" valign="top"><p>Note - order matters. B - A will always return a portion of B</p></td></tr></table></div><p>Performed by the GEOS module</p><div class="note" style="margin-left: 0.5in; margin-right: 0.5in;"><table border="0" summary="Note"><tr><td rowspan="2" align="center" valign="top" width="25"><img alt="[Note]" src="images/note.png"></td><th align="left"></th></tr><tr><td align="left" valign="top"><p>Do not call with a GeometryCollection as an argument</p></td></tr></table></div><p><span class="inlinemediaobject"><img src="images/check.png"></span>
+ This method implements the <a href="http://www.opengeospatial.org/standards/sfs" target="_top">OpenGIS Simple Features
+ Implementation Specification for SQL 1.1.</a> s2.1.1.3</p><p><span class="inlinemediaobject"><img src="images/check.png"></span> This method implements the SQL/MM specification. SQL-MM 3: 5.1.20</p><p><span class="inlinemediaobject"><img src="images/check.png"></span>
+ This function supports 3d and will not drop the z-index. However it seems to only consider x y when 
+		  doing the difference and tacks back on the Z-Index</p></div><div class="refsection" lang="en"><a name="id2947904"></a><h2>Examples</h2><div class="informaltable"><table border="1"><colgroup><col><col></colgroup><tbody><tr><td>
+						<p>
+							</p><div class="informalfigure"><div class="mediaobject"><img src="images/st_symdifference01.png"><div class="caption"><p>The original linestrings shown together. </p></div></div></div><p>
+						</p>
+					</td><td>
+						<div class="informalfigure"><div class="mediaobject"><img src="images/st_difference01.png"><div class="caption"><p>The difference of the two linestrings</p></div></div></div><p>
+					</p>
+				</td></tr></tbody></table></div><pre class="programlisting">
+--Safe for 2d. This is same geometries as what is shown for st_symdifference
+SELECT ST_AsText(
+	ST_Difference(
+			ST_GeomFromText('LINESTRING(50 100, 50 200)'),
+			ST_GeomFromText('LINESTRING(50 50, 50 150)')
+		)
+	);
+
+st_astext
+---------
+LINESTRING(50 150,50 200)
+</pre><pre class="programlisting">
+
+--When used in 3d doesn't quite do the right thing
+SELECT ST_AsEWKT(ST_Difference(ST_GeomFromEWKT('MULTIPOINT(-118.58 38.38 5,-118.60 38.329 6,-118.614 38.281 7)'), ST_GeomFromEWKT('POINT(-118.614 38.281 5)')));
+st_asewkt
+---------
+MULTIPOINT(-118.6 38.329 6,-118.58 38.38 5)
+		</pre></div><div class="refsection" lang="en"><a name="id2948005"></a><h2>See Also</h2><p><a href="ST_SymDifference.html" title="ST_SymDifference">ST_SymDifference</a></p></div></div><div class="navfooter"><hr><table width="100%" summary="Navigation footer"><tr><td width="40%" align="left"><a accesskey="p" href="ST_CurveToLine.html">Prev</a> </td><td width="20%" align="center"><a accesskey="u" href="reference.html#Geometry_Processing">Up</a></td><td width="40%" align="right"> <a accesskey="n" href="ST_Dump.html">Next</a></td></tr><tr><td width="40%" align="left" valign="top">ST_CurveToLine </td><td width="20%" align="center"><a accesskey="h" href="index.html">Home</a></td><td width="40%" align="right" valign="top"> ST_Dump</td></tr></table></div></body></html>

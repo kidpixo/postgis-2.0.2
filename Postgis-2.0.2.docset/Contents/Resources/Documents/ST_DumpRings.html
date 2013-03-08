@@ -1,0 +1,26 @@
+<html><head><meta http-equiv="Content-Type" content="text/html; charset=ISO-8859-1"><title>ST_DumpRings</title><link rel="stylesheet" href="style.css" type="text/css"><meta name="generator" content="DocBook XSL Stylesheets V1.69.1"><link rel="start" href="index.html" title="PostGIS 2.0.2SVN Manual"><link rel="up" href="reference.html#Geometry_Processing" title="8.9. Geometry Processing"><link rel="prev" href="ST_DumpPoints.html" title="ST_DumpPoints"><link rel="next" href="ST_FlipCoordinates.html" title="ST_FlipCoordinates"></head><body bgcolor="white" text="black" link="#0000FF" vlink="#840084" alink="#0000FF"><div class="navheader"><table width="100%" summary="Navigation header"><tr><th colspan="3" align="center">ST_DumpRings</th></tr><tr><td width="20%" align="left"><a accesskey="p" href="ST_DumpPoints.html">Prev</a> </td><th width="60%" align="center">8.9. Geometry Processing</th><td width="20%" align="right"> <a accesskey="n" href="ST_FlipCoordinates.html">Next</a></td></tr></table><hr></div><div class="refentry" lang="en"><a name="ST_DumpRings"></a><div class="titlepage"></div><div class="refnamediv"><h2>Name</h2><p>ST_DumpRings &#8212; Returns a set of <code class="varname">geometry_dump</code> rows, representing
+			the exterior and interior rings of a polygon.</p></div><div class="refsynopsisdiv"><h2>Synopsis</h2><div class="funcsynopsis"><p><code class="funcdef">geometry_dump[] <b class="fsfunc">ST_DumpRings</b>(</code>geometry  <var class="pdparam">a_polygon</var><code>)</code>;</p></div></div><div class="refsection" lang="en"><a name="id2948726"></a><h2>Description</h2><p>This is a set-returning function (SRF). It returns a set of
+			<code class="varname">geometry_dump</code> rows, defined as an <code class="varname">integer[]</code>
+			and a <code class="varname">geometry</code>, aliased "path" and "geom" respectively.
+			The "path" field holds the polygon ring index containing a single integer: 0 for the shell, &gt;0 for holes.
+			The "geom" field contains the corresponding ring as a polygon.</p><p>Availability: PostGIS 1.1.3. Requires PostgreSQL 7.3 or higher.</p><div class="note" style="margin-left: 0.5in; margin-right: 0.5in;"><table border="0" summary="Note"><tr><td rowspan="2" align="center" valign="top" width="25"><img alt="[Note]" src="images/note.png"></td><th align="left"></th></tr><tr><td align="left" valign="top"><p>This only works for POLYGON geometries. It will not work for MULTIPOLYGONS</p></td></tr></table></div><p><span class="inlinemediaobject"><img src="images/check.png"></span>
+ This function supports 3d and will not drop the z-index.</p></div><div class="refsection" lang="en"><a name="id2948777"></a><h2>Examples</h2><pre class="programlisting">SELECT sometable.field1, sometable.field1,
+	  (ST_DumpRings(sometable.the_geom)).geom As the_geom
+FROM sometableOfpolys;
+
+SELECT ST_AsEWKT(geom) As the_geom, path
+	FROM ST_DumpRings(
+		ST_GeomFromEWKT('POLYGON((-8149064 5133092 1,-8149064 5132986 1,-8148996 5132839 1,-8148972 5132767 1,-8148958 5132508 1,-8148941 5132466 1,-8148924 5132394 1,
+		-8148903 5132210 1,-8148930 5131967 1,-8148992 5131978 1,-8149237 5132093 1,-8149404 5132211 1,-8149647 5132310 1,-8149757 5132394 1,
+		-8150305 5132788 1,-8149064 5133092 1),
+		(-8149362 5132394 1,-8149446 5132501 1,-8149548 5132597 1,-8149695 5132675 1,-8149362 5132394 1))')
+		)  as foo;
+ path |                                            the_geom
+----------------------------------------------------------------------------------------------------------------
+  {0} | POLYGON((-8149064 5133092 1,-8149064 5132986 1,-8148996 5132839 1,-8148972 5132767 1,-8148958 5132508 1,
+	  |          -8148941 5132466 1,-8148924 5132394 1,
+	  |          -8148903 5132210 1,-8148930 5131967 1,
+	  |          -8148992 5131978 1,-8149237 5132093 1,
+	  |          -8149404 5132211 1,-8149647 5132310 1,-8149757 5132394 1,-8150305 5132788 1,-8149064 5133092 1))
+  {1} | POLYGON((-8149362 5132394 1,-8149446 5132501 1,
+	  |          -8149548 5132597 1,-8149695 5132675 1,-8149362 5132394 1))</pre></div><div class="refsection" lang="en"><a name="id2948838"></a><h2>See Also</h2><p><a href="geometry_dump.html" title="geometry_dump">geometry_dump</a>, <a href="PostGIS_Special_Functions_Index.html#PostGIS_Geometry_DumpFunctions" title="13.5. PostGIS Geometry / Geography / Raster Dump Functions">Section 13.5, &#8220;PostGIS Geometry / Geography / Raster Dump Functions&#8221;</a>, <a href="ST_Dump.html" title="ST_Dump">ST_Dump</a>, <a href="ST_ExteriorRing.html" title="ST_ExteriorRing">ST_ExteriorRing</a>, <a href="ST_InteriorRingN.html" title="ST_InteriorRingN">ST_InteriorRingN</a></p></div></div><div class="navfooter"><hr><table width="100%" summary="Navigation footer"><tr><td width="40%" align="left"><a accesskey="p" href="ST_DumpPoints.html">Prev</a> </td><td width="20%" align="center"><a accesskey="u" href="reference.html#Geometry_Processing">Up</a></td><td width="40%" align="right"> <a accesskey="n" href="ST_FlipCoordinates.html">Next</a></td></tr><tr><td width="40%" align="left" valign="top">ST_DumpPoints </td><td width="20%" align="center"><a accesskey="h" href="index.html">Home</a></td><td width="40%" align="right" valign="top"> ST_FlipCoordinates</td></tr></table></div></body></html>

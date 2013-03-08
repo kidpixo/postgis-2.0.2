@@ -1,0 +1,271 @@
+<html><head><meta http-equiv="Content-Type" content="text/html; charset=ISO-8859-1"><title>Chapter 6. Using PostGIS Geometry: Building Applications</title><link rel="stylesheet" href="style.css" type="text/css"><meta name="generator" content="DocBook XSL Stylesheets V1.69.1"><link rel="start" href="index.html" title="PostGIS 2.0.2SVN Manual"><link rel="up" href="index.html" title="PostGIS 2.0.2SVN Manual"><link rel="prev" href="using_raster.xml.html" title="Chapter 5. Raster Data Management, Queries, and Applications"><link rel="next" href="ch07.html" title="Chapter 7. Performance tips"></head><body bgcolor="white" text="black" link="#0000FF" vlink="#840084" alink="#0000FF"><div class="navheader"><table width="100%" summary="Navigation header"><tr><th colspan="3" align="center">Chapter 6. Using PostGIS Geometry: Building Applications</th></tr><tr><td width="20%" align="left"><a accesskey="p" href="using_raster.xml.html">Prev</a> </td><th width="60%" align="center"> </th><td width="20%" align="right"> <a accesskey="n" href="ch07.html">Next</a></td></tr></table><hr></div><div class="chapter" lang="en"><div class="titlepage"><div><div><h2 class="title"><a name="id2864083"></a>Chapter 6. Using PostGIS Geometry: Building Applications</h2></div></div></div><div class="toc"><p><b>Table of Contents</b></p><dl><dt><span class="sect1"><a href="ch06.html#Using_MapServer">6.1. Using MapServer</a></span></dt><dd><dl><dt><span class="sect2"><a href="ch06.html#id2864104">6.1.1. Basic Usage</a></span></dt><dt><span class="sect2"><a href="ch06.html#id2864363">6.1.2. Frequently Asked Questions</a></span></dt><dt><span class="sect2"><a href="ch06.html#id2864538">6.1.3. Advanced Usage</a></span></dt><dt><span class="sect2"><a href="ch06.html#id2864647">6.1.4. Examples</a></span></dt></dl></dd><dt><span class="sect1"><a href="ch06.html#id2863954">6.2. Java Clients (JDBC)</a></span></dt><dt><span class="sect1"><a href="ch06.html#id2864034">6.3. C Clients (libpq)</a></span></dt><dd><dl><dt><span class="sect2"><a href="ch06.html#id2864043">6.3.1. Text Cursors</a></span></dt><dt><span class="sect2"><a href="ch06.html#id2864053">6.3.2. Binary Cursors</a></span></dt></dl></dd></dl></div><div class="sect1" lang="en"><div class="titlepage"><div><div><h2 class="title" style="clear: both"><a name="Using_MapServer"></a>6.1. Using MapServer</h2></div></div></div><div class="toc"><dl><dt><span class="sect2"><a href="ch06.html#id2864104">6.1.1. Basic Usage</a></span></dt><dt><span class="sect2"><a href="ch06.html#id2864363">6.1.2. Frequently Asked Questions</a></span></dt><dt><span class="sect2"><a href="ch06.html#id2864538">6.1.3. Advanced Usage</a></span></dt><dt><span class="sect2"><a href="ch06.html#id2864647">6.1.4. Examples</a></span></dt></dl></div><p>The Minnesota MapServer is an internet web-mapping server which
+    conforms to the OpenGIS Web Mapping Server specification.</p><div class="itemizedlist"><ul type="disc"><li><p>The MapServer homepage is at <a href="http://mapserver.org" target="_top">http://mapserver.org</a>.</p></li><li><p>The OpenGIS Web Map Specification is at <a href="http://www.opengeospatial.org/standards/wms" target="_top">http://www.opengeospatial.org/standards/wms</a>.</p></li></ul></div><div class="sect2" lang="en"><div class="titlepage"><div><div><h3 class="title"><a name="id2864104"></a>6.1.1. Basic Usage</h3></div></div></div><p>To use PostGIS with MapServer, you will need to know about how to
+      configure MapServer, which is beyond the scope of this documentation.
+      This section will cover specific PostGIS issues and configuration
+      details.</p><p>To use PostGIS with MapServer, you will need:</p><div class="itemizedlist"><ul type="disc"><li><p>Version 0.6 or newer of PostGIS.</p></li><li><p>Version 3.5 or newer of MapServer.</p></li></ul></div><p>MapServer accesses PostGIS/PostgreSQL data like any other
+      PostgreSQL client -- using the <code class="filename">libpq</code> interface. This means that
+      MapServer can be installed on any machine with network access to the
+      PostGIS server, and use PostGIS as a source of data. The faster the connection
+      between the systems, the better.</p><div class="orderedlist"><ol type="1"><li><p>Compile and install MapServer, with whatever options you
+          desire, including the "--with-postgis" configuration option.</p></li><li><p>In your MapServer map file, add a PostGIS layer. For
+          example:</p><pre class="programlisting">LAYER 
+  CONNECTIONTYPE postgis 
+  NAME "widehighways" 
+  # Connect to a remote spatial database
+  CONNECTION "user=dbuser dbname=gisdatabase host=bigserver"
+  PROCESSING "CLOSE_CONNECTION=DEFER"
+  # Get the lines from the 'geom' column of the 'roads' table 
+  DATA "geom from roads using srid=4326 using unique gid" 
+  STATUS ON
+  TYPE LINE 
+  # Of the lines in the extents, only render the wide highways 
+  FILTER "type = 'highway' and numlanes &gt;= 4" 
+  CLASS 
+    # Make the superhighways brighter and 2 pixels wide
+    EXPRESSION ([numlanes] &gt;= 6) 
+    STYLE
+      COLOR 255 22 22 
+      WIDTH 2 
+    END
+  END 
+  CLASS 
+    # All the rest are darker and only 1 pixel wide 
+    EXPRESSION ([numlanes] &lt; 6) 
+    STYLE
+      COLOR 205 92 82
+    END
+  END 
+END</pre><p>In the example above, the PostGIS-specific directives are as
+          follows:</p><div class="variablelist"><dl><dt><span class="term">CONNECTIONTYPE</span></dt><dd><p>For PostGIS layers, this is always "postgis".</p></dd><dt><span class="term">CONNECTION</span></dt><dd><p>The database connection is governed by the a 'connection
+                string' which is a standard set of keys and values like this
+                (with the default values in &lt;&gt;):</p><p>user=&lt;username&gt; password=&lt;password&gt;
+                dbname=&lt;username&gt; hostname=&lt;server&gt;
+                port=&lt;5432&gt;</p><p>An empty connection string is still valid, and any of
+                the key/value pairs can be omitted. At a minimum you will
+                generally supply the database name and username to connect
+                with.</p></dd><dt><span class="term">DATA</span></dt><dd><p>The form of this parameter is "&lt;geocolumn&gt; from
+                &lt;tablename&gt; using srid=&lt;srid&gt; using unique &lt;primary key&gt;" where the column is the spatial column to
+                be rendered to the map, the SRID is SRID used by the column and the primary key is the table primary key (or any
+                other uniquely-valued column with an index).</p><p>You can omit the "using srid" and "using unique" clauses and MapServer will automatically determine the
+                correct values if possible, but at the cost of running a few extra queries on the server for each map 
+                draw.</p></dd><dt><span class="term">PROCESSING</span></dt><dd><p>Putting in a CLOSE_CONNECTION=DEFER if you have multiple layers reuses existing connections instead of closing them.  This improves 
+					speed.  Refer to for <a href="http://blog.cleverelephant.ca/2008/10/mapserverpostgis-performance-tips.html" target="_top">MapServer PostGIS Performance Tips</a> for a more detailed explanation.  </p></dd><dt><span class="term">FILTER</span></dt><dd><p>The filter must be a valid SQL string corresponding to
+                the logic normally following the "WHERE" keyword in a SQL
+                query. So, for example, to render only roads with 6 or more
+                lanes, use a filter of "num_lanes &gt;= 6".</p></dd></dl></div></li><li><p>In your spatial database, ensure you have spatial (GiST)
+          indexes built for any the layers you will be drawing.</p><pre class="programlisting">CREATE INDEX [indexname] ON [tablename] USING GIST ( [geometrycolumn] );</pre></li><li><p>If you will be querying your layers using MapServer you will
+          also need to use the "using unique" clause in your DATA statement.</p><p>MapServer requires unique identifiers for each spatial record
+          when doing queries, and the PostGIS module of MapServer uses the
+          unique value you specify in order to provide these unique
+          identifiers. Using the table primary key is the best practice.</p></li></ol></div></div><div class="sect2" lang="en"><div class="titlepage"><div><div><h3 class="title"><a name="id2864363"></a>6.1.2. Frequently Asked Questions</h3></div></div></div><div class="qandaset"><dl><dt>6.1.2.1. <a href="ch06.html#id2864370">When I use an EXPRESSION in my map file,
+            the condition never returns as true, even though I know the values
+            exist in my table.</a></dt><dt>6.1.2.2. <a href="ch06.html#id2864403">The FILTER I use for my Shape files is not working for my
+            PostGIS table of the same data.</a></dt><dt>6.1.2.3. <a href="ch06.html#id2864431">My PostGIS layer draws much slower than my Shape file layer,
+            is this normal?</a></dt><dt>6.1.2.4. <a href="ch06.html#id2864467">My PostGIS layer draws fine, but queries are really slow.
+            What is wrong?</a></dt><dt>6.1.2.5. <a href="ch06.html#id2864504">Can I use "geography" columns (new in PostGIS 1.5) as a source for
+            MapServer layers?</a></dt></dl><table border="0" summary="Q and A Set"><col align="left" width="1%"><tbody><tr class="question"><td align="left" valign="top"><a name="id2864370"></a><a name="id2864373"></a><b>6.1.2.1.</b></td><td align="left" valign="top"><p>When I use an <code class="varname">EXPRESSION</code> in my map file,
+            the condition never returns as true, even though I know the values
+            exist in my table.</p></td></tr><tr class="answer"><td align="left" valign="top"><b></b></td><td align="left" valign="top"><p>Unlike shape files, PostGIS field names have to be
+            referenced in EXPRESSIONS using <span class="emphasis"><em>lower
+            case</em></span>.</p><pre class="programlisting">EXPRESSION ([numlanes] &gt;= 6)</pre></td></tr><tr class="question"><td align="left" valign="top"><a name="id2864403"></a><a name="id2864405"></a><b>6.1.2.2.</b></td><td align="left" valign="top"><p>The FILTER I use for my Shape files is not working for my
+            PostGIS table of the same data.</p></td></tr><tr class="answer"><td align="left" valign="top"><b></b></td><td align="left" valign="top"><p>Unlike shape files, filters for PostGIS layers use SQL
+            syntax (they are appended to the SQL statement the PostGIS
+            connector generates for drawing layers in MapServer).</p><pre class="programlisting">FILTER "type = 'highway' and numlanes &gt;= 4"</pre></td></tr><tr class="question"><td align="left" valign="top"><a name="id2864431"></a><a name="id2864433"></a><b>6.1.2.3.</b></td><td align="left" valign="top"><p>My PostGIS layer draws much slower than my Shape file layer,
+            is this normal?</p></td></tr><tr class="answer"><td align="left" valign="top"><b></b></td><td align="left" valign="top"><p>In general, the more features you are drawing into a given map, 
+            the more likely it is that PostGIS will be slower than Shape files.
+            For maps with relatively few features (100s), PostGIS will often be faster.
+            For maps with high feature density (1000s), PostGIS will always be slower.
+            </p><p>If you are finding substantial draw performance problems, it
+            is possible that you have not built a spatial index on your
+            table.</p><pre class="programlisting">postgis# CREATE INDEX geotable_gix ON geotable USING GIST ( geocolumn ); 
+postgis# VACUUM ANALYZE;</pre></td></tr><tr class="question"><td align="left" valign="top"><a name="id2864467"></a><a name="id2864469"></a><b>6.1.2.4.</b></td><td align="left" valign="top"><p>My PostGIS layer draws fine, but queries are really slow.
+            What is wrong?</p></td></tr><tr class="answer"><td align="left" valign="top"><b></b></td><td align="left" valign="top"><p>For queries to be fast, you must have a unique key for your
+            spatial table and you must have an index on that unique
+            key.</p><p>You can specify what unique key for mapserver to use with
+            the <code class="varname">USING UNIQUE</code> clause in your
+            <code class="varname">DATA</code> line:</p><pre class="programlisting">DATA "geom FROM geotable USING UNIQUE gid"</pre></td></tr><tr class="question"><td align="left" valign="top"><a name="id2864504"></a><a name="id2864506"></a><b>6.1.2.5.</b></td><td align="left" valign="top"><p>Can I use "geography" columns (new in PostGIS 1.5) as a source for
+            MapServer layers?</p></td></tr><tr class="answer"><td align="left" valign="top"><b></b></td><td align="left" valign="top"><p>Yes! MapServer understands geography columns as being the same as 
+            geometry columns, but always using an SRID of 4326. Just make sure to include
+            a "using srid=4326" clause in your <code class="varname">DATA</code> statement. Everything else 
+            works exactly the same as with geometry.</p><pre class="programlisting">DATA "geog FROM geogtable USING SRID=4326 USING UNIQUE gid"</pre></td></tr></tbody></table></div></div><div class="sect2" lang="en"><div class="titlepage"><div><div><h3 class="title"><a name="id2864538"></a>6.1.3. Advanced Usage</h3></div></div></div><p>The <code class="varname">USING</code> pseudo-SQL clause is used to add some
+      information to help mapserver understand the results of more complex
+      queries. More specifically, when either a view or a subselect is used as
+      the source table (the thing to the right of "FROM" in a
+      <code class="varname">DATA</code> definition) it is more difficult for mapserver
+      to automatically determine a unique identifier for each row and also the
+      SRID for the table. The <code class="varname">USING</code> clause can provide
+      mapserver with these two pieces of information as follows:</p><pre class="programlisting">DATA "geom FROM (
+  SELECT 
+    table1.geom AS geom, 
+    table1.gid AS gid, 
+    table2.data AS data 
+  FROM table1 
+  LEFT JOIN table2 
+  ON table1.id = table2.id
+) AS new_table USING UNIQUE gid USING SRID=4326"</pre><div class="variablelist"><dl><dt><span class="term">USING UNIQUE &lt;uniqueid&gt;</span></dt><dd><p>MapServer requires a unique id for each row in order to
+            identify the row when doing map queries. Normally it identifies
+            the primary key from the system tables. However, views and subselects don't
+            automatically have an known unique column. If you want to use MapServer's
+            query functionality, you need to ensure your view
+            or subselect includes a uniquely valued column, and declare it with <code class="varname">USING UNIQUE</code>.
+            For example, you could explicitly select nee of the table's primary key
+            values for this purpose, or any other column which is guaranteed
+            to be unique for the result set.</p><div class="note" style="margin-left: 0.5in; margin-right: 0.5in;"><table border="0" summary="Note"><tr><td rowspan="2" align="center" valign="top" width="25"><img alt="[Note]" src="images/note.png"></td><th align="left"></th></tr><tr><td align="left" valign="top"><p>"Querying a Map" is the action of clicking on a map to ask
+              for information about the map features in that location. Don't
+              confuse "map queries" with the SQL query in a
+              <code class="varname">DATA</code> definition.</p></td></tr></table></div></dd><dt><span class="term">USING SRID=&lt;srid&gt;</span></dt><dd><p>PostGIS needs to know which spatial referencing system is
+            being used by the geometries in order to return the correct data
+            back to MapServer. Normally it is possible to find this
+            information in the "geometry_columns" table in the PostGIS
+            database, however, this is not possible for tables which are
+            created on the fly such as subselects and views. So the
+            <code class="varname">USING SRID=</code> option allows the correct SRID to
+            be specified in the <code class="varname">DATA</code> definition.</p></dd></dl></div></div><div class="sect2" lang="en"><div class="titlepage"><div><div><h3 class="title"><a name="id2864647"></a>6.1.4. Examples</h3></div></div></div><p>Lets start with a simple example and work our way up. Consider the
+      following MapServer layer definition:</p><pre class="programlisting">LAYER 
+  CONNECTIONTYPE postgis 
+  NAME "roads"
+  CONNECTION "user=theuser password=thepass dbname=thedb host=theserver" 
+  DATA "geom from roads" 
+  STATUS ON 
+  TYPE LINE 
+  CLASS 
+    STYLE
+      COLOR 0 0 0 
+    END
+  END 
+END</pre><p>This layer will display all the road geometries in the roads table
+      as black lines.</p><p>Now lets say we want to show only the highways until we get zoomed
+      in to at least a 1:100000 scale - the next two layers will achieve this
+      effect:</p><pre class="programlisting">LAYER 
+  CONNECTIONTYPE postgis 
+  CONNECTION "user=theuser password=thepass dbname=thedb host=theserver" 
+  PROCESSING "CLOSE_CONNECTION=DEFER"
+  DATA "geom from roads"
+  MINSCALE 100000 
+  STATUS ON 
+  TYPE LINE 
+  FILTER "road_type = 'highway'" 
+  CLASS 
+    COLOR 0 0 0 
+  END 
+END 
+LAYER 
+  CONNECTIONTYPE postgis 
+  CONNECTION "user=theuser password=thepass dbname=thedb host=theserver"
+  PROCESSING "CLOSE_CONNECTION=DEFER"
+  DATA "geom from roads" 
+  MAXSCALE 100000 
+  STATUS ON 
+  TYPE LINE
+  CLASSITEM road_type 
+  CLASS 
+    EXPRESSION "highway" 
+    STYLE
+      WIDTH 2 
+      COLOR 255 0 0  
+    END
+  END 
+  CLASS  
+    STYLE
+      COLOR 0 0 0 
+    END
+  END 
+END</pre><p>The first layer is used when the scale is greater than 1:100000,
+      and displays only the roads of type "highway" as black lines. The
+      <code class="varname">FILTER</code> option causes only roads of type "highway" to
+      be displayed.</p><p>The second layer is used when the scale is less than 1:100000, and
+      will display highways as double-thick red lines, and other roads as
+      regular black lines.</p><p>So, we have done a couple of interesting things using only
+      MapServer functionality, but our <code class="varname">DATA</code> SQL statement
+      has remained simple. Suppose that the name of the road is stored in
+      another table (for whatever reason) and we need to do a join to get it
+      and label our roads.</p><pre class="programlisting">LAYER 
+  CONNECTIONTYPE postgis
+  CONNECTION "user=theuser password=thepass dbname=thedb host=theserver" 
+  DATA "geom FROM (SELECT roads.gid AS gid, roads.geom AS geom, 
+        road_names.name as name FROM roads LEFT JOIN road_names ON 
+        roads.road_name_id = road_names.road_name_id) 
+        AS named_roads USING UNIQUE gid USING SRID=4326" 
+  MAXSCALE 20000 
+  STATUS ON 
+  TYPE ANNOTATION 
+  LABELITEM name
+  CLASS 
+    LABEL 
+      ANGLE auto 
+      SIZE 8 
+      COLOR 0 192 0 
+      TYPE truetype 
+      FONT arial
+    END
+  END 
+END</pre><p>This annotation layer adds green labels to all the roads when the
+      scale gets down to 1:20000 or less. It also demonstrates how to use an
+      SQL join in a <code class="varname">DATA</code> definition.</p></div></div><div class="sect1" lang="en"><div class="titlepage"><div><div><h2 class="title" style="clear: both"><a name="id2863954"></a>6.2. Java Clients (JDBC)</h2></div></div></div><p>Java clients can access PostGIS "geometry" objects in the PostgreSQL
+    database either directly as text representations or using the JDBC
+    extension objects bundled with PostGIS. In order to use the extension
+    objects, the "postgis.jar" file must be in your CLASSPATH along with the
+    "postgresql.jar" JDBC driver package.</p><pre class="programlisting">import java.sql.*; 
+import java.util.*; 
+import java.lang.*; 
+import org.postgis.*; 
+
+public class JavaGIS { 
+
+public static void main(String[] args) { 
+
+  java.sql.Connection conn; 
+
+  try { 
+    /* 
+    * Load the JDBC driver and establish a connection. 
+    */
+    Class.forName("org.postgresql.Driver"); 
+    String url = "jdbc:postgresql://localhost:5432/database"; 
+    conn = DriverManager.getConnection(url, "postgres", ""); 
+    /* 
+    * Add the geometry types to the connection. Note that you 
+    * must cast the connection to the pgsql-specific connection 
+    * implementation before calling the addDataType() method. 
+    */
+    ((org.postgresql.PGConnection)conn).addDataType("geometry",Class.forName("org.postgis.PGgeometry"));
+    ((org.postgresql.PGConnection)conn).addDataType("box3d",Class.forName("org.postgis.PGbox3d"));
+    /* 
+    * Create a statement and execute a select query. 
+    */ 
+    Statement s = conn.createStatement(); 
+    ResultSet r = s.executeQuery("select geom,id from geomtable"); 
+    while( r.next() ) { 
+      /* 
+      * Retrieve the geometry as an object then cast it to the geometry type. 
+      * Print things out. 
+      */ 
+      PGgeometry geom = (PGgeometry)r.getObject(1); 
+      int id = r.getInt(2); 
+      System.out.println("Row " + id + ":");
+      System.out.println(geom.toString()); 
+    } 
+    s.close(); 
+    conn.close(); 
+  } 
+catch( Exception e ) { 
+  e.printStackTrace(); 
+  } 
+} 
+}</pre><p>The "PGgeometry" object is a wrapper object which contains a
+    specific topological geometry object (subclasses of the abstract class
+    "Geometry") depending on the type: Point, LineString, Polygon, MultiPoint,
+    MultiLineString, MultiPolygon.</p><pre class="programlisting">PGgeometry geom = (PGgeometry)r.getObject(1); 
+if( geom.getType() == Geometry.POLYGON ) { 
+  Polygon pl = (Polygon)geom.getGeometry(); 
+  for( int r = 0; r &lt; pl.numRings(); r++) { 
+    LinearRing rng = pl.getRing(r); 
+    System.out.println("Ring: " + r); 
+    for( int p = 0; p &lt; rng.numPoints(); p++ ) { 
+      Point pt = rng.getPoint(p); 
+      System.out.println("Point: " + p);
+      System.out.println(pt.toString()); 
+    } 
+  } 
+}</pre><p>The JavaDoc for the extension objects provides a reference for the
+    various data accessor functions in the geometric objects.</p></div><div class="sect1" lang="en"><div class="titlepage"><div><div><h2 class="title" style="clear: both"><a name="id2864034"></a>6.3. C Clients (libpq)</h2></div></div></div><div class="toc"><dl><dt><span class="sect2"><a href="ch06.html#id2864043">6.3.1. Text Cursors</a></span></dt><dt><span class="sect2"><a href="ch06.html#id2864053">6.3.2. Binary Cursors</a></span></dt></dl></div><p>...</p><div class="sect2" lang="en"><div class="titlepage"><div><div><h3 class="title"><a name="id2864043"></a>6.3.1. Text Cursors</h3></div></div></div><p>...</p></div><div class="sect2" lang="en"><div class="titlepage"><div><div><h3 class="title"><a name="id2864053"></a>6.3.2. Binary Cursors</h3></div></div></div><p>...</p></div></div></div><div class="navfooter"><hr><table width="100%" summary="Navigation footer"><tr><td width="40%" align="left"><a accesskey="p" href="using_raster.xml.html">Prev</a> </td><td width="20%" align="center"> </td><td width="40%" align="right"> <a accesskey="n" href="ch07.html">Next</a></td></tr><tr><td width="40%" align="left" valign="top">Chapter 5. Raster Data Management, Queries, and Applications </td><td width="20%" align="center"><a accesskey="h" href="index.html">Home</a></td><td width="40%" align="right" valign="top"> Chapter 7. Performance tips</td></tr></table></div></body></html>

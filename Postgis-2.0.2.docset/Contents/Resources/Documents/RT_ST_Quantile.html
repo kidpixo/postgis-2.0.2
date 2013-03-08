@@ -1,0 +1,54 @@
+<html><head><meta http-equiv="Content-Type" content="text/html; charset=ISO-8859-1"><title>ST_Quantile</title><link rel="stylesheet" href="style.css" type="text/css"><meta name="generator" content="DocBook XSL Stylesheets V1.69.1"><link rel="start" href="index.html" title="PostGIS 2.0.2SVN Manual"><link rel="up" href="RT_reference.html#RasterBand_Stats" title="9.9. Raster Band Statistics and Analytics"><link rel="prev" href="RT_ST_Histogram.html" title="ST_Histogram"><link rel="next" href="RT_ST_SummaryStats.html" title="ST_SummaryStats"></head><body bgcolor="white" text="black" link="#0000FF" vlink="#840084" alink="#0000FF"><div class="navheader"><table width="100%" summary="Navigation header"><tr><th colspan="3" align="center">ST_Quantile</th></tr><tr><td width="20%" align="left"><a accesskey="p" href="RT_ST_Histogram.html">Prev</a> </td><th width="60%" align="center">9.9. Raster Band Statistics and Analytics</th><td width="20%" align="right"> <a accesskey="n" href="RT_ST_SummaryStats.html">Next</a></td></tr></table><hr></div><div class="refentry" lang="en"><a name="RT_ST_Quantile"></a><div class="titlepage"></div><div class="refnamediv"><h2>Name</h2><p>ST_Quantile &#8212; Compute quantiles for a raster or raster table coverage in the context of the sample or population. Thus, a value could be examined to be at the raster's 25%, 50%, 75% percentile.</p></div><div class="refsynopsisdiv"><h2>Synopsis</h2><div class="funcsynopsis"><p><code class="funcdef">SETOF quantile <b class="fsfunc">ST_Quantile</b>(</code>raster  <var class="pdparam">rast</var>, integer  <var class="pdparam">nband=1</var>, boolean  <var class="pdparam">exclude_nodata_value=true</var>, double precision[]  <var class="pdparam">quantiles=NULL</var><code>)</code>;</p><p><code class="funcdef">SETOF quantile <b class="fsfunc">ST_Quantile</b>(</code>raster  <var class="pdparam">rast</var>, double precision[]  <var class="pdparam">quantiles</var><code>)</code>;</p><p><code class="funcdef">SETOF quantile <b class="fsfunc">ST_Quantile</b>(</code>raster  <var class="pdparam">rast</var>, integer  <var class="pdparam">nband</var>, double precision[]  <var class="pdparam">quantiles</var><code>)</code>;</p><p><code class="funcdef">double precision <b class="fsfunc">ST_Quantile</b>(</code>raster  <var class="pdparam">rast</var>, double precision  <var class="pdparam">quantile</var><code>)</code>;</p><p><code class="funcdef">double precision <b class="fsfunc">ST_Quantile</b>(</code>raster  <var class="pdparam">rast</var>, boolean  <var class="pdparam">exclude_nodata_value</var>, double precision  <var class="pdparam">quantile=NULL</var><code>)</code>;</p><p><code class="funcdef">double precision <b class="fsfunc">ST_Quantile</b>(</code>raster  <var class="pdparam">rast</var>, integer  <var class="pdparam">nband</var>, double precision  <var class="pdparam">quantile</var><code>)</code>;</p><p><code class="funcdef">double precision <b class="fsfunc">ST_Quantile</b>(</code>raster  <var class="pdparam">rast</var>, integer  <var class="pdparam">nband</var>, boolean  <var class="pdparam">exclude_nodata_value</var>, double precision  <var class="pdparam">quantile</var><code>)</code>;</p><p><code class="funcdef">double precision <b class="fsfunc">ST_Quantile</b>(</code>raster  <var class="pdparam">rast</var>, integer  <var class="pdparam">nband</var>, double precision  <var class="pdparam">quantile</var><code>)</code>;</p><p><code class="funcdef">setof quantile <b class="fsfunc">ST_Quantile</b>(</code>text  <var class="pdparam">rastertable</var>, text  <var class="pdparam">rastercolumn</var>, integer  <var class="pdparam">nband=1</var>, boolean  <var class="pdparam">exclude_nodata_value=true</var>, double precision[]  <var class="pdparam">quantiles=NULL</var><code>)</code>;</p><p><code class="funcdef">setof quantile <b class="fsfunc">ST_Quantile</b>(</code>text  <var class="pdparam">rastertable</var>, text  <var class="pdparam">rastercolumn</var>, integer  <var class="pdparam">nband</var>, double precision[]  <var class="pdparam">quantiles</var><code>)</code>;</p></div></div><div class="refsection" lang="en"><a name="id3033447"></a><h2>Description</h2><p>Compute quantiles for a raster or raster table coverage in the context of the sample or population. Thus, a value could be examined to be at the raster's 25%, 50%, 75% percentile.</p><div class="note" style="margin-left: 0.5in; margin-right: 0.5in;"><table border="0" summary="Note"><tr><td rowspan="2" align="center" valign="top" width="25"><img alt="[Note]" src="images/note.png"></td><th align="left"></th></tr><tr><td align="left" valign="top"><p>If <code class="varname">exclude_nodata_value</code> is set to false, will also count pixels with no data.</p></td></tr></table></div><p>Availability: 2.0.0 </p></div><div class="refsection" lang="en"><a name="id3033473"></a><h2>Examples</h2><pre class="programlisting">
+UPDATE dummy_rast SET rast = ST_SetBandNoDataValue(rast,249) WHERE rid=2;
+--Example will consider only pixels of band 1 that are not 249 and in named quantiles --
+
+SELECT (pvq).*
+FROM (SELECT ST_Quantile(rast, ARRAY[0.25,0.75]) As pvq
+    FROM dummy_rast WHERE rid=2) As foo
+    ORDER BY (pvq).quantile;
+				    			    
+ quantile | value
+----------+-------
+     0.25 |   253
+     0.75 |   254
+   
+SELECT ST_Quantile(rast, 0.75) As value
+    FROM dummy_rast WHERE rid=2;
+    
+value
+------
+  254
+</pre><pre class="programlisting">
+--real live example.  Quantile of all pixels in band 2 intersecting a geometry
+SELECT rid, (ST_Quantile(rast,2)).* As pvc
+    FROM o_4_boston 
+        WHERE ST_Intersects(rast, 
+            ST_GeomFromText('POLYGON((224486 892151,224486 892200,224706 892200,224706 892151,224486 892151))',26986)
+            )
+ORDER BY value, quantile,rid
+;
+				
+    
+ rid | quantile | value
+-----+----------+-------
+   1 |        0 |     0
+   2 |        0 |     0
+  14 |        0 |     1
+  15 |        0 |     2
+  14 |     0.25 |    37
+   1 |     0.25 |    42
+  15 |     0.25 |    47
+   2 |     0.25 |    50
+  14 |      0.5 |    56
+   1 |      0.5 |    64
+  15 |      0.5 |    66
+   2 |      0.5 |    77
+  14 |     0.75 |    81
+  15 |     0.75 |    87
+   1 |     0.75 |    94
+   2 |     0.75 |   106
+  14 |        1 |   199
+   1 |        1 |   244
+   2 |        1 |   255
+  15 |        1 |   255
+</pre></div><div class="refsection" lang="en"><a name="id3033528"></a><h2>See Also</h2><p><a href="RT_ST_Count.html" title="ST_Count">ST_Count</a>, <a href="RT_ST_SetBandNoDataValue.html" title="ST_SetBandNoDataValue">ST_SetBandNoDataValue</a></p></div></div><div class="navfooter"><hr><table width="100%" summary="Navigation footer"><tr><td width="40%" align="left"><a accesskey="p" href="RT_ST_Histogram.html">Prev</a> </td><td width="20%" align="center"><a accesskey="u" href="RT_reference.html#RasterBand_Stats">Up</a></td><td width="40%" align="right"> <a accesskey="n" href="RT_ST_SummaryStats.html">Next</a></td></tr><tr><td width="40%" align="left" valign="top">ST_Histogram </td><td width="20%" align="center"><a accesskey="h" href="index.html">Home</a></td><td width="40%" align="right" valign="top"> ST_SummaryStats</td></tr></table></div></body></html>

@@ -1,0 +1,135 @@
+<html><head><meta http-equiv="Content-Type" content="text/html; charset=ISO-8859-1"><title>Chapter 7. Performance tips</title><link rel="stylesheet" href="style.css" type="text/css"><meta name="generator" content="DocBook XSL Stylesheets V1.69.1"><link rel="start" href="index.html" title="PostGIS 2.0.2SVN Manual"><link rel="up" href="index.html" title="PostGIS 2.0.2SVN Manual"><link rel="prev" href="ch06.html" title="Chapter 6. Using PostGIS Geometry: Building Applications"><link rel="next" href="reference.html" title="Chapter 8. PostGIS Reference"></head><body bgcolor="white" text="black" link="#0000FF" vlink="#840084" alink="#0000FF"><div class="navheader"><table width="100%" summary="Navigation header"><tr><th colspan="3" align="center">Chapter 7. Performance tips</th></tr><tr><td width="20%" align="left"><a accesskey="p" href="ch06.html">Prev</a> </td><th width="60%" align="center"> </th><td width="20%" align="right"> <a accesskey="n" href="reference.html">Next</a></td></tr></table><hr></div><div class="chapter" lang="en"><div class="titlepage"><div><div><h2 class="title"><a name="id2865712"></a>Chapter 7. Performance tips</h2></div></div></div><div class="toc"><p><b>Table of Contents</b></p><dl><dt><span class="sect1"><a href="ch07.html#id2865718">7.1. Small tables of large geometries</a></span></dt><dd><dl><dt><span class="sect2"><a href="ch07.html#id2865724">7.1.1. Problem description</a></span></dt><dt><span class="sect2"><a href="ch07.html#id2865755">7.1.2. Workarounds</a></span></dt></dl></dd><dt><span class="sect1"><a href="ch07.html#id2865818">7.2. CLUSTERing on geometry indices</a></span></dt><dt><span class="sect1"><a href="ch07.html#id2865874">7.3. Avoiding dimension conversion</a></span></dt><dt><span class="sect1"><a href="ch07.html#id2865924">7.4. Tuning your configuration</a></span></dt><dd><dl><dt><span class="sect2"><a href="ch07.html#id2865951">7.4.1. Startup</a></span></dt><dt><span class="sect2"><a href="ch07.html#id2866073">7.4.2. Runtime</a></span></dt></dl></dd></dl></div><div class="sect1" lang="en"><div class="titlepage"><div><div><h2 class="title" style="clear: both"><a name="id2865718"></a>7.1. Small tables of large geometries</h2></div></div></div><div class="toc"><dl><dt><span class="sect2"><a href="ch07.html#id2865724">7.1.1. Problem description</a></span></dt><dt><span class="sect2"><a href="ch07.html#id2865755">7.1.2. Workarounds</a></span></dt></dl></div><div class="sect2" lang="en"><div class="titlepage"><div><div><h3 class="title"><a name="id2865724"></a>7.1.1. Problem description</h3></div></div></div><p>Current PostgreSQL versions (including 8.0) suffer from a query
+      optimizer weakness regarding TOAST tables. TOAST tables are a kind of
+      "extension room" used to store large (in the sense of data size) values
+      that do not fit into normal data pages (like long texts, images or
+      complex geometries with lots of vertices), see
+      <a href="http://www.postgresql.org/docs/current/static/storage-toast.html" target="_top">the PostgreSQL Documentation for TOAST</a> for more
+      information).</p><p>The problem appears if you happen to have a table with rather
+      large geometries, but not too much rows of them (like a table containing
+      the boundaries of all European countries in high resolution). Then the
+      table itself is small, but it uses lots of TOAST space. In our example
+      case, the table itself had about 80 rows and used only 3 data pages, but
+      the TOAST table used 8225 pages.</p><p>Now issue a query where you use the geometry operator &amp;&amp;
+      to search for a bounding box that matches only very few of those rows.
+      Now the query optimizer sees that the table has only 3 pages and 80
+      rows. He estimates that a sequential scan on such a small table is much
+      faster than using an index. And so he decides to ignore the GIST index.
+      Usually, this estimation is correct. But in our case, the &amp;&amp;
+      operator has to fetch every geometry from disk to compare the bounding
+      boxes, thus reading all TOAST pages, too.</p><p>To see whether your suffer from this bug, use the "EXPLAIN
+      ANALYZE" postgresql command. For more information and the technical
+      details, you can read the thread on the postgres performance mailing
+      list:
+      http://archives.postgresql.org/pgsql-performance/2005-02/msg00030.php</p></div><div class="sect2" lang="en"><div class="titlepage"><div><div><h3 class="title"><a name="id2865755"></a>7.1.2. Workarounds</h3></div></div></div><p>The PostgreSQL people are trying to solve this issue by making the
+      query estimation TOAST-aware. For now, here are two workarounds:</p><p>The first workaround is to force the query planner to use the
+      index. Send "SET enable_seqscan TO off;" to the server before issuing
+      the query. This basically forces the query planner to avoid sequential
+      scans whenever possible. So it uses the GIST index as usual. But this
+      flag has to be set on every connection, and it causes the query planner
+      to make misestimations in other cases, so you should "SET enable_seqscan
+      TO on;" after the query.</p><p>The second workaround is to make the sequential scan as fast as
+      the query planner thinks. This can be achieved by creating an additional
+      column that "caches" the bbox, and matching against this. In our
+      example, the commands are like:</p><pre class="programlisting">SELECT AddGeometryColumn('myschema','mytable','bbox','4326','GEOMETRY','2'); 
+UPDATE mytable SET bbox = ST_Envelope(ST_Force_2d(the_geom));</pre><p>Now change your query to use the &amp;&amp; operator against bbox
+      instead of geom_column, like:</p><pre class="programlisting">SELECT geom_column 
+FROM mytable 
+WHERE bbox &amp;&amp; ST_SetSRID('BOX3D(0 0,1 1)'::box3d,4326);</pre><p>Of course, if you change or add rows to mytable, you have to keep
+      the bbox "in sync". The most transparent way to do this would be
+      triggers, but you also can modify your application to keep the bbox
+      column current or run the UPDATE query above after every
+      modification.</p></div></div><div class="sect1" lang="en"><div class="titlepage"><div><div><h2 class="title" style="clear: both"><a name="id2865818"></a>7.2. CLUSTERing on geometry indices</h2></div></div></div><p>For tables that are mostly read-only, and where a single index is
+    used for the majority of queries, PostgreSQL offers the CLUSTER command.
+    This command physically reorders all the data rows in the same order as
+    the index criteria, yielding two performance advantages: First, for index
+    range scans, the number of seeks on the data table is drastically reduced.
+    Second, if your working set concentrates to some small intervals on the
+    indices, you have a more efficient caching because the data rows are
+    spread along fewer data pages. (Feel invited to read the CLUSTER command
+    documentation from the PostgreSQL manual at this point.)</p><p>However, currently PostgreSQL does not allow clustering on PostGIS
+    GIST indices because GIST indices simply ignores NULL values, you get an
+    error message like:</p><pre class="programlisting">lwgeom=# CLUSTER my_geom_index ON my_table; 
+ERROR: cannot cluster when index access method does not handle null values
+HINT: You may be able to work around this by marking column "the_geom" NOT NULL.</pre><p>As the HINT message tells you, one can work around this deficiency
+    by adding a "not null" constraint to the table:</p><pre class="programlisting">lwgeom=# ALTER TABLE my_table ALTER COLUMN the_geom SET not null; 
+ALTER TABLE</pre><p>Of course, this will not work if you in fact need NULL values in
+    your geometry column. Additionally, you must use the above method to add
+    the constraint, using a CHECK constraint like "ALTER TABLE blubb ADD CHECK
+    (geometry is not null);" will not work.</p></div><div class="sect1" lang="en"><div class="titlepage"><div><div><h2 class="title" style="clear: both"><a name="id2865874"></a>7.3. Avoiding dimension conversion</h2></div></div></div><p>Sometimes, you happen to have 3D or 4D data in your table, but
+    always access it using OpenGIS compliant ST_AsText() or ST_AsBinary()
+    functions that only output 2D geometries. They do this by internally
+    calling the ST_Force_2d() function, which introduces a significant
+    overhead for large geometries. To avoid this overhead, it may be feasible
+    to pre-drop those additional dimensions once and forever:</p><pre class="programlisting">UPDATE mytable SET the_geom = ST_Force_2d(the_geom); 
+VACUUM FULL ANALYZE mytable;</pre><p>Note that if you added your geometry column using
+    AddGeometryColumn() there'll be a constraint on geometry dimension. To
+    bypass it you will need to drop the constraint. Remember to update the
+    entry in the geometry_columns table and recreate the constraint
+    afterwards.</p><p>In case of large tables, it may be wise to divide this UPDATE into
+    smaller portions by constraining the UPDATE to a part of the table via a
+    WHERE clause and your primary key or another feasible criteria, and
+    running a simple "VACUUM;" between your UPDATEs. This drastically reduces
+    the need for temporary disk space. Additionally, if you have mixed
+    dimension geometries, restricting the UPDATE by "WHERE
+    dimension(the_geom)&gt;2" skips re-writing of geometries that already are
+    in 2D.</p></div><div class="sect1" lang="en"><div class="titlepage"><div><div><h2 class="title" style="clear: both"><a name="id2865924"></a>7.4. Tuning your configuration</h2></div></div></div><div class="toc"><dl><dt><span class="sect2"><a href="ch07.html#id2865951">7.4.1. Startup</a></span></dt><dt><span class="sect2"><a href="ch07.html#id2866073">7.4.2. Runtime</a></span></dt></dl></div><p>These tips are taken from Kevin Neufeld's presentation "Tips for the
+    PostGIS Power User" at the FOSS4G 2007 conference.  Depending on your
+    use of PostGIS (for example, static data and complex analysis vs frequently
+    updated data and lots of users) these changes can provide significant
+    speedups to your queries.</p><p>For a more tips (and better formatting), the original presentation 
+        is at
+        <a href="http://2007.foss4g.org/presentations/view.php?abstract_id=117" target="_top">
+        http://2007.foss4g.org/presentations/view.php?abstract_id=117</a>.
+    </p><div class="sect2" lang="en"><div class="titlepage"><div><div><h3 class="title"><a name="id2865951"></a>7.4.1. Startup</h3></div></div></div><p>
+          These settings are configured in postgresql.conf:
+        </p><p>
+          <a href="http://www.postgresql.org/docs/current/static/runtime-config-wal.html#GUC-CHECKPOINT-SEGMENTS" target="_top">checkpoint_segments</a>
+        </p><div class="itemizedlist"><ul type="disc"><li><p>
+              Maximum number of log file segments between automatic WAL checkpoints
+              (each segment is normally 16MB); default is 3
+            </p></li><li><p>
+              Set to at least 10 or 30 for databases with heavy write activity, or 
+              more for large database loads. Another article on the topic worth reading  <a href="http://www.westnet.com/~gsmith/content/postgresql/chkp-bgw-83.htm" target="_top">Greg Smith: Checkpoint and Background writer</a>
+            </p></li><li><p>
+              Possibly store the xlog on a separate disk device
+            </p></li></ul></div><p>
+           <a href="http://www.postgresql.org/docs/current/static/runtime-config-query.html#GUC-CONSTRAINT-EXCLUSION" target="_top">constraint_exclusion</a>
+        </p><div class="itemizedlist"><ul type="disc"><li><p>
+              Default: off (prior to PostgreSQL 8.4 and for PostgreSQL 8.4+ is set to partition)
+            </p></li><li><p>
+              This is generally used for table partitioning.  If you are running PostgreSQL versions below 8.4, set to "on" to ensure the query planner will optimize as desired.
+			  As of PostgreSQL 8.4, the default for this is set to "partition" which is ideal for PostgreSQL 8.4 and above since
+			  it will force the planner to only analyze tables for constraint consideration if they are in an inherited hierarchy
+			  and not pay the planner penalty otherwise. 
+            </p></li></ul></div><p>
+           <a href="http://www.postgresql.org/docs/current/static/runtime-config-resource.html#GUC-SHARED-BUFFERS" target="_top">shared_buffers</a>
+        </p><div class="itemizedlist"><ul type="disc"><li><p>
+              Default: ~32MB
+            </p></li><li><p>
+              Set to about 1/3 to 3/4 of available RAM
+            </p></li></ul></div></div><div class="sect2" lang="en"><div class="titlepage"><div><div><h3 class="title"><a name="id2866073"></a>7.4.2. Runtime</h3></div></div></div><p>
+          <a href="http://www.postgresql.org/docs/current/static/runtime-config-resource.html#GUC-WORK-MEM" target="_top">work_mem</a> (the memory used for sort operations and complex queries)
+        </p><div class="itemizedlist"><ul type="disc"><li><p>
+              Default: 1MB
+            </p></li><li><p>
+              Adjust up for large dbs, complex queries, lots of RAM
+            </p></li><li><p>
+              Adjust down for many concurrent users or low RAM.  
+            </p></li><li><p>
+                If you have lots of RAM and few developers:
+                </p><pre class="programlisting">
+                    SET work_mem TO 1200000;
+                </pre><p>
+            </p></li></ul></div><p>
+          <a href="http://www.postgresql.org/docs/current/static/runtime-config-resource.html#GUC-MAINTENANCE-WORK-MEM" target="_top">maintenance_work_mem</a> (used for VACUUM, CREATE INDEX, etc.)
+        </p><div class="itemizedlist"><ul type="disc"><li><p>
+              Default: 16MB
+            </p></li><li><p>
+              Generally too low - ties up I/O, locks objects while swapping memory
+            </p></li><li><p>
+              Recommend 32MB to 256MB on production servers w/lots of RAM, but depends
+              on the # of concurrent users.  If you have lots of RAM and few developers:
+                </p><pre class="programlisting">
+                    SET maintainence_work_mem TO 1200000;
+                </pre><p>
+            </p></li></ul></div></div></div></div><div class="navfooter"><hr><table width="100%" summary="Navigation footer"><tr><td width="40%" align="left"><a accesskey="p" href="ch06.html">Prev</a> </td><td width="20%" align="center"> </td><td width="40%" align="right"> <a accesskey="n" href="reference.html">Next</a></td></tr><tr><td width="40%" align="left" valign="top">Chapter 6. Using PostGIS Geometry: Building Applications </td><td width="20%" align="center"><a accesskey="h" href="index.html">Home</a></td><td width="40%" align="right" valign="top"> Chapter 8. PostGIS Reference</td></tr></table></div></body></html>

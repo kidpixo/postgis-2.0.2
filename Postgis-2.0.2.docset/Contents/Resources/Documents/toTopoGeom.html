@@ -1,0 +1,35 @@
+<html><head><meta http-equiv="Content-Type" content="text/html; charset=ISO-8859-1"><title>toTopoGeom</title><link rel="stylesheet" href="style.css" type="text/css"><meta name="generator" content="DocBook XSL Stylesheets V1.69.1"><link rel="start" href="index.html" title="PostGIS 2.0.2SVN Manual"><link rel="up" href="Topology.html#TopoGeometry_Constructors" title="11.8. TopoGeometry Constructors"><link rel="prev" href="CreateTopoGeom.html" title="CreateTopoGeom"><link rel="next" href="TopoElementArray_Agg.html" title="TopoElementArray_Agg"></head><body bgcolor="white" text="black" link="#0000FF" vlink="#840084" alink="#0000FF"><div class="navheader"><table width="100%" summary="Navigation header"><tr><th colspan="3" align="center">toTopoGeom</th></tr><tr><td width="20%" align="left"><a accesskey="p" href="CreateTopoGeom.html">Prev</a> </td><th width="60%" align="center">11.8. TopoGeometry Constructors</th><td width="20%" align="right"> <a accesskey="n" href="TopoElementArray_Agg.html">Next</a></td></tr></table><hr></div><div class="refentry" lang="en"><a name="toTopoGeom"></a><div class="titlepage"></div><div class="refnamediv"><h2>Name</h2><p>toTopoGeom &#8212; Creates a new topo geometry from a simple geometry</p></div><div class="refsynopsisdiv"><h2>Synopsis</h2><div class="funcsynopsis"><p><code class="funcdef">topogeometry <b class="fsfunc">toTopoGeom</b>(</code>geometry  <var class="pdparam">geom</var>, varchar  <var class="pdparam">toponame</var>, integer <var class="pdparam">layer_id</var>, float8 <var class="pdparam">tolerance</var><code>)</code>;</p></div></div><div class="refsection" lang="en"><a name="id3080666"></a><h2>Description</h2><p>
+Creates a topogeometry object for layer denoted by layer_id and registers it in the relations table in the <code class="varname">toponame</code> schema.
+                </p><p>
+Topological primitives required to represent the input geometry will be added, possibly splitting existing ones.
+Pre-existing TopoGeometry objects will retain their shapes.
+                </p><p>
+When <code class="varname">tolerance</code> is given it will be used to snap the input geometry to existing primitives.
+                </p><p>Availability: 2.0</p></div><div class="refsection" lang="en"><a name="id3080705"></a><h2>Examples</h2><p>This is a full self-contained workflow</p><pre class="programlisting"> -- do this if you don't have a topology setup already
+-- creates topology not allowing any tolerance
+SELECT topology.CreateTopology('topo_boston_test', 2249);
+-- create a new table
+CREATE TABLE nei_topo(gid serial primary key, nei varchar(30));
+--add a topogeometry column to it
+SELECT topology.AddTopoGeometryColumn('topo_boston_test', 'public', 'nei_topo', 'topo', 'MULTIPOLYGON') As new_layer_id;
+new_layer_id
+-----------
+1
+
+--use new layer id in populating the new topogeometry column
+-- we add the topogeoms to the new layer with 0 tolerance
+INSERT INTO nei_topo(nei, topo)
+SELECT nei,  topology.toTopoGeom(geom, 'topo_boston_test', 1)
+FROM neighborhoods
+WHERE gid BETWEEN 1 and 15;
+
+--use to verify what has happened --
+SELECT * FROM 
+    topology.TopologySummary('topo_boston_test'); 
+    
+-- summary--
+Topology topo_boston_test (5), SRID 2249, precision 0
+61 nodes, 87 edges, 35 faces, 15 topogeoms in 1 layers
+Layer 1, type Polygonal (3), 15 topogeoms
+ Deploy: public.nei_topo.topo</pre></div><div class="refsection" lang="en"><a name="id3080741"></a><h2>See Also</h2><p> <a href="CreateTopology.html" title="CreateTopology">CreateTopology</a>,<a href="AddTopoGeometryColumn.html" title="AddTopoGeometryColumn">AddTopoGeometryColumn</a>,
+<a href="CreateTopoGeom.html" title="CreateTopoGeom">CreateTopoGeom</a>, <a href="TopologySummary.html" title="TopologySummary">TopologySummary</a></p></div></div><div class="navfooter"><hr><table width="100%" summary="Navigation footer"><tr><td width="40%" align="left"><a accesskey="p" href="CreateTopoGeom.html">Prev</a> </td><td width="20%" align="center"><a accesskey="u" href="Topology.html#TopoGeometry_Constructors">Up</a></td><td width="40%" align="right"> <a accesskey="n" href="TopoElementArray_Agg.html">Next</a></td></tr><tr><td width="40%" align="left" valign="top">CreateTopoGeom </td><td width="20%" align="center"><a accesskey="h" href="index.html">Home</a></td><td width="40%" align="right" valign="top"> TopoElementArray_Agg</td></tr></table></div></body></html>

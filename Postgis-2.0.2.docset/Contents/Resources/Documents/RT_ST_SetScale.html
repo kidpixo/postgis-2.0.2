@@ -1,0 +1,24 @@
+<html><head><meta http-equiv="Content-Type" content="text/html; charset=ISO-8859-1"><title>ST_SetScale</title><link rel="stylesheet" href="style.css" type="text/css"><meta name="generator" content="DocBook XSL Stylesheets V1.69.1"><link rel="start" href="index.html" title="PostGIS 2.0.2SVN Manual"><link rel="up" href="RT_reference.html#Raster_Editors" title="9.7. Raster Editors"><link rel="prev" href="RT_ST_SetRotation.html" title="ST_SetRotation"><link rel="next" href="RT_ST_SetSkew.html" title="ST_SetSkew"></head><body bgcolor="white" text="black" link="#0000FF" vlink="#840084" alink="#0000FF"><div class="navheader"><table width="100%" summary="Navigation header"><tr><th colspan="3" align="center">ST_SetScale</th></tr><tr><td width="20%" align="left"><a accesskey="p" href="RT_ST_SetRotation.html">Prev</a> </td><th width="60%" align="center">9.7. Raster Editors</th><td width="20%" align="right"> <a accesskey="n" href="RT_ST_SetSkew.html">Next</a></td></tr></table><hr></div><div class="refentry" lang="en"><a name="RT_ST_SetScale"></a><div class="titlepage"></div><div class="refnamediv"><h2>Name</h2><p>ST_SetScale &#8212; Sets the X and Y size of pixels in units of coordinate reference system. Number units/pixel width/height.</p></div><div class="refsynopsisdiv"><h2>Synopsis</h2><div class="funcsynopsis"><p><code class="funcdef">raster <b class="fsfunc">ST_SetScale</b>(</code>raster  <var class="pdparam">rast</var>, float8  <var class="pdparam">xy</var><code>)</code>;</p><p><code class="funcdef">raster <b class="fsfunc">ST_SetScale</b>(</code>raster  <var class="pdparam">rast</var>, float8  <var class="pdparam">x</var>, float8  <var class="pdparam">y</var><code>)</code>;</p></div></div><div class="refsection" lang="en"><a name="id3029064"></a><h2>Description</h2><p>Sets the X and Y size of pixels in units of coordinate reference system. Number units/pixel width/height.  If
+				only one unit passed in, assumed X and Y are the same number.</p><div class="note" style="margin-left: 0.5in; margin-right: 0.5in;"><table border="0" summary="Note"><tr><td rowspan="2" align="center" valign="top" width="25"><img alt="[Note]" src="images/note.png"></td><th align="left"></th></tr><tr><td align="left" valign="top"><p>ST_SetScale is different from <a href="RT_ST_Rescale.html" title="ST_Rescale">ST_Rescale</a> in that ST_SetScale do not resample the raster to match the raster extent. It only changes the metadata (or georeference) of the raster to correct an originally mis-specified scaling. ST_Rescale results in a raster having different width and height computed to fit the geographic extent of the input raster. ST_SetScale do not modify the width, nor the height of the raster.</p></td></tr></table></div><p>Changed: 2.0.0 In WKTRaster versions this was called ST_SetPixelSize.  This was changed in 2.0.0.</p></div><div class="refsection" lang="en"><a name="id3029101"></a><h2>Examples</h2><pre class="programlisting">UPDATE dummy_rast 
+	SET rast = ST_SetScale(rast, 1.5)
+WHERE rid = 2;
+
+SELECT ST_ScaleX(rast) As pixx, ST_ScaleY(rast) As pixy, Box3D(rast) As newbox
+FROM dummy_rast
+WHERE rid = 2;
+
+ pixx | pixy |                    newbox
+------+------+----------------------------------------------
+  1.5 |  1.5 | BOX(3427927.75 5793244 0, 3427935.25 5793251.5 0)
+				</pre><pre class="programlisting">UPDATE dummy_rast 
+	SET rast = ST_SetScale(rast, 1.5, 0.55)
+WHERE rid = 2;
+
+SELECT ST_ScaleX(rast) As pixx, ST_ScaleY(rast) As pixy, Box3D(rast) As newbox
+FROM dummy_rast
+WHERE rid = 2;
+
+ pixx | pixy |                   newbox
+------+------+--------------------------------------------
+  1.5 | 0.55 | BOX(3427927.75 5793244 0,3427935.25 5793247 0)
+				</pre></div><div class="refsection" lang="en"><a name="id3029131"></a><h2>See Also</h2><p><a href="RT_ST_ScaleX.html" title="ST_ScaleX">ST_ScaleX</a>, <a href="RT_ST_ScaleY.html" title="ST_ScaleY">ST_ScaleY</a>, <a href="RT_Box3D.html" title="Box3D">Box3D</a></p></div></div><div class="navfooter"><hr><table width="100%" summary="Navigation footer"><tr><td width="40%" align="left"><a accesskey="p" href="RT_ST_SetRotation.html">Prev</a> </td><td width="20%" align="center"><a accesskey="u" href="RT_reference.html#Raster_Editors">Up</a></td><td width="40%" align="right"> <a accesskey="n" href="RT_ST_SetSkew.html">Next</a></td></tr><tr><td width="40%" align="left" valign="top">ST_SetRotation </td><td width="20%" align="center"><a accesskey="h" href="index.html">Home</a></td><td width="40%" align="right" valign="top"> ST_SetSkew</td></tr></table></div></body></html>

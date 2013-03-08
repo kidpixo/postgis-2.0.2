@@ -1,0 +1,371 @@
+<html><head><meta http-equiv="Content-Type" content="text/html; charset=ISO-8859-1"><title>Chapter 5. Raster Data Management, Queries, and Applications</title><link rel="stylesheet" href="style.css" type="text/css"><meta name="generator" content="DocBook XSL Stylesheets V1.69.1"><link rel="start" href="index.html" title="PostGIS 2.0.2SVN Manual"><link rel="up" href="index.html" title="PostGIS 2.0.2SVN Manual"><link rel="prev" href="using_postgis_dbmanagement.html" title="Chapter 4. Using PostGIS: Data Management and Queries"><link rel="next" href="ch06.html" title="Chapter 6. Using PostGIS Geometry: Building Applications"></head><body bgcolor="white" text="black" link="#0000FF" vlink="#840084" alink="#0000FF"><div class="navheader"><table width="100%" summary="Navigation header"><tr><th colspan="3" align="center">Chapter 5. Raster Data Management, Queries, and Applications</th></tr><tr><td width="20%" align="left"><a accesskey="p" href="using_postgis_dbmanagement.html">Prev</a> </td><th width="60%" align="center"> </th><td width="20%" align="right"> <a accesskey="n" href="ch06.html">Next</a></td></tr></table><hr></div><div class="chapter" lang="en"><div class="titlepage"><div><div><h2 class="title"><a name="using_raster.xml"></a>Chapter 5. Raster Data Management, Queries, and Applications</h2></div></div></div><div class="toc"><p><b>Table of Contents</b></p><dl><dt><span class="sect1"><a href="using_raster.xml.html#RT_Loading_Rasters">5.1. Loading and Creating Rasters</a></span></dt><dd><dl><dt><span class="sect2"><a href="using_raster.xml.html#RT_Raster_Loader">5.1.1. Using raster2pgsql to load rasters</a></span></dt><dt><span class="sect2"><a href="using_raster.xml.html#RT_Creating_Rasters">5.1.2. Creating rasters using PostGIS raster functions</a></span></dt></dl></dd><dt><span class="sect1"><a href="using_raster.xml.html#RT_Raster_Catalog">5.2. Raster Catalogs</a></span></dt><dd><dl><dt><span class="sect2"><a href="using_raster.xml.html#RT_Raster_Columns">5.2.1. Raster Columns Catalog</a></span></dt><dt><span class="sect2"><a href="using_raster.xml.html#RT_Raster_Overviews">5.2.2. Raster Overviews</a></span></dt></dl></dd><dt><span class="sect1"><a href="using_raster.xml.html#RT_Raster_Applications">5.3. Building Custom Applications with PostGIS Raster</a></span></dt><dd><dl><dt><span class="sect2"><a href="using_raster.xml.html#RT_PHP_Output">5.3.1. PHP Example Outputting using ST_AsPNG in concert with other raster functions</a></span></dt><dt><span class="sect2"><a href="using_raster.xml.html#RT_Net_Output_CS">5.3.2. ASP.NET C# Example Outputting using ST_AsPNG in concert with other raster functions</a></span></dt><dt><span class="sect2"><a href="using_raster.xml.html#RT_Java_Console_App">5.3.3. Java console app that outputs raster query as Image file</a></span></dt><dt><span class="sect2"><a href="using_raster.xml.html#RT_PLPython">5.3.4. Use PLPython to dump out images via SQL</a></span></dt><dt><span class="sect2"><a href="using_raster.xml.html#RasterOutput_PSQL">5.3.5. Outputting Rasters with PSQL</a></span></dt></dl></dd></dl></div><div class="sect1" lang="en"><div class="titlepage"><div><div><h2 class="title" style="clear: both"><a name="RT_Loading_Rasters"></a>5.1. Loading and Creating Rasters</h2></div></div></div><div class="toc"><dl><dt><span class="sect2"><a href="using_raster.xml.html#RT_Raster_Loader">5.1.1. Using raster2pgsql to load rasters</a></span></dt><dt><span class="sect2"><a href="using_raster.xml.html#RT_Creating_Rasters">5.1.2. Creating rasters using PostGIS raster functions</a></span></dt></dl></div><p>For most use cases, you will create PostGIS rasters by loading existing raster files using the packaged <code class="varname">raster2pgsql</code> raster loader.</p><div class="sect2" lang="en"><div class="titlepage"><div><div><h3 class="title"><a name="RT_Raster_Loader"></a>5.1.1. Using raster2pgsql to load rasters</h3></div></div></div><p>
+        The <code class="varname">raster2pgsql</code> is a raster loader executable that loads GDAL supported raster formats into sql suitable for loading into a PostGIS raster table.
+        It is capable of loading folders of raster files as well as creating overviews of rasters. </p><p>Since the raster2pgsql is compiled as part of PostGIS most often (unless you compile your own GDAL library), the raster types supported
+    	by the executable will be the same as those compiled in the GDAL dependency library.  To get a list of raster types your particular raster2pgsql supports use the <code class="varname">-G</code> switch.  These should be the same as those provided by your PostGIS install documented here  <a href="RT_ST_GDALDrivers.html" title="ST_GDALDrivers">ST_GDALDrivers</a> if you are using the same gdal library for both.</p><div class="note" style="margin-left: 0.5in; margin-right: 0.5in;"><table border="0" summary="Note"><tr><td rowspan="2" align="center" valign="top" width="25"><img alt="[Note]" src="images/note.png"></td><th align="left"></th></tr><tr><td align="left" valign="top"><p>The older version of this tool was a python script.  The executable has replaced the python script.  If you still find the need for the Python script
+        Examples of the python one can be found at <a href="http://trac.osgeo.org/gdal/wiki/frmts_wtkraster.html" target="_top">GDAL PostGIS Raster Driver Usage</a>.  
+        Please note that the raster2pgsql python script may not work with future versions of PostGIS raster and is no longer supported.
+        </p></td></tr></table></div><div class="note" style="margin-left: 0.5in; margin-right: 0.5in;"><table border="0" summary="Note"><tr><td rowspan="2" align="center" valign="top" width="25"><img alt="[Note]" src="images/note.png"></td><th align="left"></th></tr><tr><td align="left" valign="top"><p>
+												When creating overviews of a specific factor from a set of rasters that are aligned, it is possible for the overviews to not align.  Visit <a href="http://trac.osgeo.org/postgis/ticket/1764" target="_top">http://trac.osgeo.org/postgis/ticket/1764</a> for an example where the overviews do not align.
+</p></td></tr></table></div><p>EXAMPLE USAGE: 
+    	</p><pre class="programlisting">raster2pgsql <code class="varname">raster_options_go_here</code> <code class="varname">raster_file</code> <code class="varname">someschema</code>.<code class="varname">sometable</code> &gt; out.sql</pre><p>
+    </p><div class="variablelist"><dl><dt><span class="term">-?</span></dt><dd><p>
+              Display help screen.  Help will also display if you don't pass in any arguments.
+            </p></dd><dt><span class="term">-G</span></dt><dd><p>
+             Print the supported raster formats.
+            </p></dd><dt><span class="term">(c|a|d|p) These are mutually exclusive options:</span></dt><dd><p>
+              </p><div class="variablelist"><dl><dt><span class="term">-c</span></dt><dd><p>
+                      Create new table and populate it with raster(s), <span class="emphasis"><em>this is the default mode</em></span>
+                    </p></dd><dt><span class="term">-a</span></dt><dd><p>
+                      Append raster(s) to an existing table.
+                    </p></dd><dt><span class="term">-d</span></dt><dd><p>
+                      Drop table, create new one and populate it with raster(s)
+                    </p></dd><dt><span class="term">-p</span></dt><dd><p>
+                      Prepare mode, only create the table.
+                    </p></dd></dl></div><p>
+            </p></dd><dt><span class="term">Raster processing: Applying constraints for proper registering in raster catalogs</span></dt><dd><p>
+					</p><div class="variablelist"><dl><dt><span class="term">-C </span></dt><dd><p>
+									Apply raster constraints -- srid, pixelsize etc. to ensure raster is properly registered in <code class="varname">raster_columns</code> view.
+								</p></dd><dt><span class="term">-x </span></dt><dd><p>
+									Disable setting the max extent constraint.  Only applied if -C flag is also used.
+								</p></dd><dt><span class="term">-r </span></dt><dd><p>
+									Set the regular blocking constraint.  Only applied if -C flag is also used.
+								</p></dd></dl></div><p>	    	
+				</p></dd><dt><span class="term">Raster processing: Optional parameters used to manipulate input raster dataset</span></dt><dd><p>
+            </p><div class="variablelist"><dl><dt><span class="term">-s &lt;SRID&gt;</span></dt><dd><p>
+                            Assign output raster with specified SRID.
+                        </p></dd><dt><span class="term">-b BAND</span></dt><dd><p>
+                           Index (1-based) of band to extract from raster.  For more than one band index, separate with comma (,).  If unspecified,
+                           all bands of raster will be extracted.
+                        </p></dd><dt><span class="term">-t TILE_SIZE</span></dt><dd><p>
+                        Cut raster into tiles to be inserted one per table row.  <code class="varname">TILE_SIZE</code> is expressed as WIDTHxHEIGHT.
+			</p></dd><dt><span class="term">-R, --register</span></dt><dd><p>Register the raster as a filesystem (out-db) raster.</p><p>Only the metadata of the raster and path location to the raster is stored in the database (not the pixels).</p></dd><dt><span class="term">-l <code class="varname">OVERVIEW_FACTOR</code></span></dt><dd><p>Create overview of the raster.  For more than
+     one factor, separate with comma(,).  Overview table name follows
+     the pattern o_<code class="varname">overview factor</code>_<code class="varname">table</code>.  Created overview is
+     stored in the database and is not affected by -R. Note that your generated sql file will contain both the main table and overview tables.</p></dd><dt><span class="term">-N <code class="varname">NODATA</code></span></dt><dd><p>
+											NODATA value to use on bands without a NODATA value.
+										</p></dd></dl></div><p>
+            </p></dd><dt><span class="term">Optional parameters used to manipulate database objects</span></dt><dd><p>
+              </p><div class="variablelist"><dl><dt><span class="term">-q </span></dt><dd><p>Wrap PostgreSQL identifiers in quotes
+                    </p></dd><dt><span class="term">-f COLUMN</span></dt><dd><p>Specify name of destination raster column, default is 'rast'
+                    </p></dd><dt><span class="term">-F</span></dt><dd><p>Add a column with the name of the file</p></dd><dt><span class="term">-I</span></dt><dd><p>
+                      Create a GiST index on the raster column.
+                    </p></dd><dt><span class="term">-M</span></dt><dd><p>
+                      Vacuum analyze the raster table.
+                    </p></dd><dt><span class="term">-T <code class="varname">tablespace</code></span></dt><dd><p>
+                      Specify the tablespace for the new table.
+     Note that indices (including the primary key) will still use
+     the default tablespace unless the -X flag is also used.
+                    </p></dd><dt><span class="term">-X <code class="varname">tablespace</code></span></dt><dd><p>
+                      Specify the tablespace for the table's new index.
+     This applies to the primary key and the spatial index if the
+     -I flag is used.
+                    </p></dd><dt><span class="term">-Y</span></dt><dd><p>
+                      Use copy statements instead of insert statements.</p></dd></dl></div><p>
+            </p></dd><dt><span class="term">-e</span></dt><dd><p>Execute each statement individually, do not use a transaction.</p></dd><dt><span class="term">-E ENDIAN</span></dt><dd><p>Control endianness of generated binary output of raster; specify 0 for XDR and 1 for NDR (default); only NDR output is supported now</p></dd><dt><span class="term">-V <code class="varname">version</code></span></dt><dd><p>Specify version of output format.  Default  is 0.  Only 0 is supported at this time.</p></dd></dl></div><p>An example session using the loader to create an input file and uploading it chunked in 100x100 tiles might look like this:</p><div class="note" style="margin-left: 0.5in; margin-right: 0.5in;"><table border="0" summary="Note"><tr><td rowspan="2" align="center" valign="top" width="25"><img alt="[Note]" src="images/note.png"></td><th align="left"></th></tr><tr><td align="left" valign="top"><p>You can leave the schema name out e.g <code class="varname">demelevation</code> instead of <code class="varname">public.demelevation</code> and
+    the raster table will be created in the default schema of the database or user</p></td></tr></table></div><pre class="programlisting">raster2pgsql -s 4236 -I -C -M *.tif -F -t 100x100 public.demelevation &gt; elev.sql
+psql -d gisdb -f elev.sql</pre><p>A conversion and upload can be done all in one step using UNIX pipes:</p><pre class="programlisting">raster2pgsql -s 4236 -I -C -M *.tif -F -t 100x100 public.demelevation | psql -d gisdb</pre><p>Load rasters Massachusetts state plane meters aerial tiles 
+    	into a schema called <code class="varname">aerial</code> and create a full view, 2 and 4 level overview tables, use copy mode for inserting (no intermediary file just straight to db), and -e don't force everything in a transaction (good if you want to see data in tables right away without waiting).  Break up the rasters into 128x128 pixel tiles and apply raster constraints. Use copy mode instead of table insert. (-F) Include a field called filename to hold the name of the file the tiles were cut from.</p><pre class="programlisting">raster2pgsql -I -C -e -Y -F -s 26986 -t 128x128  -l 2,4 bostonaerials2008/*.jpg aerials.boston | psql -U postgres -d gisdb -h localhost -p 5432</pre><pre class="programlisting">--get a list of raster types supported:
+raster2pgsql -G</pre><p>The -G commands outputs a list something like </p><pre class="screen">
+Available GDAL raster formats:
+  Virtual Raster
+  GeoTIFF
+  National Imagery Transmission Format
+  Raster Product Format TOC format
+  ECRG TOC format
+  Erdas Imagine Images (.img)
+  CEOS SAR Image
+  CEOS Image
+  JAXA PALSAR Product Reader (Level 1.1/1.5)
+  Ground-based SAR Applications Testbed File Format (.gff)
+  ELAS
+  Arc/Info Binary Grid
+  Arc/Info ASCII Grid
+  GRASS ASCII Grid
+  SDTS Raster
+  DTED Elevation Raster
+  Portable Network Graphics
+  JPEG JFIF
+  In Memory Raster
+  Japanese DEM (.mem)
+  Graphics Interchange Format (.gif)
+  Graphics Interchange Format (.gif)
+  Envisat Image Format
+  Maptech BSB Nautical Charts
+  X11 PixMap Format
+  MS Windows Device Independent Bitmap
+  SPOT DIMAP
+  AirSAR Polarimetric Image
+  RadarSat 2 XML Product
+  PCIDSK Database File
+  PCRaster Raster File
+  ILWIS Raster Map
+  SGI Image File Format 1.0
+  SRTMHGT File Format
+  Leveller heightfield
+  Terragen heightfield
+  USGS Astrogeology ISIS cube (Version 3)
+  USGS Astrogeology ISIS cube (Version 2)
+  NASA Planetary Data System
+  EarthWatch .TIL
+  ERMapper .ers Labelled
+  NOAA Polar Orbiter Level 1b Data Set
+  FIT Image
+  GRIdded Binary (.grb)
+  Raster Matrix Format
+  EUMETSAT Archive native (.nat)
+  Idrisi Raster A.1
+  Intergraph Raster
+  Golden Software ASCII Grid (.grd)
+  Golden Software Binary Grid (.grd)
+  Golden Software 7 Binary Grid (.grd)
+  COSAR Annotated Binary Matrix (TerraSAR-X)
+  TerraSAR-X Product
+  DRDC COASP SAR Processor Raster
+  R Object Data Store
+  Portable Pixmap Format (netpbm)
+  USGS DOQ (Old Style)
+  USGS DOQ (New Style)
+  ENVI .hdr Labelled
+  ESRI .hdr Labelled
+  Generic Binary (.hdr Labelled)
+  PCI .aux Labelled
+  Vexcel MFF Raster
+  Vexcel MFF2 (HKV) Raster
+  Fuji BAS Scanner Image
+  GSC Geogrid
+  EOSAT FAST Format
+  VTP .bt (Binary Terrain) 1.3 Format
+  Erdas .LAN/.GIS
+  Convair PolGASP
+  Image Data and Analysis
+  NLAPS Data Format
+  Erdas Imagine Raw
+  DIPEx
+  FARSITE v.4 Landscape File (.lcp)
+  NOAA Vertical Datum .GTX
+  NADCON .los/.las Datum Grid Shift
+  NTv2 Datum Grid Shift
+  ACE2
+  Snow Data Assimilation System
+  Swedish Grid RIK (.rik)
+  USGS Optional ASCII DEM (and CDED)
+  GeoSoft Grid Exchange Format
+  Northwood Numeric Grid Format .grd/.tab
+  Northwood Classified Grid Format .grc/.tab
+  ARC Digitized Raster Graphics
+  Standard Raster Product (ASRP/USRP)
+  Magellan topo (.blx)
+  SAGA GIS Binary Grid (.sdat)
+  Kml Super Overlay
+  ASCII Gridded XYZ
+  HF2/HFZ heightfield raster
+  OziExplorer Image File
+  USGS LULC Composite Theme Grid
+  Arc/Info Export E00 GRID
+  ZMap Plus Grid
+  NOAA NGS Geoid Height Grids</pre></div><div class="sect2" lang="en"><div class="titlepage"><div><div><h3 class="title"><a name="RT_Creating_Rasters"></a>5.1.2. Creating rasters using PostGIS raster functions</h3></div></div></div><p>On many occasions, you'll want to create rasters and raster tables right in the database.  There are a plethora of functions to do that.  The general steps to follow.</p><div class="orderedlist"><ol type="1"><li><p>Create a table with a raster column to hold the new raster records which can be accomplished with:</p><pre class="programlisting">CREATE TABLE myrasters(rid serial primary key, rast raster);</pre></li><li><p>There are many functions to help with that goal.  If you are creating rasters not as a derivative of other rasters, you will want to start with:
+    				<a href="RT_ST_MakeEmptyRaster.html" title="ST_MakeEmptyRaster">ST_MakeEmptyRaster</a>, followed by <a href="RT_ST_AddBand.html" title="ST_AddBand">ST_AddBand</a></p><p>You can also create rasters from geometries.  To achieve that you'll want to use <a href="RT_ST_AsRaster.html" title="ST_AsRaster">ST_AsRaster</a> perhaps accompanied with 
+    			other functions such as <a href="RT_ST_Union.html" title="ST_Union">ST_Union</a> or <a href="RT_ST_MapAlgebraFct2.html" title="ST_MapAlgebraFct">ST_MapAlgebraFct</a> or any of the family of other map algebra functions.</p><p>There are even many more options for creating new raster tables from existing tables.  For example you can create a raster table in a different projection from an existing one using <a href="RT_ST_Transform.html" title="ST_Transform">ST_Transform</a> </p></li><li><p>Once you are done populating your table initially, you'll want to create a spatial index on the raster column with something like:</p><pre class="programlisting">CREATE INDEX myrasters_rast_st_convexhull_idx ON myrasters USING gist( ST_ConvexHull(rast) );</pre><p>Note the use of <a href="RT_ST_ConvexHull.html" title="ST_ConvexHull">ST_ConvexHull</a> since most raster operators are based on the convex hull of the rasters.</p><div class="note" style="margin-left: 0.5in; margin-right: 0.5in;"><table border="0" summary="Note"><tr><td rowspan="2" align="center" valign="top" width="25"><img alt="[Note]" src="images/note.png"></td><th align="left"></th></tr><tr><td align="left" valign="top"><p>Pre-2.0 versions of PostGIS raster were based on the envelop rather than the convex hull.  For teh spatial idnexes to work properly you'll need to drop those and replace with convex hull based index.</p></td></tr></table></div></li><li><p>Apply raster constraints using <a href="RT_AddRasterConstraints.html" title="AddRasterConstraints">AddRasterConstraints</a></p></li></ol></div></div></div><div class="sect1" lang="en"><div class="titlepage"><div><div><h2 class="title" style="clear: both"><a name="RT_Raster_Catalog"></a>5.2. Raster Catalogs</h2></div></div></div><div class="toc"><dl><dt><span class="sect2"><a href="using_raster.xml.html#RT_Raster_Columns">5.2.1. Raster Columns Catalog</a></span></dt><dt><span class="sect2"><a href="using_raster.xml.html#RT_Raster_Overviews">5.2.2. Raster Overviews</a></span></dt></dl></div><p>There are two raster catalog views that come packaged with PostGIS.  Both views utilize information embedded in the constraints of the raster tables.  As a result
+   		the catalog views are always consistent with the raster data in the tables since the constraints are enforced. </p><div class="orderedlist"><ol type="1"><li><p><code class="varname">raster_columns</code> this view catalogs all the raster table columns in your database.</p></li><li><p><code class="varname">raster_overviews</code> this view catalogs all the raster table columns in your database that serve as overviews for a finer grained table.  Tables of this type are generated when you use the <code class="varname">-l</code> switch during load.</p></li></ol></div><div class="sect2" lang="en"><div class="titlepage"><div><div><h3 class="title"><a name="RT_Raster_Columns"></a>5.2.1. Raster Columns Catalog</h3></div></div></div><p>The <code class="varname">raster_columns</code> is a catalog of all raster table columns in your database that are of type raster.  It is a view utilizing the constraints on the tables
+        	so the information is always consistent even if you restore one raster table from a backup of another database.  The following columns exist in the <code class="varname">raster_columns</code> catalog.</p><p>If you created your tables not with the loader or forgot to specify the <code class="varname">-C</code> flag during load, you can enforce the constraints after the 
+        	fact using <a href="RT_AddRasterConstraints.html" title="AddRasterConstraints">AddRasterConstraints</a> so that the <code class="varname">raster_columns</code> catalog registers the common information about your raster tiles.</p><div class="itemizedlist"><ul type="disc"><li><p><code class="varname">r_table_catalog</code> The database the table is in.  This will always read the current database.</p></li><li><p><code class="varname">r_table_schema</code> The database schema the raster table belongs to.</p></li><li><p><code class="varname">r_table_name</code> raster table</p></li><li><p><code class="varname">r_raster_column</code> the column in the <code class="varname">r_table_name</code> table that is of type raster.  There is nothing in PostGIS preventing you from having multiple raster columns per table so its possible to have a raster table listed multiple times with a different raster column for each.</p></li><li><p><code class="varname">srid</code> The spatial reference identifier of the raster.  Should be an entry in the <a href="using_postgis_dbmanagement.html#spatial_ref_sys" title="4.3.1. The SPATIAL_REF_SYS Table and Spatial Reference Systems">Section 4.3.1, &#8220;The SPATIAL_REF_SYS Table and Spatial Reference Systems&#8221;</a>.</p></li><li><p><code class="varname">scale_x</code> The scaling between geometric spatial coordinates and pixel.  This is only available if all tiles in the raster column have the same <code class="varname">scale_x</code> and this constraint is applied. Refer to <a href="RT_ST_ScaleX.html" title="ST_ScaleX">ST_ScaleX</a> for more details.</p></li><li><p><code class="varname">scale_y</code> The scaling between geometric spatial coordinates and pixel.  This is only available if all tiles in the raster column have the same <code class="varname">scale_y</code> and the <code class="varname">scale_y</code> constraint is applied. Refer to <a href="RT_ST_ScaleY.html" title="ST_ScaleY">ST_ScaleY</a> for more details.</p></li><li><p><code class="varname">blocksize_x</code> The width (number of pixels across) of each raster tile . Refer to <a href="RT_ST_Width.html" title="ST_Width">ST_Width</a> for more details.</p></li><li><p><code class="varname">blocksize_y</code> The width (number of pixels down) of each raster tile . Refer to <a href="RT_ST_Height.html" title="ST_Height">ST_Height</a> for more details.</p></li><li><p><code class="varname">same_alignment</code> A boolean that is true if all the raster tiles have the same alignment . Refer to <a href="RT_ST_SameAlignment.html" title="ST_SameAlignment">ST_SameAlignment</a> for more details.</p></li><li><p><code class="varname">regular_blocking</code> This is a true/false constraint flag set on the table to denote that the tiles do not overlap, are of the same alignment, pixel size, srid etc. It is not really validated but just taken as a given so should be used for informational.  In the future we plan to properly constrain this so that this inforamtion is guaranteed to be right when it returns <code class="varname">true</code></p></li><li><p><code class="varname">num_bands</code> The number of bands in each tile of your raster set.  This is the same information as what is provided by <a href="RT_ST_NumBands.html" title="ST_NumBands">ST_NumBands</a></p></li><li><p><code class="varname">pixel_types</code> An array defining the pixel type for each band.  You will have the same number of elements in this array as you have number of bands.  The pixel_types are one of the following defined in <a href="RT_ST_BandPixelType.html" title="ST_BandPixelType">ST_BandPixelType</a>.</p></li><li><p><code class="varname">nodata_values</code> An array of double precision numbers denoting the <code class="varname">nodata_value</code> for each band.  You will have the same number of elements in this array as you have number of bands. These numbers define the pixel value for each band that should be ignored for most operations.  This is similar information provided by <a href="RT_ST_BandNoDataValue.html" title="ST_BandNoDataValue">ST_BandNoDataValue</a>.</p></li><li><p><code class="varname">extent</code> This is the extent of all the raster rows in your raster set. If you plan to load more data that will change the extent of the set, you'll want to run the <a href="RT_DropRasterConstraints.html" title="DropRasterConstraints">DropRasterConstraints</a> function before load and then reapply constraints with <a href="RT_AddRasterConstraints.html" title="AddRasterConstraints">AddRasterConstraints</a> after load. </p></li></ul></div></div><div class="sect2" lang="en"><div class="titlepage"><div><div><h3 class="title"><a name="RT_Raster_Overviews"></a>5.2.2. Raster Overviews</h3></div></div></div><p><code class="varname">raster_overviews</code> catalogs information about raster table columns used for overviews and additional information about them that is useful to know when utilizing overviews. Overview tables are cataloged in both <code class="varname">raster_columns</code> and <code class="varname">raster_overviews</code> because they are rasters in their own right but also serve an additional special purpose of being a lower resolution caricature of a higher resolution table. These are generated along-side the main raster table when you use the <code class="varname">-l</code> switch in raster loading.</p><p>Overview tables contain the same constraints as other raster tables as well as additional informational only constraints specific to overviews.</p><div class="note" style="margin-left: 0.5in; margin-right: 0.5in;"><table border="0" summary="Note"><tr><td rowspan="2" align="center" valign="top" width="25"><img alt="[Note]" src="images/note.png"></td><th align="left"></th></tr><tr><td align="left" valign="top"><p>The information in <code class="varname">raster_overviews</code> does not duplicate the information in <code class="varname">raster_columns</code>.  If you need the information about an overview table present in <code class="varname">raster_columns</code> you can join the <code class="varname">raster_overviews</code> and <code class="varname">raster_columns</code> together to get the full set of information you need.</p></td></tr></table></div><p>Two main reasons for overviews are:</p><div class="orderedlist"><ol type="1"><li><p>Low resolution representation of the core tables commonly used for fast mapping zoom-out.</p></li><li><p>Computations are generally faster to do on them than their higher resolution parents because there are fewer records and each pixel covers more territory.  Though the computations are not as accurate as the high-res tables they support, they can be sufficient in many rule-of-thumb computations.</p></li></ol></div><p>The <code class="varname">raster_overviews</code> catalog contains the following columns of information.</p><div class="itemizedlist"><ul type="disc"><li><p><code class="varname">o_table_catalog</code> The database the overview table is in.  This will always read the current database.</p></li><li><p><code class="varname">o_table_schema</code> The database schema the overview raster table belongs to.</p></li><li><p><code class="varname">o_table_name</code> raster overview table name</p></li><li><p><code class="varname">o_raster_column</code> the raster column in the overview table.</p></li><li><p><code class="varname">r_table_catalog</code> The database the raster table that this overview services is in.  This will always read the current database.</p></li><li><p><code class="varname">r_table_schema</code> The database schema the raster table that this overview services belongs to.</p></li><li><p><code class="varname">r_table_name</code> raster table that this overview services.</p></li><li><p><code class="varname">r_raster_column</code> the raster column that this overview column services.</p></li><li><p><code class="varname">overview_factor</code> - this is the pyramid level of the overview table.  The higher the number the lower the resolution of the table.
+					raster2pgsql if given a folder of images, will compute overview of each image file and load separately.  Level 1 is assumed and always the original file. Level 2 is
+					will have each tile represent 4 of the original.  So for example if you have a folder of 5000x5000 pixel image files that you chose to chunk 125x125, for each image file your base table will
+						have (5000*5000)/(125*125) records = 1600, your (l=2) <code class="varname">o_2</code> table will have ceiling(1600/Power(2,2)) = 400 rows, your (l=3) <code class="varname">o_3</code> will have ceiling(1600/Power(2,3) ) = 200 rows.
+						If your pixels aren't divisible by the size of your tiles, you'll get some scrap tiles (tiles not completely filled).  Note that each overview tile generated by raster2pgsql has the same number of
+						pixels as its parent, but is of a lower resolution where each pixel of it represents (Power(2,overview_factor) pixels of the original).</p></li></ul></div></div></div><div class="sect1" lang="en"><div class="titlepage"><div><div><h2 class="title" style="clear: both"><a name="RT_Raster_Applications"></a>5.3. Building Custom Applications with PostGIS Raster</h2></div></div></div><div class="toc"><dl><dt><span class="sect2"><a href="using_raster.xml.html#RT_PHP_Output">5.3.1. PHP Example Outputting using ST_AsPNG in concert with other raster functions</a></span></dt><dt><span class="sect2"><a href="using_raster.xml.html#RT_Net_Output_CS">5.3.2. ASP.NET C# Example Outputting using ST_AsPNG in concert with other raster functions</a></span></dt><dt><span class="sect2"><a href="using_raster.xml.html#RT_Java_Console_App">5.3.3. Java console app that outputs raster query as Image file</a></span></dt><dt><span class="sect2"><a href="using_raster.xml.html#RT_PLPython">5.3.4. Use PLPython to dump out images via SQL</a></span></dt><dt><span class="sect2"><a href="using_raster.xml.html#RasterOutput_PSQL">5.3.5. Outputting Rasters with PSQL</a></span></dt></dl></div><p>The fact that PostGIS raster provides you with SQL functions to render rasters in known image formats gives  you a lot of optoins for rendering them.
+   		For example you can use OpenOffice / LibreOffice for rendering as demonstrated in <a href="http://www.postgresonline.com/journal/archives/244-Rendering-PostGIS-Raster-graphics-with-LibreOffice-Base-Reports.html" target="_top">Rendering PostGIS Raster graphics with LibreOffice Base Reports</a>.  In addition you can use a wide variety of languages as demonstrated in this section.</p><div class="sect2" lang="en"><div class="titlepage"><div><div><h3 class="title"><a name="RT_PHP_Output"></a>5.3.1. PHP Example Outputting using ST_AsPNG in concert with other raster functions</h3></div></div></div><p>In this section, we'll demonstrate how to use the PHP PostgreSQL driver and the <a href="RT_ST_AsGDALRaster.html" title="ST_AsGDALRaster">ST_AsGDALRaster</a> family of functions to
+   				output band 1,2,3 of a raster to a PHP request stream that can then be embedded in an img src html tag.</p><p>The sample query demonstrates how to combine a whole bunch of raster functions together to grab all tiles that intersect
+   				a particular wgs 84 bounding box and then unions with <a href="RT_ST_Union.html" title="ST_Union">ST_Union</a> the intersecting tiles together returning all bands, transforms to user specified projection using <a href="RT_ST_Transform.html" title="ST_Transform">ST_Transform</a>,
+   				and then outputs the results as a png using <a href="RT_ST_AsPNG.html" title="ST_AsPNG">ST_AsPNG</a>.</p><p>You would call the below using </p><pre class="programlisting">http://mywebserver/test_raster.php?srid=2249</pre><p> to get the raster image in Massachusetts state plane feet.</p><pre class="programlisting">
+&lt;?php
+/** contents of test_raster.php **/
+$conn_str ='dbname=mydb host=localhost port=5432 user=myuser password=mypwd';
+$dbconn = pg_connect($conn_str);
+header('Content-Type: image/png');  
+/**If a particular projection was requested use it otherwise use mass state plane meters **/
+if (!empty( $_REQUEST['srid'] ) &amp;&amp; is_numeric( $_REQUEST['srid']) ){
+		$input_srid = intval($_REQUEST['srid']);
+}
+else { $input_srid = 26986; }
+/** The set bytea_output may be needed for PostgreSQL 9.0+, but not for 8.4 **/
+$sql = "set bytea_output='escape';
+SELECT ST_AsPNG(ST_Transform(
+			ST_AddBand(ST_Union(rast,1), ARRAY[ST_Union(rast,2),ST_Union(rast,3)])
+				,$input_srid) ) As new_rast
+ FROM aerials.boston 
+	WHERE 
+	 ST_Intersects(rast, ST_Transform(ST_MakeEnvelope(-71.1217, 42.227, -71.1210, 42.218,4326),26986) )"; 
+$result = pg_query($sql);
+$row = pg_fetch_row($result);
+pg_free_result($result);
+if ($row === false) return;
+echo pg_unescape_bytea($row[0]);
+?&gt;</pre></div><div class="sect2" lang="en"><div class="titlepage"><div><div><h3 class="title"><a name="RT_Net_Output_CS"></a>5.3.2. ASP.NET C# Example Outputting using ST_AsPNG in concert with other raster functions</h3></div></div></div><p>In this section, we'll demonstrate how to use Npgsql PostgreSQL .NET driver and the <a href="RT_ST_AsGDALRaster.html" title="ST_AsGDALRaster">ST_AsGDALRaster</a> family of functions to
+   				output band 1,2,3 of a raster to a PHP request stream that can then be embedded in an img src html tag.</p><p>You will need the npgsql .NET PostgreSQL driver for this exercise which you can get the latest of from <a href="http://npgsql.projects.postgresql.org/" target="_top">http://npgsql.projects.postgresql.org/</a>.  Just download the latest and drop into your ASP.NET bin folder and you'll be good to go.</p><p>The sample query demonstrates how to combine a whole bunch of raster functions together to grab all tiles that intersect
+   				a particular wgs 84 bounding box and then unions with <a href="RT_ST_Union.html" title="ST_Union">ST_Union</a> the intersecting tiles together returning all bands, transforms to user specified projection using <a href="RT_ST_Transform.html" title="ST_Transform">ST_Transform</a>,
+   				and then outputs the results as a png using <a href="RT_ST_AsPNG.html" title="ST_AsPNG">ST_AsPNG</a>.</p><p>This is same example as <a href="using_raster.xml.html#RT_PHP_Output" title="5.3.1. PHP Example Outputting using ST_AsPNG in concert with other raster functions">Section 5.3.1, &#8220;PHP Example Outputting using ST_AsPNG in concert with other raster functions&#8221;</a> except implemented in C#.</p><p>You would call the below using </p><pre class="programlisting">http://mywebserver/TestRaster.ashx?srid=2249</pre><p> to get the raster image in Massachusetts state plane feet.</p><pre class="programlisting"> -- web.config connection string section --
+&lt;connectionStrings&gt;
+    &lt;add name="DSN" 
+        connectionString="server=localhost;database=mydb;Port=5432;User Id=myuser;password=mypwd"/&gt;
+&lt;/connectionStrings&gt;</pre><pre class="programlisting">// Code for TestRaster.ashx
+&lt;%@ WebHandler Language="C#" Class="TestRaster" %&gt;
+using System;
+using System.Data;
+using System.Web;
+using Npgsql;
+
+public class TestRaster : IHttpHandler
+{
+	public void ProcessRequest(HttpContext context)
+	{
+		
+		context.Response.ContentType = "image/png";
+		context.Response.BinaryWrite(GetResults(context));
+		
+	}
+
+	public bool IsReusable {
+		get { return false; }
+	}
+
+	public byte[] GetResults(HttpContext context)
+	{
+		byte[] result = null;
+		NpgsqlCommand command;
+		string sql = null;
+		int input_srid = 26986;
+        try {
+		    using (NpgsqlConnection conn = new NpgsqlConnection(System.Configuration.ConfigurationManager.ConnectionStrings["DSN"].ConnectionString)) {
+			    conn.Open();
+
+                if (context.Request["srid"] != null)
+                {
+                    input_srid = Convert.ToInt32(context.Request["srid"]);  
+                }
+                sql = @"SELECT ST_AsPNG(
+                            ST_Transform(
+			                ST_AddBand(
+                                ST_Union(rast,1), ARRAY[ST_Union(rast,2),ST_Union(rast,3)])
+				                    ,:input_srid) ) As new_rast 
+                        FROM aerials.boston 
+	                        WHERE 
+	                            ST_Intersects(rast, 
+                                    ST_Transform(ST_MakeEnvelope(-71.1217, 42.227, -71.1210, 42.218,4326),26986) )";
+			    command = new NpgsqlCommand(sql, conn);
+                command.Parameters.Add(new NpgsqlParameter("input_srid", input_srid));
+           
+			
+			    result = (byte[]) command.ExecuteScalar();
+                conn.Close();
+			}
+
+		}
+        catch (Exception ex)
+        {
+            result = null;
+            context.Response.Write(ex.Message.Trim());
+        }
+		return result;
+	}
+}</pre></div><div class="sect2" lang="en"><div class="titlepage"><div><div><h3 class="title"><a name="RT_Java_Console_App"></a>5.3.3. Java console app that outputs raster query as Image file</h3></div></div></div><p>This is a simple java console app that takes a query that returns one image and outputs to specified file.</p><p>You can download the latest PostgreSQL JDBC drivers from <a href="http://jdbc.postgresql.org/download.html" target="_top">http://jdbc.postgresql.org/download.html</a> </p><p>You can compile the following code using a command something like:</p><pre class="programlisting">set env CLASSPATH .:..\postgresql-9.0-801.jdbc4.jar
+javac SaveQueryImage.java
+jar cfm SaveQueryImage.jar Manifest.txt *.class</pre><p>And call it from the command-line with something like</p><pre class="programlisting">java -jar SaveQueryImage.jar "SELECT ST_AsPNG(ST_AsRaster(ST_Buffer(ST_Point(1,5),10, 'quad_segs=2'),150, 150, '8BUI',100));" "test.png" </pre><pre class="programlisting"> -- Manifest.txt --
+Class-Path: postgresql-9.0-801.jdbc4.jar
+Main-Class: SaveQueryImage</pre><pre class="programlisting">// Code for SaveQueryImage.java
+import java.sql.Connection;
+import java.sql.SQLException;
+import java.sql.PreparedStatement;
+import java.sql.ResultSet;
+import java.io.*;
+
+public class SaveQueryImage {
+  public static void main(String[] argv) {
+      System.out.println("Checking if Driver is registered with DriverManager.");
+      
+      try {
+        //java.sql.DriverManager.registerDriver (new org.postgresql.Driver());
+        Class.forName("org.postgresql.Driver");
+      } 
+      catch (ClassNotFoundException cnfe) {
+        System.out.println("Couldn't find the driver!");
+        cnfe.printStackTrace();
+        System.exit(1);
+      }
+      
+      Connection conn = null;
+      
+      try {
+        conn = DriverManager.getConnection("jdbc:postgresql://localhost:5432/mydb","myuser", "mypwd");
+        conn.setAutoCommit(false);
+
+        PreparedStatement sGetImg = conn.prepareStatement(argv[0]);
+		
+        ResultSet rs = sGetImg.executeQuery();
+		
+		FileOutputStream fout;
+		try
+		{
+			rs.next();
+			/** Output to file name requested by user **/
+			fout = new FileOutputStream(new File(argv[1]) );
+			fout.write(rs.getBytes(1));
+			fout.close();
+		}
+		catch(Exception e)
+		{
+			System.out.println("Can't create file");
+			e.printStackTrace();
+		}
+		
+        rs.close();
+		sGetImg.close();
+        conn.close();
+      } 
+      catch (SQLException se) {
+        System.out.println("Couldn't connect: print out a stack trace and exit.");
+        se.printStackTrace();
+        System.exit(1);
+      }   
+  }
+}</pre></div><div class="sect2" lang="en"><div class="titlepage"><div><div><h3 class="title"><a name="RT_PLPython"></a>5.3.4. Use PLPython to dump out images via SQL</h3></div></div></div><p>This is a plpython stored function that creates a file in the server directory for each record.</p><pre class="programlisting">//plpython postgresql stored proc.  Requires you have plpython installed
+CREATE OR REPLACE FUNCTION write_file (param_bytes bytea, param_filepath text)
+RETURNS text
+AS $$
+f = open(param_filepath, 'wb+')
+f.write(param_bytes)
+return param_filepath
+$$ LANGUAGE plpythonu;</pre><pre class="programlisting">--write out 5 images to the PostgreSQL server in varying sizes
+-- note the postgresql daemon account needs to have write access to folder
+-- this echos back the file names created;
+ SELECT write_file(ST_AsPNG(
+	ST_AsRaster(ST_Buffer(ST_Point(1,5),j*5, 'quad_segs=2'),150*j, 150*j, '8BUI',100)),
+	 'C:/temp/slices'|| j || '.png')
+	 FROM generate_series(1,5) As j;
+	 
+     write_file
+---------------------
+ C:/temp/slices1.png
+ C:/temp/slices2.png
+ C:/temp/slices3.png
+ C:/temp/slices4.png
+ C:/temp/slices5.png	 
+</pre></div><div class="sect2" lang="en"><div class="titlepage"><div><div><h3 class="title"><a name="RasterOutput_PSQL"></a>5.3.5. Outputting Rasters with PSQL</h3></div></div></div><p>Sadly PSQL doesn't have easy to use built-in functionality for outputting binaries.  This is a bit of a hack and based on one of the suggestions outlined in
+   				<a href="http://people.planetpostgresql.org/andrew/index.php?/archives/196-Clever-trick-challenge.html" target="_top">Clever Trick Challenge -- Outputting bytea with psql</a> that piggy backs on PostgreSQL somewhat legacy large object support.  To use first launch your psql commandline connected to your database.
+   			</p><p>Unlike the python approach, this approach creates the file on your local computer.</p><pre class="screen">SELECT oid, lowrite(lo_open(oid, 131072), png) As num_bytes
+ FROM 
+ ( VALUES (lo_create(0), 
+   ST_AsPNG( (SELECT rast FROM aerials.boston WHERE rid=1) ) 
+  ) ) As v(oid,png);
+-- you'll get an output something like --
+   oid   | num_bytes
+---------+-----------
+ 2630819 |     74860
+ 
+-- next note the oid and do this replacing the c:/test.png to file path location
+-- on your local computer
+ \lo_export 2630819 'C:/temp/aerial_samp.png'
+ 
+-- this deletes the file from large object storage on db
+SELECT lo_unlink(2630819);
+   			</pre></div></div></div><div class="navfooter"><hr><table width="100%" summary="Navigation footer"><tr><td width="40%" align="left"><a accesskey="p" href="using_postgis_dbmanagement.html">Prev</a> </td><td width="20%" align="center"> </td><td width="40%" align="right"> <a accesskey="n" href="ch06.html">Next</a></td></tr><tr><td width="40%" align="left" valign="top">Chapter 4. Using PostGIS: Data Management and Queries </td><td width="20%" align="center"><a accesskey="h" href="index.html">Home</a></td><td width="40%" align="right" valign="top"> Chapter 6. Using PostGIS Geometry: Building Applications</td></tr></table></div></body></html>

@@ -1,0 +1,28 @@
+<html><head><meta http-equiv="Content-Type" content="text/html; charset=ISO-8859-1"><title>ST_LocateBetween</title><link rel="stylesheet" href="style.css" type="text/css"><meta name="generator" content="DocBook XSL Stylesheets V1.69.1"><link rel="start" href="index.html" title="PostGIS 2.0.2SVN Manual"><link rel="up" href="reference.html#Linear_Referencing" title="8.10. Linear Referencing"><link rel="prev" href="ST_LocateAlong.html" title="ST_LocateAlong"><link rel="next" href="ST_LocateBetweenElevations.html" title="ST_LocateBetweenElevations"></head><body bgcolor="white" text="black" link="#0000FF" vlink="#840084" alink="#0000FF"><div class="navheader"><table width="100%" summary="Navigation header"><tr><th colspan="3" align="center">ST_LocateBetween</th></tr><tr><td width="20%" align="left"><a accesskey="p" href="ST_LocateAlong.html">Prev</a> </td><th width="60%" align="center">8.10. Linear Referencing</th><td width="20%" align="right"> <a accesskey="n" href="ST_LocateBetweenElevations.html">Next</a></td></tr></table><hr></div><div class="refentry" lang="en"><a name="ST_LocateBetween"></a><div class="titlepage"></div><div class="refnamediv"><h2>Name</h2><p>ST_LocateBetween &#8212; Return a derived geometry collection value with elements
+			that match the specified range of measures inclusively. Polygonal
+			elements are not supported.</p></div><div class="refsynopsisdiv"><h2>Synopsis</h2><div class="funcsynopsis"><p><code class="funcdef">geometry <b class="fsfunc">ST_LocateBetween</b>(</code>geometry  <var class="pdparam">geomA</var>, float  <var class="pdparam">measure_start</var>, float  <var class="pdparam">measure_end</var>, float  <var class="pdparam">offset</var><code>)</code>;</p></div></div><div class="refsection" lang="en"><a name="id2960220"></a><h2>Description</h2><p>Return a derived geometry collection value with elements
+			that match the specified range of measures inclusively. Polygonal
+			elements are not supported.</p><p>Semantic is specified by: ISO/IEC CD 13249-3:200x(E) - Text
+			for Continuation CD Editing Meeting</p><p>Availability: 1.1.0 by old name ST_Locate_Between_Measures. </p><p>Changed: 2.0.0 - in prior versions this used to be called ST_Locate_Between_Measures.  The old name has been deprecated and will be removed in the future but is still available for backward compatibility.</p><p><span class="inlinemediaobject"><img src="images/check.png"></span>
+ This function supports M coordinates.</p></div><div class="refsection" lang="en"><a name="id2960263"></a><h2>Examples</h2><pre class="programlisting">SELECT ST_AsText(the_geom)
+		FROM
+		(SELECT ST_LocateBetween(
+			ST_GeomFromText('MULTILINESTRING M ((1 2 3, 3 4 2, 9 4 3),
+		(1 2 3, 5 4 5))'),1.5, 3) As the_geom) As foo;
+
+							 st_asewkt
+------------------------------------------------------------------------
+ GEOMETRYCOLLECTION M (LINESTRING M (1 2 3,3 4 2,9 4 3),POINT M (1 2 3))
+
+--Geometry collections are difficult animals so dump them
+--to make them more digestable
+SELECT ST_AsText((ST_Dump(the_geom)).geom)
+		FROM
+		(SELECT ST_LocateBetween(
+			ST_GeomFromText('MULTILINESTRING M ((1 2 3, 3 4 2, 9 4 3),
+		(1 2 3, 5 4 5))'),1.5, 3) As the_geom) As foo;
+
+		   st_asewkt
+--------------------------------
+ LINESTRING M (1 2 3,3 4 2,9 4 3)
+ POINT M (1 2 3)</pre></div><div class="refsection" lang="en"><a name="id2960291"></a><h2>See Also</h2><p><a href="ST_Dump.html" title="ST_Dump">ST_Dump</a>, <a href="ST_LocateAlong.html" title="ST_LocateAlong">ST_LocateAlong</a></p></div></div><div class="navfooter"><hr><table width="100%" summary="Navigation footer"><tr><td width="40%" align="left"><a accesskey="p" href="ST_LocateAlong.html">Prev</a> </td><td width="20%" align="center"><a accesskey="u" href="reference.html#Linear_Referencing">Up</a></td><td width="40%" align="right"> <a accesskey="n" href="ST_LocateBetweenElevations.html">Next</a></td></tr><tr><td width="40%" align="left" valign="top">ST_LocateAlong </td><td width="20%" align="center"><a accesskey="h" href="index.html">Home</a></td><td width="40%" align="right" valign="top"> ST_LocateBetweenElevations</td></tr></table></div></body></html>

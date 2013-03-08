@@ -1,0 +1,19 @@
+<html><head><meta http-equiv="Content-Type" content="text/html; charset=ISO-8859-1"><title>UpdateGeometrySRID</title><link rel="stylesheet" href="style.css" type="text/css"><meta name="generator" content="DocBook XSL Stylesheets V1.69.1"><link rel="start" href="index.html" title="PostGIS 2.0.2SVN Manual"><link rel="up" href="reference.html#Management_Functions" title="8.2. Management Functions"><link rel="prev" href="Populate_Geometry_Columns.html" title="Populate_Geometry_Columns"><link rel="next" href="ST_BdPolyFromText.html" title="ST_BdPolyFromText"></head><body bgcolor="white" text="black" link="#0000FF" vlink="#840084" alink="#0000FF"><div class="navheader"><table width="100%" summary="Navigation header"><tr><th colspan="3" align="center">UpdateGeometrySRID</th></tr><tr><td width="20%" align="left"><a accesskey="p" href="Populate_Geometry_Columns.html">Prev</a> </td><th width="60%" align="center">8.2. Management Functions</th><td width="20%" align="right"> <a accesskey="n" href="ST_BdPolyFromText.html">Next</a></td></tr></table><hr></div><div class="refentry" lang="en"><a name="UpdateGeometrySRID"></a><div class="titlepage"></div><div class="refnamediv"><h2>Name</h2><p>UpdateGeometrySRID &#8212; Updates the SRID of all features in a geometry
+		column, geometry_columns metadata and srid table constraint</p></div><div class="refsynopsisdiv"><h2>Synopsis</h2><div class="funcsynopsis"><p><code class="funcdef">text <b class="fsfunc">UpdateGeometrySRID</b>(</code>varchar 
+			<var class="pdparam">table_name</var>, varchar 
+			<var class="pdparam">column_name</var>, integer 
+			<var class="pdparam">srid</var><code>)</code>;</p><p><code class="funcdef">text <b class="fsfunc">UpdateGeometrySRID</b>(</code>varchar 
+			<var class="pdparam">schema_name</var>, varchar 
+			<var class="pdparam">table_name</var>, varchar 
+			<var class="pdparam">column_name</var>, integer 
+			<var class="pdparam">srid</var><code>)</code>;</p><p><code class="funcdef">text <b class="fsfunc">UpdateGeometrySRID</b>(</code>varchar 
+			<var class="pdparam">catalog_name</var>, varchar 
+			<var class="pdparam">schema_name</var>, varchar 
+			<var class="pdparam">table_name</var>, varchar 
+			<var class="pdparam">column_name</var>, integer 
+			<var class="pdparam">srid</var><code>)</code>;</p></div></div><div class="refsection" lang="en"><a name="id2870590"></a><h2>Description</h2><p>Updates the SRID of all features in a geometry column, updating
+		constraints and reference in geometry_columns. Note: uses
+		current_schema() on schema-aware pgsql installations if schema is not
+		provided.</p><p><span class="inlinemediaobject"><img src="images/check.png"></span>
+ This function supports 3d and will not drop the z-index.</p><p><span class="inlinemediaobject"><img src="images/check.png"></span>
+ This method supports Circular Strings and Curves</p></div><div class="refsection" lang="en"><a name="id2870631"></a><h2>See Also</h2><p><a href="ST_SetSRID.html" title="ST_SetSRID">ST_SetSRID</a></p></div></div><div class="navfooter"><hr><table width="100%" summary="Navigation footer"><tr><td width="40%" align="left"><a accesskey="p" href="Populate_Geometry_Columns.html">Prev</a> </td><td width="20%" align="center"><a accesskey="u" href="reference.html#Management_Functions">Up</a></td><td width="40%" align="right"> <a accesskey="n" href="ST_BdPolyFromText.html">Next</a></td></tr><tr><td width="40%" align="left" valign="top">Populate_Geometry_Columns </td><td width="20%" align="center"><a accesskey="h" href="index.html">Home</a></td><td width="40%" align="right" valign="top"> ST_BdPolyFromText</td></tr></table></div></body></html>

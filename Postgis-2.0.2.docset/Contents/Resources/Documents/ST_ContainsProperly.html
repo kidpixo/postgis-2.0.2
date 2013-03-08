@@ -1,0 +1,43 @@
+<html><head><meta http-equiv="Content-Type" content="text/html; charset=ISO-8859-1"><title>ST_ContainsProperly</title><link rel="stylesheet" href="style.css" type="text/css"><meta name="generator" content="DocBook XSL Stylesheets V1.69.1"><link rel="start" href="index.html" title="PostGIS 2.0.2SVN Manual"><link rel="up" href="reference.html#Spatial_Relationships_Measurements" title="8.8. Spatial Relationships and Measurements"><link rel="prev" href="ST_Contains.html" title="ST_Contains"><link rel="next" href="ST_Covers.html" title="ST_Covers"></head><body bgcolor="white" text="black" link="#0000FF" vlink="#840084" alink="#0000FF"><div class="navheader"><table width="100%" summary="Navigation header"><tr><th colspan="3" align="center">ST_ContainsProperly</th></tr><tr><td width="20%" align="left"><a accesskey="p" href="ST_Contains.html">Prev</a> </td><th width="60%" align="center">8.8. Spatial Relationships and Measurements</th><td width="20%" align="right"> <a accesskey="n" href="ST_Covers.html">Next</a></td></tr></table><hr></div><div class="refentry" lang="en"><a name="ST_ContainsProperly"></a><div class="titlepage"></div><div class="refnamediv"><h2>Name</h2><p>ST_ContainsProperly &#8212; Returns true if B intersects the interior of A but not the boundary (or exterior). A does not contain properly itself, but does contain itself.</p></div><div class="refsynopsisdiv"><h2>Synopsis</h2><div class="funcsynopsis"><p><code class="funcdef">boolean <b class="fsfunc">ST_ContainsProperly</b>(</code>geometry 
+			<var class="pdparam">geomA</var>, geometry 
+			<var class="pdparam">geomB</var><code>)</code>;</p></div></div><div class="refsection" lang="en"><a name="id2927602"></a><h2>Description</h2><p>Returns true if B intersects the interior of A but not the boundary (or exterior).</p><p>A does not contain properly itself, but does contain itself.</p><p>Every point of the other geometry is a point of this geometry's interior. The DE-9IM Intersection Matrix for the two geometries matches
+   [T**FF*FF*] used in <a href="ST_Relate.html" title="ST_Relate">ST_Relate</a></p><div class="note" style="margin-left: 0.5in; margin-right: 0.5in;"><table border="0" summary="Note"><tr><td rowspan="2" align="center" valign="top" width="25"><img alt="[Note]" src="images/note.png"></td><th align="left"></th></tr><tr><td align="left" valign="top"><p>From JTS docs slightly reworded: The advantage to using this predicate over <a href="ST_Contains.html" title="ST_Contains">ST_Contains</a> and <a href="ST_Intersects.html" title="ST_Intersects">ST_Intersects</a> is that it can be computed
+	  efficiently, with no need to compute topology at individual points.</p><p>
+			 An example use case for this predicate is computing the intersections
+	 of a set of geometries with a large polygonal geometry.
+	Since intersection is a fairly slow operation, it can be more efficient
+	 to use containsProperly to filter out test geometries which lie
+	wholly inside the area.  In these cases the intersection is
+	known a priori to be exactly the original test geometry.
+	 </p></td></tr></table></div><p>Availability: 1.4.0 - requires GEOS &gt;= 3.1.0.</p><div class="important" style="margin-left: 0.5in; margin-right: 0.5in;"><table border="0" summary="Important"><tr><td rowspan="2" align="center" valign="top" width="25"><img alt="[Important]" src="images/important.png"></td><th align="left"></th></tr><tr><td align="left" valign="top"><p>Do not call with a <code class="varname">GEOMETRYCOLLECTION</code> as an argument</p></td></tr></table></div><div class="important" style="margin-left: 0.5in; margin-right: 0.5in;"><table border="0" summary="Important"><tr><td rowspan="2" align="center" valign="top" width="25"><img alt="[Important]" src="images/important.png"></td><th align="left"></th></tr><tr><td align="left" valign="top"><p>Do not use this function with invalid geometries. You will get unexpected results.</p></td></tr></table></div><p>This function call will automatically include a bounding box
+			comparison that will make use of any indexes that are available on
+			the geometries. To avoid index use, use the function
+			_ST_ContainsProperly.</p></div><div class="refsection" lang="en"><a name="id2927689"></a><h2>Examples</h2><pre class="programlisting">
+	--a circle within a circle
+	SELECT ST_ContainsProperly(smallc, bigc) As smallcontainspropbig,
+	ST_ContainsProperly(bigc,smallc) As bigcontainspropsmall,
+	ST_ContainsProperly(bigc, ST_Union(smallc, bigc)) as bigcontainspropunion,
+	ST_Equals(bigc, ST_Union(smallc, bigc)) as bigisunion,
+	ST_Covers(bigc, ST_ExteriorRing(bigc)) As bigcoversexterior,
+	ST_ContainsProperly(bigc, ST_ExteriorRing(bigc)) As bigcontainsexterior
+	FROM (SELECT ST_Buffer(ST_GeomFromText('POINT(1 2)'), 10) As smallc,
+	ST_Buffer(ST_GeomFromText('POINT(1 2)'), 20) As bigc) As foo;
+	--Result
+  smallcontainspropbig | bigcontainspropsmall | bigcontainspropunion | bigisunion | bigcoversexterior | bigcontainsexterior
+------------------+------------------+------------------+------------+-------------------+---------------------
+ f                     | t                    | f                    | t          | t                 | f
+
+ --example demonstrating difference between contains and contains properly
+ SELECT ST_GeometryType(geomA) As geomtype, ST_Contains(geomA,geomA) AS acontainsa, ST_ContainsProperly(geomA, geomA) AS acontainspropa,
+ ST_Contains(geomA, ST_Boundary(geomA)) As acontainsba, ST_ContainsProperly(geomA, ST_Boundary(geomA)) As acontainspropba
+ FROM (VALUES ( ST_Buffer(ST_Point(1,1), 5,1) ),
+		  ( ST_MakeLine(ST_Point(1,1), ST_Point(-1,-1) ) ),
+		  ( ST_Point(1,1) )
+	) As foo(geomA);
+
+  geomtype    | acontainsa | acontainspropa | acontainsba | acontainspropba
+--------------+------------+----------------+-------------+-----------------
+ST_Polygon    | t          | f              | f           | f
+ST_LineString | t          | f              | f           | f
+ST_Point      | t          | t              | f           | f
+ </pre></div><div class="refsection" lang="en"><a name="id2924284"></a><h2>See Also</h2><p><a href="ST_GeometryType.html" title="ST_GeometryType">ST_GeometryType</a>, <a href="ST_Boundary.html" title="ST_Boundary">ST_Boundary</a>, <a href="ST_Contains.html" title="ST_Contains">ST_Contains</a>, <a href="ST_Covers.html" title="ST_Covers">ST_Covers</a>, <a href="ST_CoveredBy.html" title="ST_CoveredBy">ST_CoveredBy</a>, <a href="ST_Equals.html" title="ST_Equals">ST_Equals</a>, <a href="ST_Relate.html" title="ST_Relate">ST_Relate</a>, <a href="ST_Within.html" title="ST_Within">ST_Within</a></p></div></div><div class="navfooter"><hr><table width="100%" summary="Navigation footer"><tr><td width="40%" align="left"><a accesskey="p" href="ST_Contains.html">Prev</a> </td><td width="20%" align="center"><a accesskey="u" href="reference.html#Spatial_Relationships_Measurements">Up</a></td><td width="40%" align="right"> <a accesskey="n" href="ST_Covers.html">Next</a></td></tr><tr><td width="40%" align="left" valign="top">ST_Contains </td><td width="20%" align="center"><a accesskey="h" href="index.html">Home</a></td><td width="40%" align="right" valign="top"> ST_Covers</td></tr></table></div></body></html>

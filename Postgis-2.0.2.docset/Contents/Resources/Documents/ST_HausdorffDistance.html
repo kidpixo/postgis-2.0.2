@@ -1,0 +1,28 @@
+<html><head><meta http-equiv="Content-Type" content="text/html; charset=ISO-8859-1"><title>ST_HausdorffDistance</title><link rel="stylesheet" href="style.css" type="text/css"><meta name="generator" content="DocBook XSL Stylesheets V1.69.1"><link rel="start" href="index.html" title="PostGIS 2.0.2SVN Manual"><link rel="up" href="reference.html#Spatial_Relationships_Measurements" title="8.8. Spatial Relationships and Measurements"><link rel="prev" href="ST_Distance.html" title="ST_Distance"><link rel="next" href="ST_MaxDistance.html" title="ST_MaxDistance"></head><body bgcolor="white" text="black" link="#0000FF" vlink="#840084" alink="#0000FF"><div class="navheader"><table width="100%" summary="Navigation header"><tr><th colspan="3" align="center">ST_HausdorffDistance</th></tr><tr><td width="20%" align="left"><a accesskey="p" href="ST_Distance.html">Prev</a> </td><th width="60%" align="center">8.8. Spatial Relationships and Measurements</th><td width="20%" align="right"> <a accesskey="n" href="ST_MaxDistance.html">Next</a></td></tr></table><hr></div><div class="refentry" lang="en"><a name="ST_HausdorffDistance"></a><div class="titlepage"></div><div class="refnamediv"><h2>Name</h2><p>ST_HausdorffDistance &#8212; Returns the Hausdorff distance between two geometries.  Basically a measure of how similar or dissimilar 2 geometries are. Units are in the units of the spatial
+		reference system of the geometries.</p></div><div class="refsynopsisdiv"><h2>Synopsis</h2><div class="funcsynopsis"><p><code class="funcdef">float <b class="fsfunc">ST_HausdorffDistance</b>(</code>geometry 
+			<var class="pdparam">g1</var>, geometry 
+			<var class="pdparam">g2</var><code>)</code>;</p><p><code class="funcdef">float <b class="fsfunc">ST_HausdorffDistance</b>(</code>geometry 
+			<var class="pdparam">g1</var>, geometry 
+			<var class="pdparam">g2</var>, float
+			<var class="pdparam">densifyFrac</var><code>)</code>;</p></div></div><div class="refsection" lang="en"><a name="id2929686"></a><h2>Description</h2><p>Implements algorithm for computing a distance metric which can be thought of as the "Discrete Hausdorff Distance".
+This is the Hausdorff distance restricted to discrete points for one of the geometries. <a href="http://en.wikipedia.org/wiki/Hausdorff_distance" target="_top">Wikipedia article on Hausdorff distance</a>
+	<a href="http://lin-ear-th-inking.blogspot.com/2009/01/computing-geometric-similarity.html" target="_top">Martin Davis note on how Hausdorff Distance calculation was used to prove correctness of the CascadePolygonUnion approach.</a></p><p>
+When densifyFrac is specified, this function performs a segment densification before computing the discrete hausdorff distance. The densifyFrac parameter sets the fraction by which to densify each segment. Each segment will be split into a number of equal-length subsegments, whose fraction of the total length is closest to the given fraction.
+		</p><div class="note" style="margin-left: 0.5in; margin-right: 0.5in;"><table border="0" summary="Note"><tr><td rowspan="2" align="center" valign="top" width="25"><img alt="[Note]" src="images/note.png"></td><th align="left"></th></tr><tr><td align="left" valign="top"><p>
+The current implementation supports only vertices as the discrete locations. This could be extended to allow an arbitrary density of points to be used.
+			</p></td></tr></table></div><div class="note" style="margin-left: 0.5in; margin-right: 0.5in;"><table border="0" summary="Note"><tr><td rowspan="2" align="center" valign="top" width="25"><img alt="[Note]" src="images/note.png"></td><th align="left"></th></tr><tr><td align="left" valign="top"><p>
+				This algorithm is NOT equivalent to the standard Hausdorff distance. However, it computes an approximation that is correct for a large subset of useful cases.
+			One important part of this subset is Linestrings that are roughly parallel to each other, and roughly equal in length.  This is a useful metric for line matching.
+			</p></td></tr></table></div><p>Availability: 1.5.0 - requires GEOS &gt;= 3.2.0</p></div><div class="refsection" lang="en"><a name="id2929749"></a><h2>Examples</h2><pre class="programlisting">postgis=# SELECT st_HausdorffDistance(
+				'LINESTRING (0 0, 2 0)'::geometry,
+				'MULTIPOINT (0 1, 1 0, 2 1)'::geometry);
+ st_hausdorffdistance
+ ----------------------
+					 1
+(1 row)
+			</pre><pre class="programlisting">postgis=# SELECT st_hausdorffdistance('LINESTRING (130 0, 0 0, 0 150)'::geometry, 'LINESTRING (10 10, 10 150, 130 10)'::geometry, 0.5);
+ st_hausdorffdistance
+ ----------------------
+					70
+(1 row)
+			</pre></div></div><div class="navfooter"><hr><table width="100%" summary="Navigation footer"><tr><td width="40%" align="left"><a accesskey="p" href="ST_Distance.html">Prev</a> </td><td width="20%" align="center"><a accesskey="u" href="reference.html#Spatial_Relationships_Measurements">Up</a></td><td width="40%" align="right"> <a accesskey="n" href="ST_MaxDistance.html">Next</a></td></tr><tr><td width="40%" align="left" valign="top">ST_Distance </td><td width="20%" align="center"><a accesskey="h" href="index.html">Home</a></td><td width="40%" align="right" valign="top"> ST_MaxDistance</td></tr></table></div></body></html>

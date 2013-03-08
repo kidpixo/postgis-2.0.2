@@ -1,0 +1,19 @@
+<html><head><meta http-equiv="Content-Type" content="text/html; charset=ISO-8859-1"><title>AddNode</title><link rel="stylesheet" href="style.css" type="text/css"><meta name="generator" content="DocBook XSL Stylesheets V1.69.1"><link rel="start" href="index.html" title="PostGIS 2.0.2SVN Manual"><link rel="up" href="Topology.html#Topology_Processing" title="11.7. Topology Processing"><link rel="prev" href="TopologyPolygonize.html" title="Polygonize"><link rel="next" href="AddEdge.html" title="AddEdge"></head><body bgcolor="white" text="black" link="#0000FF" vlink="#840084" alink="#0000FF"><div class="navheader"><table width="100%" summary="Navigation header"><tr><th colspan="3" align="center">AddNode</th></tr><tr><td width="20%" align="left"><a accesskey="p" href="TopologyPolygonize.html">Prev</a> </td><th width="60%" align="center">11.7. Topology Processing</th><td width="20%" align="right"> <a accesskey="n" href="AddEdge.html">Next</a></td></tr></table><hr></div><div class="refentry" lang="en"><a name="AddNode"></a><div class="titlepage"></div><div class="refnamediv"><h2>Name</h2><p>AddNode &#8212; Adds a point node to the node table in the specified topology schema and returns the nodeid of new node. If point already exists as node, the existing nodeid is returned.</p></div><div class="refsynopsisdiv"><h2>Synopsis</h2><div class="funcsynopsis"><p><code class="funcdef">integer <b class="fsfunc">AddNode</b>(</code>varchar  <var class="pdparam">toponame</var>, geometry  <var class="pdparam">apoint</var>, boolean  <var class="pdparam">allowEdgeSplitting=false</var>, boolean  <var class="pdparam">computeContainingFace=false</var><code>)</code>;</p></div></div><div class="refsection" lang="en"><a name="id3079772"></a><h2>Description</h2><p>
+Adds a point node to the node table in the specified topology schema.
+The <a href="AddEdge.html" title="AddEdge">AddEdge</a> function automatically adds start and end
+points of an edge when called so not necessary to explicitly add nodes
+of an edge.
+                </p><p>
+If any edge crossing the node is found either an exception is raised or
+the edge is splitted, depending on the <code class="varname">allowEdgeSplitting</code>
+parameter value.
+	</p><p>
+If <code class="varname">computeContainingFace</code> is true a newly added node would
+get the correct containing face computed.
+	</p><div class="note" style="margin-left: 0.5in; margin-right: 0.5in;"><table border="0" summary="Note"><tr><td rowspan="2" align="center" valign="top" width="25"><img alt="[Note]" src="images/note.png"></td><th align="left"></th></tr><tr><td align="left" valign="top"><p>If the <code class="varname">apoint</code> geometry already exists as a node, the node is not added but the existing nodeid is returned.</p></td></tr></table></div><p>Availability: 2.0.0</p></div><div class="refsection" lang="en"><a name="id3079825"></a><h2>Examples</h2><pre class="programlisting">SELECT topology.AddNode('ma_topo', ST_GeomFromText('POINT(227641.6 893816.5)', 26986) ) As nodeid;
+-- result --
+nodeid
+--------
+ 4
+ 
+</pre></div><div class="refsection" lang="en"><a name="id3079843"></a><h2>See Also</h2><p><a href="AddEdge.html" title="AddEdge">AddEdge</a>, <a href="CreateTopology.html" title="CreateTopology">CreateTopology</a></p></div></div><div class="navfooter"><hr><table width="100%" summary="Navigation footer"><tr><td width="40%" align="left"><a accesskey="p" href="TopologyPolygonize.html">Prev</a> </td><td width="20%" align="center"><a accesskey="u" href="Topology.html#Topology_Processing">Up</a></td><td width="40%" align="right"> <a accesskey="n" href="AddEdge.html">Next</a></td></tr><tr><td width="40%" align="left" valign="top">Polygonize </td><td width="20%" align="center"><a accesskey="h" href="index.html">Home</a></td><td width="40%" align="right" valign="top"> AddEdge</td></tr></table></div></body></html>

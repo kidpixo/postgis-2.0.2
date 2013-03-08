@@ -1,0 +1,39 @@
+<html><head><meta http-equiv="Content-Type" content="text/html; charset=ISO-8859-1"><title>&lt;#&gt;</title><link rel="stylesheet" href="style.css" type="text/css"><meta name="generator" content="DocBook XSL Stylesheets V1.69.1"><link rel="start" href="index.html" title="PostGIS 2.0.2SVN Manual"><link rel="up" href="reference.html#Operators" title="8.7. Operators"><link rel="prev" href="geometry_distance_centroid.html" title="&lt;-&gt;"><link rel="next" href="ST_3DClosestPoint.html" title="ST_3DClosestPoint"></head><body bgcolor="white" text="black" link="#0000FF" vlink="#840084" alink="#0000FF"><div class="navheader"><table width="100%" summary="Navigation header"><tr><th colspan="3" align="center">&lt;#&gt;</th></tr><tr><td width="20%" align="left"><a accesskey="p" href="geometry_distance_centroid.html">Prev</a> </td><th width="60%" align="center">8.7. Operators</th><td width="20%" align="right"> <a accesskey="n" href="ST_3DClosestPoint.html">Next</a></td></tr></table><hr></div><div class="refentry" lang="en"><a name="geometry_distance_box"></a><div class="titlepage"></div><div class="refnamediv"><h2>Name</h2><p>&lt;#&gt; &#8212; Returns the distance between bounding box of 2 geometries.  For point / point checks it's almost the same as distance (though may be different since the bounding box is at floating point accuracy and geometries are double precision).  Useful for doing distance ordering and nearest neighbor limits
+			using KNN gist functionality.</p></div><div class="refsynopsisdiv"><h2>Synopsis</h2><div class="funcsynopsis"><p><code class="funcdef">double precision <b class="fsfunc">&lt;#&gt;</b>(</code>
+				  geometry 
+
+				  <var class="pdparam">A</var>
+				, 
+				  geometry 
+
+				  <var class="pdparam">B</var>
+				<code>)</code>;</p></div></div><div class="refsection" lang="en"><a name="id2921642"></a><h2>Description</h2><p>The <code class="varname">&lt;#&gt;</code> KNN GIST operator returns distance between two floating point bounding boxes read from the spatial index if available.   Useful for doing nearest neighbor <span class="strong"><strong>approximate</strong></span> distance ordering.</p><div class="note" style="margin-left: 0.5in; margin-right: 0.5in;"><table border="0" summary="Note"><tr><td rowspan="2" align="center" valign="top" width="25"><img alt="[Note]" src="images/note.png"></td><th align="left"></th></tr><tr><td align="left" valign="top"><p>This operand will make use of any indexes that may be available on the
+			  geometries.  It is different from other operators that use spatial indexes in that the spatial index is only used when the operator
+			  is in the ORDER BY clause.</p></td></tr></table></div><div class="note" style="margin-left: 0.5in; margin-right: 0.5in;"><table border="0" summary="Note"><tr><td rowspan="2" align="center" valign="top" width="25"><img alt="[Note]" src="images/note.png"></td><th align="left"></th></tr><tr><td align="left" valign="top"><p>Index only kicks in if one of the geometries is a constant e.g. ORDER BY (ST_GeomFromText('POINT(1 2)') &lt;#&gt; geom)  instead of g1.geom &lt;#&gt;.</p></td></tr></table></div><p>Availability: 2.0.0 only available for PostgreSQL 9.1+</p></div><div class="refsection" lang="en"><a name="id2921685"></a><h2>Examples</h2><pre class="programlisting">SELECT *
+FROM (
+SELECT b.tlid, b.mtfcc, 
+	b.geom &lt;#&gt; ST_GeomFromText('LINESTRING(746149 2948672,745954 2948576,
+		745787 2948499,745740 2948468,745712 2948438,
+		745690 2948384,745677 2948319)',2249) As b_dist, 
+		ST_Distance(b.geom, ST_GeomFromText('LINESTRING(746149 2948672,745954 2948576,
+		745787 2948499,745740 2948468,745712 2948438,
+		745690 2948384,745677 2948319)',2249)) As act_dist
+    FROM bos_roads As b 
+    ORDER BY b_dist, b.tlid
+    LIMIT 100) As foo
+    ORDER BY act_dist, tlid LIMIT 10;
+
+   tlid    | mtfcc |      b_dist      |     act_dist
+-----------+-------+------------------+------------------
+  85732027 | S1400 |                0 |                0
+  85732029 | S1400 |                0 |                0
+  85732031 | S1400 |                0 |                0
+  85734335 | S1400 |                0 |                0
+  85736037 | S1400 |                0 |                0
+ 624683742 | S1400 |                0 | 128.528874268666
+  85719343 | S1400 | 260.839270432962 | 260.839270432962
+  85741826 | S1400 | 164.759294123275 | 260.839270432962
+  85732032 | S1400 |           277.75 | 311.830282365264
+  85735592 | S1400 |           222.25 | 311.830282365264
+(10 rows)
+</pre></div><div class="refsection" lang="en"><a name="id2921697"></a><h2>See Also</h2><p><a href="ST_DWithin.html" title="ST_DWithin">ST_DWithin</a>, <a href="ST_Distance.html" title="ST_Distance">ST_Distance</a>, <a href="geometry_distance_centroid.html" title="&lt;-&gt;">&lt;-&gt;</a></p></div></div><div class="navfooter"><hr><table width="100%" summary="Navigation footer"><tr><td width="40%" align="left"><a accesskey="p" href="geometry_distance_centroid.html">Prev</a> </td><td width="20%" align="center"><a accesskey="u" href="reference.html#Operators">Up</a></td><td width="40%" align="right"> <a accesskey="n" href="ST_3DClosestPoint.html">Next</a></td></tr><tr><td width="40%" align="left" valign="top">&lt;-&gt; </td><td width="20%" align="center"><a accesskey="h" href="index.html">Home</a></td><td width="40%" align="right" valign="top"> ST_3DClosestPoint</td></tr></table></div></body></html>

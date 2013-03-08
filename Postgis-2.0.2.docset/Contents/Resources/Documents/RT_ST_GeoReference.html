@@ -1,0 +1,25 @@
+<html><head><meta http-equiv="Content-Type" content="text/html; charset=ISO-8859-1"><title>ST_GeoReference</title><link rel="stylesheet" href="style.css" type="text/css"><meta name="generator" content="DocBook XSL Stylesheets V1.69.1"><link rel="start" href="index.html" title="PostGIS 2.0.2SVN Manual"><link rel="up" href="RT_reference.html#Raster_Accessors" title="9.4. Raster Accessors"><link rel="prev" href="RT_ST_MakeEmptyRaster.html" title="ST_MakeEmptyRaster"><link rel="next" href="RT_ST_Height.html" title="ST_Height"></head><body bgcolor="white" text="black" link="#0000FF" vlink="#840084" alink="#0000FF"><div class="navheader"><table width="100%" summary="Navigation header"><tr><th colspan="3" align="center">ST_GeoReference</th></tr><tr><td width="20%" align="left"><a accesskey="p" href="RT_ST_MakeEmptyRaster.html">Prev</a> </td><th width="60%" align="center">9.4. Raster Accessors</th><td width="20%" align="right"> <a accesskey="n" href="RT_ST_Height.html">Next</a></td></tr></table><hr></div><div class="refentry" lang="en"><a name="RT_ST_GeoReference"></a><div class="titlepage"></div><div class="refnamediv"><h2>Name</h2><p>ST_GeoReference &#8212; Returns the georeference meta data in GDAL or ESRI format as commonly seen in a world file. Default is GDAL.</p></div><div class="refsynopsisdiv"><h2>Synopsis</h2><div class="funcsynopsis"><p><code class="funcdef">text <b class="fsfunc">ST_GeoReference</b>(</code>raster  <var class="pdparam">rast</var>, text  <var class="pdparam">format=GDAL</var><code>)</code>;</p></div></div><div class="refsection" lang="en"><a name="id3024157"></a><h2>Description</h2><p>Returns the georeference meta data including carriage return in GDAL or ESRI format as commonly seen in a <a href="http://en.wikipedia.org/wiki/World_file" target="_top">world file</a>. Default is GDAL if no type specified.  type is string 'GDAL' or 'ESRI'.
+					 </p><p>Difference between format representations is as follows:</p><p><code class="varname">GDAL</code>: 
+</p><pre class="programlisting">scalex 
+skewy 
+skewx
+scaley
+upperleftx
+upperlefty</pre><p><code class="varname">ESRI</code>: 
+</p><pre class="programlisting">scalex 
+skewy 
+skewx
+scaley
+upperleftx + scalex*0.5
+upperlefty + scaley*0.5</pre></div><div class="refsection" lang="en"><a name="id3024203"></a><h2>Examples</h2><pre class="programlisting">SELECT ST_GeoReference(rast, 'ESRI') As esri_ref, ST_GeoReference(rast, 'GDAL') As gdal_ref
+ FROM dummy_rast WHERE rid=1;
+
+   esri_ref   |   gdal_ref
+--------------+--------------
+ 2.0000000000 | 2.0000000000
+ 0.0000000000 : 0.0000000000
+ 0.0000000000 : 0.0000000000
+ 3.0000000000 : 3.0000000000
+ 1.5000000000 : 0.5000000000
+ 2.0000000000 : 0.5000000000
+				</pre></div><div class="refsection" lang="en"><a name="id3024222"></a><h2>See Also</h2><p><a href="RT_ST_SetGeoReference.html" title="ST_SetGeoReference">ST_SetGeoReference</a>, <a href="RT_ST_ScaleX.html" title="ST_ScaleX">ST_ScaleX</a>, <a href="RT_ST_ScaleY.html" title="ST_ScaleY">ST_ScaleY</a></p></div></div><div class="navfooter"><hr><table width="100%" summary="Navigation footer"><tr><td width="40%" align="left"><a accesskey="p" href="RT_ST_MakeEmptyRaster.html">Prev</a> </td><td width="20%" align="center"><a accesskey="u" href="RT_reference.html#Raster_Accessors">Up</a></td><td width="40%" align="right"> <a accesskey="n" href="RT_ST_Height.html">Next</a></td></tr><tr><td width="40%" align="left" valign="top">ST_MakeEmptyRaster </td><td width="20%" align="center"><a accesskey="h" href="index.html">Home</a></td><td width="40%" align="right" valign="top"> ST_Height</td></tr></table></div></body></html>

@@ -1,0 +1,62 @@
+<html><head><meta http-equiv="Content-Type" content="text/html; charset=ISO-8859-1"><title>=</title><link rel="stylesheet" href="style.css" type="text/css"><meta name="generator" content="DocBook XSL Stylesheets V1.69.1"><link rel="start" href="index.html" title="PostGIS 2.0.2SVN Manual"><link rel="up" href="reference.html#Operators" title="8.7. Operators"><link rel="prev" href="ST_Geometry_Below.html" title="&lt;&lt;|"><link rel="next" href="ST_Geometry_Right.html" title="&gt;&gt;"></head><body bgcolor="white" text="black" link="#0000FF" vlink="#840084" alink="#0000FF"><div class="navheader"><table width="100%" summary="Navigation header"><tr><th colspan="3" align="center">=</th></tr><tr><td width="20%" align="left"><a accesskey="p" href="ST_Geometry_Below.html">Prev</a> </td><th width="60%" align="center">8.7. Operators</th><td width="20%" align="right"> <a accesskey="n" href="ST_Geometry_Right.html">Next</a></td></tr></table><hr></div><div class="refentry" lang="en"><a name="ST_Geometry_EQ"></a><div class="titlepage"></div><div class="refnamediv"><h2>Name</h2><p>= &#8212; Returns <code class="varname">TRUE</code> if A's bounding box is the same as B's. Uses double precision bounding box.</p></div><div class="refsynopsisdiv"><h2>Synopsis</h2><div class="funcsynopsis"><p><code class="funcdef">boolean <b class="fsfunc">=</b>(</code>
+				  geometry 
+
+				  <var class="pdparam">A</var>
+				, 
+				  geometry 
+
+				  <var class="pdparam">B</var>
+				<code>)</code>;</p><p><code class="funcdef">boolean <b class="fsfunc">=</b>(</code>
+					  geography 
+	
+					  <var class="pdparam">A</var>
+					, 
+					  geography 
+	
+					  <var class="pdparam">B</var>
+					<code>)</code>;</p></div></div><div class="refsection" lang="en"><a name="id2920164"></a><h2>Description</h2><p>The <code class="varname">=</code> operator returns <code class="varname">TRUE</code> if the bounding box of geometry/geography A
+			is the same as the bounding box of geometry/geography B.  PostgreSQL uses the =, &lt;, and &gt; operators defined for geometries to
+			perform internal orderings and comparison of geometries (ie. in a GROUP BY or ORDER BY clause).</p><div class="warning" style="margin-left: 0.5in; margin-right: 0.5in;"><table border="0" summary="Warning"><tr><td rowspan="2" align="center" valign="top" width="25"><img alt="[Warning]" src="images/warning.png"></td><th align="left"></th></tr><tr><td align="left" valign="top"><p>This is cause for a lot of confusion. When you compare geometryA =
+			  geometryB it will return true even when the geometries are clearly
+			  different IF their bounding boxes are the same. To check for true
+			  equality use <a href="ST_OrderingEquals.html" title="ST_OrderingEquals">ST_OrderingEquals</a> or <a href="ST_Equals.html" title="ST_Equals">ST_Equals</a></p></td></tr></table></div><div class="caution" style="margin-left: 0.5in; margin-right: 0.5in;"><table border="0" summary="Caution"><tr><td rowspan="2" align="center" valign="top" width="25"><img alt="[Caution]" src="images/caution.png"></td><th align="left"></th></tr><tr><td align="left" valign="top"><p>This operand will NOT make use of any indexes that may be available on the
+				geometries.</p></td></tr></table></div><p><span class="inlinemediaobject"><img src="images/check.png"></span>
+ This method supports Circular Strings and Curves</p><p><span class="inlinemediaobject"><img src="images/check.png"></span>
+ This function supports Polyhedral surfaces.</p><p>Changed:  2.0.0 , the bounding box of geometries was changed to use double precision instead of float4 precision of
+			prior. The side effect of this is that in particular points in prior versions that were a little different may have returned
+				true in prior versions and false in 2.0+ since their float4 boxes would be the same but there float8 (double precision), would be
+				different.</p></div><div class="refsection" lang="en"><a name="id2920260"></a><h2>Examples</h2><pre class="programlisting">SELECT 'LINESTRING(0 0, 0 1, 1 0)'::geometry = 'LINESTRING(1 1, 0 0)'::geometry;
+ ?column?
+----------
+ t
+(1 row)
+
+SELECT ST_AsText(column1)
+FROM ( VALUES
+	('LINESTRING(0 0, 1 1)'::geometry),
+	('LINESTRING(1 1, 0 0)'::geometry)) AS foo;
+	  st_astext
+---------------------
+ LINESTRING(0 0,1 1)
+ LINESTRING(1 1,0 0)
+(2 rows)
+
+-- Note: the GROUP BY uses the "=" to compare for geometry equivalency.
+SELECT ST_AsText(column1)
+FROM ( VALUES
+	('LINESTRING(0 0, 1 1)'::geometry),
+	('LINESTRING(1 1, 0 0)'::geometry)) AS foo
+GROUP BY column1;
+	  st_astext
+---------------------
+ LINESTRING(0 0,1 1)
+(1 row)
+
+-- In versions prior to 2.0, this used to return true --
+ SELECT ST_GeomFromText('POINT(1707296.37 4820536.77)') =
+	ST_GeomFromText('POINT(1707296.27 4820536.87)') As pt_intersect;
+	
+--pt_intersect --
+f
+</pre></div><div class="refsection" lang="en"><a name="id2920286"></a><h2>See Also</h2><p><a href="ST_Equals.html" title="ST_Equals">ST_Equals</a>, <a href="ST_OrderingEquals.html" title="ST_OrderingEquals">ST_OrderingEquals</a>
+			</p></div></div><div class="navfooter"><hr><table width="100%" summary="Navigation footer"><tr><td width="40%" align="left"><a accesskey="p" href="ST_Geometry_Below.html">Prev</a> </td><td width="20%" align="center"><a accesskey="u" href="reference.html#Operators">Up</a></td><td width="40%" align="right"> <a accesskey="n" href="ST_Geometry_Right.html">Next</a></td></tr><tr><td width="40%" align="left" valign="top">&lt;&lt;| </td><td width="20%" align="center"><a accesskey="h" href="index.html">Home</a></td><td width="40%" align="right" valign="top"> &gt;&gt;</td></tr></table></div></body></html>

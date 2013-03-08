@@ -1,0 +1,25 @@
+<html><head><meta http-equiv="Content-Type" content="text/html; charset=ISO-8859-1"><title>|&gt;&gt;</title><link rel="stylesheet" href="style.css" type="text/css"><meta name="generator" content="DocBook XSL Stylesheets V1.69.1"><link rel="start" href="index.html" title="PostGIS 2.0.2SVN Manual"><link rel="up" href="reference.html#Operators" title="8.7. Operators"><link rel="prev" href="ST_Geometry_Overabove.html" title="|&amp;&gt;"><link rel="next" href="ST_Geometry_Contain.html" title="~"></head><body bgcolor="white" text="black" link="#0000FF" vlink="#840084" alink="#0000FF"><div class="navheader"><table width="100%" summary="Navigation header"><tr><th colspan="3" align="center">|&gt;&gt;</th></tr><tr><td width="20%" align="left"><a accesskey="p" href="ST_Geometry_Overabove.html">Prev</a> </td><th width="60%" align="center">8.7. Operators</th><td width="20%" align="right"> <a accesskey="n" href="ST_Geometry_Contain.html">Next</a></td></tr></table><hr></div><div class="refentry" lang="en"><a name="ST_Geometry_Above"></a><div class="titlepage"></div><div class="refnamediv"><h2>Name</h2><p>|&gt;&gt; &#8212; Returns <code class="varname">TRUE</code> if A's bounding box is strictly above B's.</p></div><div class="refsynopsisdiv"><h2>Synopsis</h2><div class="funcsynopsis"><p><code class="funcdef">boolean <b class="fsfunc">|&gt;&gt;</b>(</code>
+				  geometry 
+
+				  <var class="pdparam">A</var>
+				, 
+				  geometry 
+
+				  <var class="pdparam">B</var>
+				<code>)</code>;</p></div></div><div class="refsection" lang="en"><a name="id2918764"></a><h2>Description</h2><p>The <code class="varname">|&gt;&gt;</code> operator returns <code class="varname">TRUE</code> if the bounding box of geometry A
+			is strictly to the right of the bounding box of geometry B.</p><div class="note" style="margin-left: 0.5in; margin-right: 0.5in;"><table border="0" summary="Note"><tr><td rowspan="2" align="center" valign="top" width="25"><img alt="[Note]" src="images/note.png"></td><th align="left"></th></tr><tr><td align="left" valign="top"><p>This operand will make use of any indexes that may be available on the
+			  geometries.</p></td></tr></table></div></div><div class="refsection" lang="en"><a name="id2918788"></a><h2>Examples</h2><pre class="programlisting">SELECT tbl1.column1, tbl2.column1, tbl1.column2 |&gt;&gt; tbl2.column2 AS above
+FROM
+  ( VALUES
+	(1, 'LINESTRING (1 4, 1 7)'::geometry)) AS tbl1,
+  ( VALUES
+	(2, 'LINESTRING (0 0, 4 2)'::geometry),
+	(3, 'LINESTRING (6 1, 6 5)'::geometry),
+	(4, 'LINESTRING (2 3, 5 6)'::geometry)) AS tbl2;
+
+ column1 | column1 | above
+---------+---------+-------
+	   1 |       2 | t
+	   1 |       3 | f
+	   1 |       4 | f
+(3 rows)</pre></div><div class="refsection" lang="en"><a name="id2920999"></a><h2>See Also</h2><p><a href="ST_Geometry_Left.html" title="&lt;&lt;">&lt;&lt;</a>, <a href="ST_Geometry_Right.html" title="&gt;&gt;">&gt;&gt;</a>, <a href="ST_Geometry_Below.html" title="&lt;&lt;|">&lt;&lt;|</a></p></div></div><div class="navfooter"><hr><table width="100%" summary="Navigation footer"><tr><td width="40%" align="left"><a accesskey="p" href="ST_Geometry_Overabove.html">Prev</a> </td><td width="20%" align="center"><a accesskey="u" href="reference.html#Operators">Up</a></td><td width="40%" align="right"> <a accesskey="n" href="ST_Geometry_Contain.html">Next</a></td></tr><tr><td width="40%" align="left" valign="top">|&amp;&gt; </td><td width="20%" align="center"><a accesskey="h" href="index.html">Home</a></td><td width="40%" align="right" valign="top"> ~</td></tr></table></div></body></html>

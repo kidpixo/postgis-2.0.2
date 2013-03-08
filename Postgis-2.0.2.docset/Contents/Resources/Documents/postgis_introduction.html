@@ -1,0 +1,129 @@
+<html><head><meta http-equiv="Content-Type" content="text/html; charset=ISO-8859-1"><title>Chapter 1. Introduction</title><link rel="stylesheet" href="style.css" type="text/css"><meta name="generator" content="DocBook XSL Stylesheets V1.69.1"><link rel="start" href="index.html" title="PostGIS 2.0.2SVN Manual"><link rel="up" href="index.html" title="PostGIS 2.0.2SVN Manual"><link rel="prev" href="index.html" title="PostGIS 2.0.2SVN Manual"><link rel="next" href="postgis_installation.html" title="Chapter 2. Installation"></head><body bgcolor="white" text="black" link="#0000FF" vlink="#840084" alink="#0000FF"><div class="navheader"><table width="100%" summary="Navigation header"><tr><th colspan="3" align="center">Chapter 1. Introduction</th></tr><tr><td width="20%" align="left"><a accesskey="p" href="index.html">Prev</a> </td><th width="60%" align="center"> </th><td width="20%" align="right"> <a accesskey="n" href="postgis_installation.html">Next</a></td></tr></table><hr></div><div class="chapter" lang="en"><div class="titlepage"><div><div><h2 class="title"><a name="postgis_introduction"></a>Chapter 1. Introduction</h2></div></div></div><div class="toc"><p><b>Table of Contents</b></p><dl><dt><span class="sect1"><a href="postgis_introduction.html#psc">1.1. Project Steering Committee</a></span></dt><dt><span class="sect1"><a href="postgis_introduction.html#credits">1.2. Contributors Past and Present</a></span></dt><dt><span class="sect1"><a href="postgis_introduction.html#id2790685">1.3. More Information</a></span></dt></dl></div><p>PostGIS was developed by Refractions Research Inc, as a spatial
+  database technology research project. Refractions is a GIS and database
+  consulting company in Victoria, British Columbia, Canada, specializing in
+  data integration and custom software development. We plan on supporting and
+  developing PostGIS to support a range of important GIS functionality,
+  including full OpenGIS support, advanced topological constructs (coverages,
+  surfaces, networks), desktop user interface tools for viewing and editing
+  GIS data, and web-based access tools.</p><p>PostGIS is an incubation project of the OSGeo Foundation. PostGIS is being continually improved and funded by many FOSS4G Developers as well
+    as corporations all over the world that gain great benefit from its functionality and versatility.</p><div class="sect1" lang="en"><div class="titlepage"><div><div><h2 class="title" style="clear: both"><a name="psc"></a>1.1. Project Steering Committee</h2></div></div></div><p>
+		The PostGIS Project Steering Committee (PSC) coordinates the general direction,
+			release cycles, documentation, and outreach efforts for the PostGIS project.  In addition
+			the PSC provides general user support, accepts and approves patches from the general PostGIS community
+			and votes on miscellaneous issues involving PostGIS such as developer commit access, new PSC members
+			or significant API changes.
+	</p><div class="variablelist"><dl><dt><span class="term">Mark Cave-Ayland</span></dt><dd><p>Coordinates bug fixing and maintenance effort, alignment of
+		  PostGIS with PostgreSQL releases, spatial index selectivity and binding, loader/dumper, and Shapefile GUI Loader, integration of new
+		   and new function enhancements.</p></dd><dt><span class="term">Chris Hodgson</span></dt><dd><p>General development, site and buildbot maintenance, OSGeo incubation management</p></dd><dt><span class="term">Regina Obe</span></dt><dd><p>Documentation, general user support on PostGIS newsgroup, windows production and experimental builds, 
+		  X3D support, Tiger Geocoder Support, management functions,  and 
+		  smoke testing new functionality or major code changes.</p></dd><dt><span class="term">Paul Ramsey (Chair)</span></dt><dd><p>Co-founder of PostGIS project.  General bug fixing, geography support,  geography and geometry index support (2D, 3D, nD index and anything spatial index), underlying geometry internal structures, GEOS functionality integration and alignment with 
+		  GEOS releases, loader/dumper, and Shapefile GUI loader.</p></dd><dt><span class="term">Sandro Santilli</span></dt><dd><p>Bug fixes and maintenance and integration of new GEOS functionality and alignment with GEOS releases, Topology support, and Raster framework and low level api functions.</p></dd></dl></div></div><div class="sect1" lang="en"><div class="titlepage"><div><div><h2 class="title" style="clear: both"><a name="credits"></a>1.2. Contributors Past and Present</h2></div></div></div><div class="variablelist"><dl><dt><span class="term">Kevin Neufeld</span></dt><dd><p>Prior PSC Member. Documentation and documentation support tools, advanced user support
+		  on PostGIS newsgroup, and PostGIS maintenance function enhancements.</p></dd><dt><span class="term">Dave Blasby</span></dt><dd><p>The original developer/Co-founder of PostGIS. Dave wrote the server side
+		  objects, index bindings, and many of the server side analytical
+		  functions.</p></dd><dt><span class="term">Jeff Lounsbury</span></dt><dd><p>Original development of the Shape file loader/dumper. Current PostGIS Project Owner representative.</p></dd><dt><span class="term">Olivier Courtin</span></dt><dd><p>Input output XML (KML,GML)/GeoJSON functions, 3D support and bug fixes.</p></dd><dt><span class="term">Mark Leslie</span></dt><dd><p>Ongoing maintenance and development of core functions.  Enhanced curve support. Shapefile GUI loader.</p></dd><dt><span class="term">Pierre Racine</span></dt><dd><p>Raster overall architecture, prototyping, programming support</p></dd><dt><span class="term">Nicklas Avén</span></dt><dd><p>Distance function enhancements (including 3D distance and relationship functions) and additions, Windows testing, and general user support</p></dd><dt><span class="term">Jorge Arévalo</span></dt><dd><p>Raster development, GDAL driver support, loader</p></dd><dt><span class="term">Bborie Park</span></dt><dd><p>Raster development</p></dd><dt><span class="term">Mateusz Loskot</span></dt><dd><p>Raster loader, low level raster api functions</p></dd><dt><span class="term">David Zwarg</span></dt><dd><p>Raster development</p></dd><dt><span class="term">Other contributors: Individuals</span></dt><dd><p>In alphabetical order:
+Alex Bodnaru,
+Alex Mayrhofer,
+Andrea Peri,
+Andreas Forø Tollefsen,
+Andreas Neumann,
+Anne Ghisla,
+Barbara Phillipot,
+Ben Jubb,
+Bernhard Reiter,
+Brian Hamlin,
+Bruce Rindahl,
+Bruno Wolff III,
+Bryce L. Nordgren,
+Carl Anderson,
+Charlie Savage,
+Dane Springmeyer,
+David Skea,
+David Techer,
+Eduin Carrillo,
+Even Rouault,
+Frank Warmerdam,
+George Silva,
+Gerald Fenoy,
+Gino Lucrezi,
+Guillaume Lelarge,
+IIDA Tetsushi,
+Ingvild Nystuen,
+Jeff Adams,
+Jose Carlos Martinez Llari,
+Kashif Rasul,
+Klaus Foerster,
+Kris Jurka,
+Leo Hsu,
+Loic Dachary,
+Luca S. Percich,
+Maria Arias de Reyna,
+Mark Sondheim,
+Markus Schaber,
+Maxime Guillaud,
+Maxime van Noppen,
+Michael Fuhr,
+Nikita Shulga,
+Norman Vine,
+Rafal Magda,
+Ralph Mason,
+Richard Greenwood,
+Silvio Grosso,
+Steffen Macke,
+Stephen Frost,
+Tom van Tilburg,
+Vincent Picavet
+		  </p></dd><dt><span class="term">Other contributors: Corporate Sponsors</span></dt><dd><p>These are corporate entities that have contributed developer time, hosting, or direct monetary funding to the PostGIS project</p><p>In alphabetical order:
+Arrival 3D,
+Associazione Italiana per l'Informazione Geografica Libera (GFOSS.it),
+AusVet,
+Avencia,
+Azavea,
+Cadcorp,
+CampToCamp,
+City of Boston (DND),
+Clever Elephant Solutions,
+Cooperativa Alveo,
+Deimos Space,
+Faunalia,
+Geographic Data BC,
+Hunter Systems Group,
+Lidwala Consulting Engineers,
+LisaSoft,
+Logical Tracking &amp; Tracing International AG,
+Michigan Tech Research Institute,
+Norwegian Forest and Landscape Institute,
+OpenGeo,
+OSGeo,
+Oslandia,
+Paragon Corporation,
+R3 GIS,,
+Refractions Research,
+Regione Toscana-SIGTA,
+Safe Software,
+Sirius Corporation plc,
+Stadt Uster,
+UC Davis Center for Vectorborne Diseases,
+University of Laval,
+U.S Department of State (HIU),
+Vizzuality,
+Zonar Systems
+		  </p></dd><dt><span class="term">Crowd Funding Campaigns</span></dt><dd><p>Crowd funding campaigns are campaigns we run to get badly wanted features funded that can service a large number of people.  Each campaign is specifically focused on a particular feature or set of features.  Each sponsor chips in a small fraction of the needed funding and with enough people/organizations contributing, we have the funds to pay for the work that will help many.  If you have an idea for a feature you think many others would be willing to co-fund, please post to the <a href="http://www.postgis.org/mailman/listinfo/postgis-users" target="_top">PostGIS newsgroup</a> your thoughts and together we can make it happen. </p><p>PostGIS 2.0.0 was the first release we tried this strategy. We used <a href="http://www.pledgebank.com" target="_top">PledgeBank</a> and we got two successful campaigns out of it.</p><p><a href="http://www.pledgebank.com/postgistopology" target="_top"><span class="bold"><strong>postgistopology</strong></span></a> - 10 plus sponsors each contributed $250 USD to build toTopoGeometry function and beef up topology support in 2.0.0. It happened.</p><p><a href="http://www.pledgebank.com/postgis64windows" target="_top"><span class="bold"><strong>postgis64windows</strong></span></a> - 20 someodd sponsors each contributed $100 USD to pay for the work needed to work out PostGIS 64-bit on windows issues. It happened.  We now have a 64-bit beta release for PostGIS 2.0.0 and a final one planned for release that will be available on PostgreSQL stack builder.</p></dd><dt><span class="term">Important Support Libraries</span></dt><dd><p>The <a href="http://trac.osgeo.org/geos/" target="_top">GEOS</a>
+		  geometry operations library, and the algorithmic work of Martin
+		  Davis in making it all work, ongoing maintenance and support of
+		  Mateusz Loskot, Sandro Santilli (strk), Paul Ramsey and others.</p><p>The <a href="http://trac.osgeo.org/gdal/" target="_top">GDAL</a>
+		  Geospatial Data Abstraction Library, by Frank Warmerdam and others is used to 
+		  power much of the raster functionality introduced in PostGIS 2.0.0. In kind, improvements needed in GDAL
+		  to support PostGIS are contributed back to the GDAL project.</p><p>The <a href="http://trac.osgeo.org/proj/" target="_top">Proj4</a>
+		  cartographic projection library, and the work of Gerald Evenden and
+		  Frank Warmerdam in creating and maintaining it.</p><p>Last but not least, the <a href="http://www.postgresql.org" target="_top">PostgreSQL DBMS</a>,
+		  The giant that PostGIS stands on.  Much of the speed and flexibility of PostGIS would not be possible without
+		  the extensibility, great query planner, GIST index, and plethora of SQL features provided by PostgreSQL.</p></dd></dl></div></div><div class="sect1" lang="en"><div class="titlepage"><div><div><h2 class="title" style="clear: both"><a name="id2790685"></a>1.3. More Information</h2></div></div></div><div class="itemizedlist"><ul type="disc"><li><p>The latest software, documentation and news items are available
+		at the PostGIS web site, <a href="http://www.postgis.org" target="_top">http://www.postgis.org</a>.</p></li><li><p>More information about the GEOS geometry operations library is
+		available at<a href="http://trac.osgeo.org/geos/" target="_top">
+		http://trac.osgeo.org/geos/</a>.</p></li><li><p>More information about the Proj4 reprojection library is
+		available at <a href="http://trac.osgeo.org/proj/" target="_top">http://trac.osgeo.org/proj/</a>.</p></li><li><p>More information about the PostgreSQL database server is
+		available at the PostgreSQL main site <a href="http://www.postgresql.org" target="_top">http://www.postgresql.org</a>.</p></li><li><p>More information about GiST indexing is available at the
+		PostgreSQL GiST development site, <a href="http://www.sai.msu.su/~megera/postgres/gist/" target="_top">http://www.sai.msu.su/~megera/postgres/gist/</a>.</p></li><li><p>More information about MapServer internet map server is
+		available at <a href="http://mapserver.org/" target="_top">http://mapserver.org</a>.</p></li><li><p>The "<a href="http://www.opengeospatial.org/standards/sfs" target="_top">Simple Features for
+		Specification for SQL</a>" is available at the OpenGIS Consortium
+		web site: <a href="http://www.opengeospatial.org/" target="_top">http://www.opengeospatial.org/</a>.</p></li></ul></div></div></div><div class="navfooter"><hr><table width="100%" summary="Navigation footer"><tr><td width="40%" align="left"><a accesskey="p" href="index.html">Prev</a> </td><td width="20%" align="center"> </td><td width="40%" align="right"> <a accesskey="n" href="postgis_installation.html">Next</a></td></tr><tr><td width="40%" align="left" valign="top">PostGIS 2.0.2SVN Manual </td><td width="20%" align="center"><a accesskey="h" href="index.html">Home</a></td><td width="40%" align="right" valign="top"> Chapter 2. Installation</td></tr></table></div></body></html>

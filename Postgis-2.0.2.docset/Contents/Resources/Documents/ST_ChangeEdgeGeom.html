@@ -1,0 +1,20 @@
+<html><head><meta http-equiv="Content-Type" content="text/html; charset=ISO-8859-1"><title>ST_ChangeEdgeGeom</title><link rel="stylesheet" href="style.css" type="text/css"><meta name="generator" content="DocBook XSL Stylesheets V1.69.1"><link rel="start" href="index.html" title="PostGIS 2.0.2SVN Manual"><link rel="up" href="Topology.html#Topology_Editing" title="11.5. Topology Editors"><link rel="prev" href="ST_RemEdgeModFace.html" title="ST_RemEdgeModFace"><link rel="next" href="ST_ModEdgeSplit.html" title="ST_ModEdgeSplit"></head><body bgcolor="white" text="black" link="#0000FF" vlink="#840084" alink="#0000FF"><div class="navheader"><table width="100%" summary="Navigation header"><tr><th colspan="3" align="center">ST_ChangeEdgeGeom</th></tr><tr><td width="20%" align="left"><a accesskey="p" href="ST_RemEdgeModFace.html">Prev</a> </td><th width="60%" align="center">11.5. Topology Editors</th><td width="20%" align="right"> <a accesskey="n" href="ST_ModEdgeSplit.html">Next</a></td></tr></table><hr></div><div class="refentry" lang="en"><a name="ST_ChangeEdgeGeom"></a><div class="titlepage"></div><div class="refnamediv"><h2>Name</h2><p>ST_ChangeEdgeGeom &#8212; 
+Changes the shape of an edge without affecting the topology structure.
+				</p></div><div class="refsynopsisdiv"><h2>Synopsis</h2><div class="funcsynopsis"><p><code class="funcdef">integer <b class="fsfunc">ST_ChangeEdgeGeom</b>(</code>varchar  <var class="pdparam">atopology</var>, integer  <var class="pdparam">anedge</var>, geometry  <var class="pdparam">acurve</var><code>)</code>;</p></div></div><div class="refsection" lang="en"><a name="id3077109"></a><h2>Description</h2><p>
+Changes the shape of an edge without affecting the topology structure.
+		</p><p>
+If any arguments are null, the given edge does not exist in
+the <code class="varname">node</code> table of the topology schema, the
+<code class="varname">acurve</code> is not a <code class="varname">LINESTRING</code>, the
+<code class="varname">anode</code> and <code class="varname">anothernode</code> are not the
+start and endpoints of <code class="varname">acurve</code> or the modification would
+change the underlying topology then an error is thrown.
+		</p><p>If the spatial reference system (srid) of the <code class="varname">acurve</code> geometry is not the same as the topology an exception is thrown.</p><p>If the new <code class="varname">acurve</code> is not simple, then an error is thrown.</p><p>
+If moving the edge from old to new position would hit an obstacle then
+an error is thrown.
+		</p><p>Availability: 1.1.0</p><p>
+	Enhanced: 2.0.0 adds topological consistency enforcement
+		</p><p><span class="inlinemediaobject"><img src="images/check.png"></span> This method implements the SQL/MM specification. SQL-MM: Topo-Geo and Topo-Net 3: Routine Details X.3.6</p></div><div class="refsection" lang="en"><a name="id3077202"></a><h2>Examples</h2><pre class="programlisting">SELECT topology.ST_ChangeEdgeGeom('ma_topo', 1,  
+		ST_GeomFromText('LINESTRING(227591.9 893900.4,227622.6 893844.3,227641.6 893816.6, 227704.5 893778.5)', 26986) );
+ ----
+ Edge 1 changed</pre></div><div class="refsection" lang="en"><a name="id3077221"></a><h2>See Also</h2><p><a href="ST_AddEdgeModFace.html" title="ST_AddEdgeModFace">ST_AddEdgeModFace</a></p><p><a href="ST_RemEdgeModFace.html" title="ST_RemEdgeModFace">ST_RemEdgeModFace</a></p><p><a href="ST_ModEdgeSplit.html" title="ST_ModEdgeSplit">ST_ModEdgeSplit</a></p></div></div><div class="navfooter"><hr><table width="100%" summary="Navigation footer"><tr><td width="40%" align="left"><a accesskey="p" href="ST_RemEdgeModFace.html">Prev</a> </td><td width="20%" align="center"><a accesskey="u" href="Topology.html#Topology_Editing">Up</a></td><td width="40%" align="right"> <a accesskey="n" href="ST_ModEdgeSplit.html">Next</a></td></tr><tr><td width="40%" align="left" valign="top">ST_RemEdgeModFace </td><td width="20%" align="center"><a accesskey="h" href="index.html">Home</a></td><td width="40%" align="right" valign="top"> ST_ModEdgeSplit</td></tr></table></div></body></html>

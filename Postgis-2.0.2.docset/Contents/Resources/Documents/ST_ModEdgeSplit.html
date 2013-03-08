@@ -1,0 +1,23 @@
+<html><head><meta http-equiv="Content-Type" content="text/html; charset=ISO-8859-1"><title>ST_ModEdgeSplit</title><link rel="stylesheet" href="style.css" type="text/css"><meta name="generator" content="DocBook XSL Stylesheets V1.69.1"><link rel="start" href="index.html" title="PostGIS 2.0.2SVN Manual"><link rel="up" href="Topology.html#Topology_Editing" title="11.5. Topology Editors"><link rel="prev" href="ST_ChangeEdgeGeom.html" title="ST_ChangeEdgeGeom"><link rel="next" href="ST_ModEdgeHeal.html" title="ST_ModEdgeHeal"></head><body bgcolor="white" text="black" link="#0000FF" vlink="#840084" alink="#0000FF"><div class="navheader"><table width="100%" summary="Navigation header"><tr><th colspan="3" align="center">ST_ModEdgeSplit</th></tr><tr><td width="20%" align="left"><a accesskey="p" href="ST_ChangeEdgeGeom.html">Prev</a> </td><th width="60%" align="center">11.5. Topology Editors</th><td width="20%" align="right"> <a accesskey="n" href="ST_ModEdgeHeal.html">Next</a></td></tr></table><hr></div><div class="refentry" lang="en"><a name="ST_ModEdgeSplit"></a><div class="titlepage"></div><div class="refnamediv"><h2>Name</h2><p>ST_ModEdgeSplit &#8212; Split an edge by creating a new node along an existing edge, modifying the original edge and adding a new edge.</p></div><div class="refsynopsisdiv"><h2>Synopsis</h2><div class="funcsynopsis"><p><code class="funcdef">text <b class="fsfunc">ST_ModEdgeSplit</b>(</code>varchar  <var class="pdparam">atopology</var>, integer  <var class="pdparam">anedge</var>, geometry  <var class="pdparam">apoint</var><code>)</code>;</p></div></div><div class="refsection" lang="en"><a name="id3077317"></a><h2>Description</h2><p>
+Split an edge by creating a new node along an existing edge,
+modifying the original edge and adding a new edge.
+Updates all existing joined edges and relationships accordingly.
+		</p><p>Availability: 1.? </p><p>Changed: 2.0 - In prior versions, this was misnamed ST_ModEdgesSplit</p><p><span class="inlinemediaobject"><img src="images/check.png"></span> This method implements the SQL/MM specification. SQL-MM: Topo-Geo and Topo-Net 3: Routine Details:  X.3.9</p></div><div class="refsection" lang="en"><a name="id3077359"></a><h2>Examples</h2><pre class="programlisting">
+-- Add an edge --
+ SELECT topology.AddEdge('ma_topo', ST_GeomFromText('LINESTRING(227592 893910, 227600 893910)', 26986) ) As edgeid;
+ 
+-- edgeid-
+3
+
+
+-- Split the edge  --
+SELECT topology.ST_ModEdgeSplit('ma_topo',  3, ST_SetSRID(ST_Point(227594,893910),26986)  ) As result;
+         result
+-------------------------
+7
+</pre></div><div class="refsection" lang="en"><a name="id3077380"></a><h2>See Also</h2><p>
+				<a href="ST_NewEdgesSplit.html" title="ST_NewEdgesSplit">ST_NewEdgesSplit</a>,
+				<a href="ST_ModEdgeHeal.html" title="ST_ModEdgeHeal">ST_ModEdgeHeal</a>,
+				<a href="ST_NewEdgeHeal.html" title="ST_NewEdgeHeal">ST_NewEdgeHeal</a>,
+				<a href="AddEdge.html" title="AddEdge">AddEdge</a>
+				</p></div></div><div class="navfooter"><hr><table width="100%" summary="Navigation footer"><tr><td width="40%" align="left"><a accesskey="p" href="ST_ChangeEdgeGeom.html">Prev</a> </td><td width="20%" align="center"><a accesskey="u" href="Topology.html#Topology_Editing">Up</a></td><td width="40%" align="right"> <a accesskey="n" href="ST_ModEdgeHeal.html">Next</a></td></tr><tr><td width="40%" align="left" valign="top">ST_ChangeEdgeGeom </td><td width="20%" align="center"><a accesskey="h" href="index.html">Home</a></td><td width="40%" align="right" valign="top"> ST_ModEdgeHeal</td></tr></table></div></body></html>

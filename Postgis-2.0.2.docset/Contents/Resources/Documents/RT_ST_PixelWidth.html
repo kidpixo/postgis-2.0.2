@@ -1,0 +1,23 @@
+<html><head><meta http-equiv="Content-Type" content="text/html; charset=ISO-8859-1"><title>ST_PixelWidth</title><link rel="stylesheet" href="style.css" type="text/css"><meta name="generator" content="DocBook XSL Stylesheets V1.69.1"><link rel="start" href="index.html" title="PostGIS 2.0.2SVN Manual"><link rel="up" href="RT_reference.html#Raster_Accessors" title="9.4. Raster Accessors"><link rel="prev" href="RT_ST_PixelHeight.html" title="ST_PixelHeight"><link rel="next" href="RT_ST_ScaleX.html" title="ST_ScaleX"></head><body bgcolor="white" text="black" link="#0000FF" vlink="#840084" alink="#0000FF"><div class="navheader"><table width="100%" summary="Navigation header"><tr><th colspan="3" align="center">ST_PixelWidth</th></tr><tr><td width="20%" align="left"><a accesskey="p" href="RT_ST_PixelHeight.html">Prev</a> </td><th width="60%" align="center">9.4. Raster Accessors</th><td width="20%" align="right"> <a accesskey="n" href="RT_ST_ScaleX.html">Next</a></td></tr></table><hr></div><div class="refentry" lang="en"><a name="RT_ST_PixelWidth"></a><div class="titlepage"></div><div class="refnamediv"><h2>Name</h2><p>ST_PixelWidth &#8212; Returns the pixel width in geometric units of the spatial reference system.</p></div><div class="refsynopsisdiv"><h2>Synopsis</h2><div class="funcsynopsis"><p><code class="funcdef">double precision <b class="fsfunc">ST_PixelWidth</b>(</code>raster  <var class="pdparam">rast</var><code>)</code>;</p></div></div><div class="refsection" lang="en"><a name="id3024724"></a><h2>Description</h2><p>Returns the width of a pixel in geometric units of the spatial reference system. In the common case where 
+			there is no skew, the pixel width is just the scale ratio between geometric coordinates and raster pixels.</p><p>The following diagram demonstrates the relationship:</p><p>
+			</p><div class="informalfigure"><div class="mediaobject"><img src="images/raster_xscale_yscale_xskew_yskew.png"><div class="caption"><p>Pixel Width: Pixel size in the i direction</p><p>Pixel Height: Pixel size in the j direction</p></div></div></div><p>
+			</p></div><div class="refsection" lang="en"><a name="id3024769"></a><h2>Examples: Rasters with no skew</h2><pre class="programlisting">SELECT ST_Width(rast) As rastwidth, ST_PixelWidth(rast) As pixwidth,
+	ST_ScaleX(rast) As scalex, ST_ScaleY(rast) As scaley, ST_SkewX(rast) As skewx,
+	ST_SkewY(rast) As skewy
+	FROM dummy_rast;
+	
+	rastwidth | pixwidth | scalex | scaley | skewx | skewy
+	-----------+----------+--------+--------+-------+----------
+	10 |        2 |      2 |      3 |     0 |        0
+	 5 |     0.05 |   0.05 |  -0.05 |     0 |        0
+		</pre></div><div class="refsection" lang="en"><a name="id3024789"></a><h2>Examples: Rasters with skew different than 0</h2><pre class="programlisting">SELECT ST_Width(rast) As rastwidth, ST_PixelWidth(rast) As pixwidth,
+	ST_ScaleX(rast) As scalex, ST_ScaleY(rast) As scaley, ST_SkewX(rast) As skewx,
+	ST_SkewY(rast) As skewy
+	FROM (SELECT ST_SetSkew(rast,0.5,0.5) As rast
+	FROM dummy_rast) As skewed;
+	
+	rastwidth |     pixwidth      | scalex | scaley | skewx | skewy
+	-----------+-------------------+--------+--------+-------+----------
+	10 |  2.06155281280883 |      2 |      3 |   0.5 |      0.5
+	 5 | 0.502493781056044 |   0.05 |  -0.05 |   0.5 |      0.5
+		</pre></div><div class="refsection" lang="en"><a name="id3024815"></a><h2>See Also</h2><p><a href="RT_ST_PixelHeight.html" title="ST_PixelHeight">ST_PixelHeight</a>, <a href="RT_ST_ScaleX.html" title="ST_ScaleX">ST_ScaleX</a>, <a href="RT_ST_ScaleY.html" title="ST_ScaleY">ST_ScaleY</a>, <a href="RT_ST_SkewX.html" title="ST_SkewX">ST_SkewX</a>, <a href="RT_ST_SkewY.html" title="ST_SkewY">ST_SkewY</a></p></div></div><div class="navfooter"><hr><table width="100%" summary="Navigation footer"><tr><td width="40%" align="left"><a accesskey="p" href="RT_ST_PixelHeight.html">Prev</a> </td><td width="20%" align="center"><a accesskey="u" href="RT_reference.html#Raster_Accessors">Up</a></td><td width="40%" align="right"> <a accesskey="n" href="RT_ST_ScaleX.html">Next</a></td></tr><tr><td width="40%" align="left" valign="top">ST_PixelHeight </td><td width="20%" align="center"><a accesskey="h" href="index.html">Home</a></td><td width="40%" align="right" valign="top"> ST_ScaleX</td></tr></table></div></body></html>

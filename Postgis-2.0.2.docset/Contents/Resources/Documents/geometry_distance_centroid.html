@@ -1,0 +1,76 @@
+<html><head><meta http-equiv="Content-Type" content="text/html; charset=ISO-8859-1"><title>&lt;-&gt;</title><link rel="stylesheet" href="style.css" type="text/css"><meta name="generator" content="DocBook XSL Stylesheets V1.69.1"><link rel="start" href="index.html" title="PostGIS 2.0.2SVN Manual"><link rel="up" href="reference.html#Operators" title="8.7. Operators"><link rel="prev" href="ST_Geometry_Same.html" title="~="><link rel="next" href="geometry_distance_box.html" title="&lt;#&gt;"></head><body bgcolor="white" text="black" link="#0000FF" vlink="#840084" alink="#0000FF"><div class="navheader"><table width="100%" summary="Navigation header"><tr><th colspan="3" align="center">&lt;-&gt;</th></tr><tr><td width="20%" align="left"><a accesskey="p" href="ST_Geometry_Same.html">Prev</a> </td><th width="60%" align="center">8.7. Operators</th><td width="20%" align="right"> <a accesskey="n" href="geometry_distance_box.html">Next</a></td></tr></table><hr></div><div class="refentry" lang="en"><a name="geometry_distance_centroid"></a><div class="titlepage"></div><div class="refnamediv"><h2>Name</h2><p>&lt;-&gt; &#8212; Returns the distance between two points.  For point / point checks it uses floating point accuracy (as opposed to the double precision accuracy of the underlying point geometry).  For other geometry types
+			the distance between the floating point bounding box centroids is returned.  Useful for doing distance ordering and nearest neighbor limits
+			using KNN gist functionality.</p></div><div class="refsynopsisdiv"><h2>Synopsis</h2><div class="funcsynopsis"><p><code class="funcdef">double precision <b class="fsfunc">&lt;-&gt;</b>(</code>
+				  geometry 
+
+				  <var class="pdparam">A</var>
+				, 
+				  geometry 
+
+				  <var class="pdparam">B</var>
+				<code>)</code>;</p></div></div><div class="refsection" lang="en"><a name="id2921409"></a><h2>Description</h2><p>The <code class="varname">&lt;-&gt;</code> operator returns distance between two points read from the spatial index for points (float precision).  For
+			other geometries it returns the distance from centroid of bounding box of geometries.  Useful for doing nearest neighbor <span class="strong"><strong>approximate</strong></span> distance ordering.</p><div class="note" style="margin-left: 0.5in; margin-right: 0.5in;"><table border="0" summary="Note"><tr><td rowspan="2" align="center" valign="top" width="25"><img alt="[Note]" src="images/note.png"></td><th align="left"></th></tr><tr><td align="left" valign="top"><p>This operand will make use of any indexes that may be available on the
+			  geometries.  It is different from other operators that use spatial indexes in that the spatial index is only used when the operator
+			  is in the ORDER BY clause.</p></td></tr></table></div><div class="note" style="margin-left: 0.5in; margin-right: 0.5in;"><table border="0" summary="Note"><tr><td rowspan="2" align="center" valign="top" width="25"><img alt="[Note]" src="images/note.png"></td><th align="left"></th></tr><tr><td align="left" valign="top"><p>Index only kicks in if one of the geometries is a constant (not in a subquery/cte).  e.g. 'SRID=3005;POINT(1011102 450541)'::geometry instead of a.geom</p></td></tr></table></div><p>Availability: 2.0.0 only available for PostgreSQL 9.1+</p></div><div class="refsection" lang="en"><a name="id2921452"></a><h2>Examples</h2><pre class="programlisting">SELECT ST_Distance(geom, 'SRID=3005;POINT(1011102 450541)'::geometry) as d,edabbr, vaabbr 
+FROM va2005 
+ORDER BY d limit 10;
+
+        d         | edabbr | vaabbr
+------------------+--------+--------
+                0 | ALQ    | 128
+ 5541.57712511724 | ALQ    | 129A
+ 5579.67450712005 | ALQ    | 001
+  6083.4207708641 | ALQ    | 131
+  7691.2205404848 | ALQ    | 003
+ 7900.75451037313 | ALQ    | 122
+ 8694.20710669982 | ALQ    | 129B
+ 9564.24289057111 | ALQ    | 130
+  12089.665931705 | ALQ    | 127
+ 18472.5531479404 | ALQ    | 002
+(10 rows)
+</pre><p>
+Then the KNN raw answer:
+</p><pre class="programlisting">SELECT st_distance(geom, 'SRID=3005;POINT(1011102 450541)'::geometry) as d,edabbr, vaabbr 
+FROM va2005 
+ORDER BY geom &lt;-&gt; 'SRID=3005;POINT(1011102 450541)'::geometry limit 10;
+
+        d         | edabbr | vaabbr
+------------------+--------+--------
+                0 | ALQ    | 128
+ 5579.67450712005 | ALQ    | 001
+ 5541.57712511724 | ALQ    | 129A
+ 8694.20710669982 | ALQ    | 129B
+ 9564.24289057111 | ALQ    | 130
+  6083.4207708641 | ALQ    | 131
+  12089.665931705 | ALQ    | 127
+  24795.264503022 | ALQ    | 124
+ 24587.6584922302 | ALQ    | 123
+ 26764.2555463114 | ALQ    | 125
+(10 rows)
+</pre><p>
+Note the misordering in the actual distances and the different entries that actually show up in the top 10.
+</p><p>
+Finally the hybrid:
+</p><pre class="programlisting">WITH index_query AS (
+  SELECT ST_Distance(geom, 'SRID=3005;POINT(1011102 450541)'::geometry) as d,edabbr, vaabbr
+  	FROM va2005
+  ORDER BY geom &lt;-&gt; 'SRID=3005;POINT(1011102 450541)'::geometry LIMIT 100) 
+  SELECT * 
+  	FROM index_query 
+  ORDER BY d limit 10;
+
+        d         | edabbr | vaabbr
+------------------+--------+--------
+                0 | ALQ    | 128
+ 5541.57712511724 | ALQ    | 129A
+ 5579.67450712005 | ALQ    | 001
+  6083.4207708641 | ALQ    | 131
+  7691.2205404848 | ALQ    | 003
+ 7900.75451037313 | ALQ    | 122
+ 8694.20710669982 | ALQ    | 129B
+ 9564.24289057111 | ALQ    | 130
+  12089.665931705 | ALQ    | 127
+ 18472.5531479404 | ALQ    | 002
+(10 rows)
+
+ 			</pre></div><div class="refsection" lang="en"><a name="id2921525"></a><h2>See Also</h2><p><a href="ST_DWithin.html" title="ST_DWithin">ST_DWithin</a>, <a href="ST_Distance.html" title="ST_Distance">ST_Distance</a>, <a href="geometry_distance_box.html" title="&lt;#&gt;">&lt;#&gt;</a></p></div></div><div class="navfooter"><hr><table width="100%" summary="Navigation footer"><tr><td width="40%" align="left"><a accesskey="p" href="ST_Geometry_Same.html">Prev</a> </td><td width="20%" align="center"><a accesskey="u" href="reference.html#Operators">Up</a></td><td width="40%" align="right"> <a accesskey="n" href="geometry_distance_box.html">Next</a></td></tr><tr><td width="40%" align="left" valign="top">~= </td><td width="20%" align="center"><a accesskey="h" href="index.html">Home</a></td><td width="40%" align="right" valign="top"> &lt;#&gt;</td></tr></table></div></body></html>

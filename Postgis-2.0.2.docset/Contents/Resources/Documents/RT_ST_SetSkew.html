@@ -1,0 +1,33 @@
+<html><head><meta http-equiv="Content-Type" content="text/html; charset=ISO-8859-1"><title>ST_SetSkew</title><link rel="stylesheet" href="style.css" type="text/css"><meta name="generator" content="DocBook XSL Stylesheets V1.69.1"><link rel="start" href="index.html" title="PostGIS 2.0.2SVN Manual"><link rel="up" href="RT_reference.html#Raster_Editors" title="9.7. Raster Editors"><link rel="prev" href="RT_ST_SetScale.html" title="ST_SetScale"><link rel="next" href="RT_ST_SetSRID.html" title="ST_SetSRID"></head><body bgcolor="white" text="black" link="#0000FF" vlink="#840084" alink="#0000FF"><div class="navheader"><table width="100%" summary="Navigation header"><tr><th colspan="3" align="center">ST_SetSkew</th></tr><tr><td width="20%" align="left"><a accesskey="p" href="RT_ST_SetScale.html">Prev</a> </td><th width="60%" align="center">9.7. Raster Editors</th><td width="20%" align="right"> <a accesskey="n" href="RT_ST_SetSRID.html">Next</a></td></tr></table><hr></div><div class="refentry" lang="en"><a name="RT_ST_SetSkew"></a><div class="titlepage"></div><div class="refnamediv"><h2>Name</h2><p>ST_SetSkew &#8212; Sets the georeference X and Y skew (or rotation parameter).  If only one is passed in, sets X and Y to the same value.</p></div><div class="refsynopsisdiv"><h2>Synopsis</h2><div class="funcsynopsis"><p><code class="funcdef">raster <b class="fsfunc">ST_SetSkew</b>(</code>raster  <var class="pdparam">rast</var>, float8  <var class="pdparam">skewxy</var><code>)</code>;</p><p><code class="funcdef">raster <b class="fsfunc">ST_SetSkew</b>(</code>raster  <var class="pdparam">rast</var>, float8  <var class="pdparam">skewx</var>, float8  <var class="pdparam">skewy</var><code>)</code>;</p></div></div><div class="refsection" lang="en"><a name="id3029255"></a><h2>Description</h2><p>Sets the georeference X and Y skew (or rotation parameter).  If only one is passed in, sets X and Y to the same value.  Refer to <a href="http://en.wikipedia.org/wiki/World_file" target="_top">World File</a>
+				for more details.</p></div><div class="refsection" lang="en"><a name="id3029273"></a><h2>Examples</h2><pre class="programlisting">
+-- Example 1                    
+UPDATE dummy_rast SET rast = ST_SetSkew(rast,1,2) WHERE rid = 1;
+SELECT rid, ST_SkewX(rast) As skewx, ST_SkewY(rast) As skewy, 
+    ST_GeoReference(rast) as georef
+FROM dummy_rast WHERE rid = 1;
+
+rid | skewx | skewy |    georef
+----+-------+-------+--------------
+  1 |     1 |     2 | 2.0000000000
+                    : 2.0000000000
+                    : 1.0000000000
+                    : 3.0000000000
+                    : 0.5000000000
+                    : 0.5000000000
+                    
+				</pre><pre class="programlisting">
+-- Example 2 set both to same number:
+UPDATE dummy_rast SET rast = ST_SetSkew(rast,0) WHERE rid = 1;
+SELECT rid, ST_SkewX(rast) As skewx, ST_SkewY(rast) As skewy, 
+    ST_GeoReference(rast) as georef
+FROM dummy_rast WHERE rid = 1;
+			
+ rid | skewx | skewy |    georef
+-----+-------+-------+--------------
+   1 |     0 |     0 | 2.0000000000
+                     : 0.0000000000
+                     : 0.0000000000
+                     : 3.0000000000
+                     : 0.5000000000
+                     : 0.5000000000
+				</pre></div><div class="refsection" lang="en"><a name="id3029312"></a><h2>See Also</h2><p><a href="RT_ST_GeoReference.html" title="ST_GeoReference">ST_GeoReference</a>, <a href="RT_ST_SetGeoReference.html" title="ST_SetGeoReference">ST_SetGeoReference</a>, <a href="RT_ST_SkewX.html" title="ST_SkewX">ST_SkewX</a>, <a href="RT_ST_SkewY.html" title="ST_SkewY">ST_SkewY</a></p></div></div><div class="navfooter"><hr><table width="100%" summary="Navigation footer"><tr><td width="40%" align="left"><a accesskey="p" href="RT_ST_SetScale.html">Prev</a> </td><td width="20%" align="center"><a accesskey="u" href="RT_reference.html#Raster_Editors">Up</a></td><td width="40%" align="right"> <a accesskey="n" href="RT_ST_SetSRID.html">Next</a></td></tr><tr><td width="40%" align="left" valign="top">ST_SetScale </td><td width="20%" align="center"><a accesskey="h" href="index.html">Home</a></td><td width="40%" align="right" valign="top"> ST_SetSRID</td></tr></table></div></body></html>

@@ -1,0 +1,131 @@
+<html><head><meta http-equiv="Content-Type" content="text/html; charset=ISO-8859-1"><title>Chapter 3. PostGIS Frequently Asked Questions</title><link rel="stylesheet" href="style.css" type="text/css"><meta name="generator" content="DocBook XSL Stylesheets V1.69.1"><link rel="start" href="index.html" title="PostGIS 2.0.2SVN Manual"><link rel="up" href="index.html" title="PostGIS 2.0.2SVN Manual"><link rel="prev" href="postgis_installation.html" title="Chapter 2. Installation"><link rel="next" href="using_postgis_dbmanagement.html" title="Chapter 4. Using PostGIS: Data Management and Queries"></head><body bgcolor="white" text="black" link="#0000FF" vlink="#840084" alink="#0000FF"><div class="navheader"><table width="100%" summary="Navigation header"><tr><th colspan="3" align="center">Chapter 3. PostGIS Frequently Asked Questions</th></tr><tr><td width="20%" align="left"><a accesskey="p" href="postgis_installation.html">Prev</a> </td><th width="60%" align="center"> </th><td width="20%" align="right"> <a accesskey="n" href="using_postgis_dbmanagement.html">Next</a></td></tr></table><hr></div><div class="chapter" lang="en"><div class="titlepage"><div><div><h2 class="title"><a name="PostGIS_FAQ"></a>Chapter 3. PostGIS Frequently Asked Questions</h2></div></div></div><div class="qandaset"><dl><dt>3.1. <a href="PostGIS_FAQ.html#legacy_faq">My applications and desktop tools worked with PostGIS 1.5,but they don't work with PostGIS 2.0.  How do I fix this?</a></dt><dt>3.2. <a href="PostGIS_FAQ.html#id2847976">I'm running PostgreSQL 9.0 and I can no longer read/view geometries in OpenJump, Safe FME, and some other tools?</a></dt><dt>3.3. <a href="PostGIS_FAQ.html#id2848040">I tried to use PgAdmin to view my geometry column and it is blank, what gives?</a></dt><dt>3.4. <a href="PostGIS_FAQ.html#id2848076">What kind of geometric objects can I store?</a></dt><dt>3.5. <a href="PostGIS_FAQ.html#id2848115">I'm all confused.  Which data store should I use geometry or geography?</a></dt><dt>3.6. <a href="PostGIS_FAQ.html#id2848174">I have more intense questions about geography, such as how big of a geographic region can I stuff in a geography column and
+			still get reasonable answers.  Are there limitations such as poles, everything in the field must fit in a hemisphere (like SQL Server 2008 has), speed etc?</a></dt><dt>3.7. <a href="PostGIS_FAQ.html#id2848202">How do I insert a GIS object into the database?</a></dt><dt>3.8. <a href="PostGIS_FAQ.html#id2848299">How do I construct a spatial query?</a></dt><dt>3.9. <a href="PostGIS_FAQ.html#id2848358">How do I speed up spatial queries on large tables?</a></dt><dt>3.10. <a href="PostGIS_FAQ.html#id2848436">Why aren't PostgreSQL R-Tree indexes supported?</a></dt><dt>3.11. <a href="PostGIS_FAQ.html#id2848489">Why should I use the AddGeometryColumn()
+        function and all the other OpenGIS stuff?</a></dt><dt>3.12. <a href="PostGIS_FAQ.html#id2848534">What is the best way to find all objects within a radius of
+        another object?</a></dt><dt>3.13. <a href="PostGIS_FAQ.html#id2848580">How do I perform a coordinate reprojection as part of a
+        query?</a></dt><dt>3.14. <a href="PostGIS_FAQ.html#id2848619">I did an ST_AsEWKT and ST_AsText on my rather large geometry and it returned blank field.  What gives?</a></dt><dt>3.15. <a href="PostGIS_FAQ.html#id2848648">When I do an ST_Intersects, it says my two geometries don't intersect when I KNOW THEY DO. What gives?</a></dt><dt>3.16. <a href="PostGIS_FAQ.html#id2848674">I am releasing software that uses PostGIS, does that mean my software has to be licensed using the GPL like PostGIS? Will I have to publish all my code if I use PostGIS?</a></dt></dl><table border="0" summary="Q and A Set"><col align="left" width="1%"><tbody><tr class="question"><td align="left" valign="top"><a name="legacy_faq"></a><a name="id2847324"></a><b>3.1.</b></td><td align="left" valign="top"><p>My applications and desktop tools worked with PostGIS 1.5,but they don't work with PostGIS 2.0.  How do I fix this?</p></td></tr><tr class="answer"><td align="left" valign="top"><b></b></td><td align="left" valign="top"><p>A lot of deprecated functions were removed from the PostGIS code base in PostGIS 2.0.  This has affected applications in addition to third-party tools such as
+            Geoserver, MapServer, QuantumGIS, and OpenJump to name a few.  There are a couple of ways to resolve this. For the third-party apps, you can try to upgrade to the latest versions
+                of these which have many of these issues fixed.  For your own code, you can change your code to not use the functions removed.  Most of these functions are non ST_ aliases of ST_Union, ST_Length etc.
+               and as a last resort, install the whole of <code class="varname">legacy.sql</code> or just the 
+                portions of <code class="varname">legacy.sql</code> you need.</p><p>The <code class="varname">legacy.sql</code> file is located in the same folder as postgis.sql.  You can install this file after you have installed postgis.sql and spatial_ref_sys.sql
+            to get back all the 200 some-odd old functions we removed.</p></td></tr><tr class="question"><td align="left" valign="top"><a name="id2847976"></a><a name="id2847978"></a><b>3.2.</b></td><td align="left" valign="top"><p>I'm running PostgreSQL 9.0 and I can no longer read/view geometries in OpenJump, Safe FME, and some other tools?</p></td></tr><tr class="answer"><td align="left" valign="top"><b></b></td><td align="left" valign="top"><p>In PostgreSQL 9.0+, the default encoding for bytea data has been changed to hex and older JDBC drivers still assume escape format. This has affected some applications
+        such as Java applications using older JDBC drivers or .NET applications that use the older npgsql driver
+        	that expect the old behavior of ST_AsBinary.  There are two approaches to getting this to work again.</p><p>You can upgrade your JDBC driver to the latest PostgreSQL 9.0 version which you can get from  
+            <a href="http://jdbc.postgresql.org/download.html" target="_top">http://jdbc.postgresql.org/download.html</a></p><p>If you are running a .NET app, you can use Npgsql 2.0.11 or higher which you can download from
+        	<a href="http://pgfoundry.org/frs/?group_id=1000140" target="_top">http://pgfoundry.org/frs/?group_id=1000140</a> and
+        as described on <a href="http://fxjr.blogspot.com/2010/11/npgsql-2011-released.html" target="_top">Francisco Figueiredo's NpgSQL 2.0.11 released blog entry</a></p><p>If upgrading your PostgreSQL driver is not an option, then you can set the default back to the old behavior  with the following change:</p><pre class="programlisting">ALTER DATABASE mypostgisdb SET bytea_output='escape';</pre></td></tr><tr class="question"><td align="left" valign="top"><a name="id2848040"></a><a name="id2848042"></a><b>3.3.</b></td><td align="left" valign="top"><p>I tried to use PgAdmin to view my geometry column and it is blank, what gives?</p></td></tr><tr class="answer"><td align="left" valign="top"><b></b></td><td align="left" valign="top"><p>PgAdmin doesn't show anything for large geometries.  The best ways to verify you do have data in your geometry columns are?</p><pre class="programlisting">-- this should return no records if all your geom fields are filled in        
+SELECT somefield FROM mytable WHERE geom IS NULL;</pre><pre class="programlisting">-- To tell just how large your geometry is do a query of the form
+--which will tell you the most number of points you have in any of your geometry columns
+SELECT MAX(ST_NPoints(geom)) FROM sometable;</pre></td></tr><tr class="question"><td align="left" valign="top"><a name="id2848076"></a><a name="id2848078"></a><b>3.4.</b></td><td align="left" valign="top"><p>What kind of geometric objects can I store?</p></td></tr><tr class="answer"><td align="left" valign="top"><b></b></td><td align="left" valign="top"><p>You can store point, line, polygon, multipoint, multiline,
+        multipolygon, and geometrycollections. In PostGIS 2.0 and above you can also store TINS and Polyhedral Surfaces in the basic geometry type.
+        These are specified in the Open
+        GIS Well Known Text Format (with XYZ,XYM,XYZM extensions).  There are three data types currently supported.
+		The standard OGC geometry data type which uses a planar coordinate system for measurement, the 
+		geography data type which uses a geodetic coordinate system (not OGC, but you'll find a similar type in Microsoft SQL Server 2008+).  Only WGS 84 long lat (SRID:4326) is supported
+		by the geography data type.  The newest family member of the PostGIS spatial type family is raster for storing and analyzing raster data. Raster has its very own FAQ. Refer to <a href="RT_FAQ.html" title="Chapter 10. PostGIS Raster Frequently Asked Questions">Chapter 10, <i>PostGIS Raster Frequently Asked Questions</i></a>
+		and <a href="RT_reference.html" title="Chapter 9. Raster Reference">Chapter 9, <i>Raster Reference</i></a> for more details.</p></td></tr><tr class="question"><td align="left" valign="top"><a name="id2848115"></a><a name="id2848117"></a><b>3.5.</b></td><td align="left" valign="top"><p>I'm all confused.  Which data store should I use geometry or geography?</p></td></tr><tr class="answer"><td align="left" valign="top"><b></b></td><td align="left" valign="top"><p>Short Answer: geography is a new data type that supports long range distances measurements, but most computations on it are currently
+        slower than they are on geometry.  If
+		 you use geography -- you don't need to learn much about planar coordinate systems. Geography is generally best
+		 if all you care about is measuring distances and lengths and you have data from all over the world.
+		 Geometry data type is an older data type that has many more functions supporting it, enjoys greater support from third party tools,
+		 and operations on it are generally faster -- sometimes as much as 10 fold faster for larger geometries.
+		 Geometry is best if you are pretty comfortable with spatial reference systems or you are dealing with localized data
+		  where all your data fits in a single <a href="using_postgis_dbmanagement.html#spatial_ref_sys" title="4.3.1. The SPATIAL_REF_SYS Table and Spatial Reference Systems">spatial reference system (SRID)</a>, or you need to do a lot of spatial processing.
+		  Note: It is fairly easy to do one-off conversions between the two types to gain the benefits of each.
+		  Refer to <a href="PostGIS_Special_Functions_Index.html#PostGIS_TypeFunctionMatrix" title="13.10. PostGIS Function Support Matrix">Section 13.10, &#8220;PostGIS Function Support Matrix&#8221;</a> to see what is currently supported and what is not.
+		 </p><p>
+		 	Long Answer: Refer to our more lengthy discussion in the <a href="using_postgis_dbmanagement.html#PostGIS_GeographyVSGeometry" title="4.2.2. When to use Geography Data type over Geometry data type">Section 4.2.2, &#8220;When to use Geography Data type over Geometry data type&#8221;</a> and <a href="PostGIS_Special_Functions_Index.html#PostGIS_TypeFunctionMatrix" title="13.10. PostGIS Function Support Matrix">function type matrix</a>.
+		 </p></td></tr><tr class="question"><td align="left" valign="top"><a name="id2848174"></a><a name="id2848176"></a><b>3.6.</b></td><td align="left" valign="top"><p>I have more intense questions about geography, such as how big of a geographic region can I stuff in a geography column and
+			still get reasonable answers.  Are there limitations such as poles, everything in the field must fit in a hemisphere (like SQL Server 2008 has), speed etc?</p></td></tr><tr class="answer"><td align="left" valign="top"><b></b></td><td align="left" valign="top"><p>Your questions are too deep and complex to be adequately answered in this section. Please refer to our
+			<a href="using_postgis_dbmanagement.html#PostGIS_Geography_AdvancedFAQ" title="4.2.3. Geography Advanced FAQ">Section 4.2.3, &#8220;Geography Advanced FAQ&#8221;</a>.</p></td></tr><tr class="question"><td align="left" valign="top"><a name="id2848202"></a><a name="id2848204"></a><b>3.7.</b></td><td align="left" valign="top"><p>How do I insert a GIS object into the database?</p></td></tr><tr class="answer"><td align="left" valign="top"><b></b></td><td align="left" valign="top"><p>First, you need to create a table with a column of type
+        "geometry" or "geography" to hold your GIS data. 
+		Storing geography type data is a little different than storing geometry.  Refer
+		to <a href="using_postgis_dbmanagement.html#Geography_Basics" title="4.2.1. Geography Basics">Section 4.2.1, &#8220;Geography Basics&#8221;</a> for details on storing geography. </p><p>
+		For geometry: Connect to your database with
+        <code class="filename">psql</code> and try the following SQL:</p><pre class="programlisting">CREATE TABLE gtest ( ID int4, NAME varchar(20) );
+SELECT AddGeometryColumn('', 'gtest','geom',-1,'LINESTRING',2);</pre><p>If the geometry column addition fails, you probably have not
+        loaded the PostGIS functions and objects into this database. See the
+        <a href="postgis_installation.html#PGInstall" title="2.4. Installation">Section 2.4, &#8220;Installation&#8221;</a>.</p><p>Then, you can insert a geometry into the table using a SQL
+        insert statement. The GIS object itself is formatted using the OpenGIS
+        Consortium "well-known text" format:</p><pre class="programlisting">INSERT INTO gtest (ID, NAME, GEOM) 
+VALUES (
+  1, 
+  'First Geometry', 
+  ST_GeomFromText('LINESTRING(2 3,4 5,6 5,7 8)', -1)
+);</pre><p>For more information about other GIS objects, see the <a href="using_postgis_dbmanagement.html#RefObject" title="4.1. GIS Objects">object reference</a>.</p><p>To view your GIS data in the table:</p><pre class="programlisting">SELECT id, name, ST_AsText(geom) AS geom FROM gtest;</pre><p>The return value should look something like this:</p><pre class="programlisting"> id | name           | geom
+----+----------------+-----------------------------
+  1 | First Geometry | LINESTRING(2 3,4 5,6 5,7 8) 
+(1 row)</pre></td></tr><tr class="question"><td align="left" valign="top"><a name="id2848299"></a><a name="id2848301"></a><b>3.8.</b></td><td align="left" valign="top"><p>How do I construct a spatial query?</p></td></tr><tr class="answer"><td align="left" valign="top"><b></b></td><td align="left" valign="top"><p>The same way you construct any other database query, as an SQL
+        combination of return values, functions, and boolean tests.</p><p>For spatial queries, there are two issues that are important to
+        keep in mind while constructing your query: is there a spatial index
+        you can make use of; and, are you doing expensive calculations on a
+        large number of geometries.</p><p>In general, you will want to use the "intersects operator"
+        (&amp;&amp;) which tests whether the bounding boxes of features
+        intersect. The reason the &amp;&amp; operator is useful is because if
+        a spatial index is available to speed up the test, the &amp;&amp;
+        operator will make use of this. This can make queries much much
+        faster.</p><p>You will also make use of spatial functions, such as Distance(),
+        ST_Intersects(), ST_Contains() and ST_Within(), among others, to
+        narrow down the results of your search. Most spatial queries include
+        both an indexed test and a spatial function test. The index test
+        serves to limit the number of return tuples to only tuples that
+        <span class="emphasis"><em>might</em></span> meet the condition of interest. The spatial
+        functions are then use to test the condition exactly.</p><pre class="programlisting">SELECT id, the_geom 
+FROM thetable 
+WHERE 
+  ST_Contains(the_geom,'POLYGON((0 0, 0 10, 10 10, 10 0, 0 0))');</pre></td></tr><tr class="question"><td align="left" valign="top"><a name="id2848358"></a><a name="id2848360"></a><b>3.9.</b></td><td align="left" valign="top"><p>How do I speed up spatial queries on large tables?</p></td></tr><tr class="answer"><td align="left" valign="top"><b></b></td><td align="left" valign="top"><p>Fast queries on large tables is the <span class="emphasis"><em>raison
+        d'etre</em></span> of spatial databases (along with transaction
+        support) so having a good index is important.</p><p>To build a spatial index on a table with a
+        <code class="varname">geometry</code> column, use the "CREATE INDEX" function as
+        follows:</p><pre class="programlisting">CREATE INDEX [indexname] ON [tablename] USING GIST ( [geometrycolumn] );</pre><p>The "USING GIST" option tells the server to use a GiST
+        (Generalized Search Tree) index.</p><div class="note" style="margin-left: 0.5in; margin-right: 0.5in;"><table border="0" summary="Note"><tr><td rowspan="2" align="center" valign="top" width="25"><img alt="[Note]" src="images/note.png"></td><th align="left"></th></tr><tr><td align="left" valign="top"><p>GiST indexes are assumed to be lossy. Lossy indexes uses a
+          proxy object (in the spatial case, a bounding box) for building the
+          index.</p></td></tr></table></div><p>You should also ensure that the PostgreSQL query planner has
+        enough information about your index to make rational decisions about
+        when to use it. To do this, you have to "gather statistics" on your
+        geometry tables.</p><p>For PostgreSQL 8.0.x and greater, just run the <span><strong class="command">VACUUM
+        ANALYZE</strong></span> command.</p><p>For PostgreSQL 7.4.x and below, run the <span><strong class="command">SELECT
+        UPDATE_GEOMETRY_STATS()</strong></span> command.</p></td></tr><tr class="question"><td align="left" valign="top"><a name="id2848436"></a><a name="id2848438"></a><b>3.10.</b></td><td align="left" valign="top"><p>Why aren't PostgreSQL R-Tree indexes supported?</p></td></tr><tr class="answer"><td align="left" valign="top"><b></b></td><td align="left" valign="top"><p>Early versions of PostGIS used the PostgreSQL R-Tree indexes.
+        However, PostgreSQL R-Trees have been completely discarded since
+        version 0.6, and spatial indexing is provided with an R-Tree-over-GiST
+        scheme.</p><p>Our tests have shown search speed for native R-Tree and GiST to
+        be comparable. Native PostgreSQL R-Trees have two limitations which
+        make them undesirable for use with GIS features (note that these
+        limitations are due to the current PostgreSQL native R-Tree
+        implementation, not the R-Tree concept in general):</p><div class="itemizedlist"><ul type="disc"><li><p>R-Tree indexes in PostgreSQL cannot handle features which
+            are larger than 8K in size. GiST indexes can, using the "lossy"
+            trick of substituting the bounding box for the feature
+            itself.</p></li><li><p>R-Tree indexes in PostgreSQL are not "null safe", so
+            building an index on a geometry column which contains null
+            geometries will fail.</p></li></ul></div></td></tr><tr class="question"><td align="left" valign="top"><a name="id2848489"></a><a name="id2848491"></a><b>3.11.</b></td><td align="left" valign="top"><p>Why should I use the <code class="varname">AddGeometryColumn()</code>
+        function and all the other OpenGIS stuff?</p></td></tr><tr class="answer"><td align="left" valign="top"><b></b></td><td align="left" valign="top"><p>If you do not want to use the OpenGIS support functions, you do
+        not have to. Simply create tables as in older versions, defining your
+        geometry columns in the CREATE statement. All your geometries will
+        have SRIDs of -1, and the OpenGIS meta-data tables will
+        <span class="emphasis"><em>not</em></span> be filled in properly. However, this will
+        cause most applications based on PostGIS to fail, and it is generally
+        suggested that you do use <code class="varname">AddGeometryColumn()</code> to
+        create geometry tables.</p><p>MapServer is one application which makes use of the
+        <code class="varname">geometry_columns</code> meta-data. Specifically, MapServer
+        can use the SRID of the geometry column to do on-the-fly reprojection
+        of features into the correct map projection.</p></td></tr><tr class="question"><td align="left" valign="top"><a name="id2848534"></a><a name="id2848536"></a><b>3.12.</b></td><td align="left" valign="top"><p>What is the best way to find all objects within a radius of
+        another object?</p></td></tr><tr class="answer"><td align="left" valign="top"><b></b></td><td align="left" valign="top"><p>To use the database most efficiently, it is best to do radius
+        queries which combine the radius test with a bounding box test: the
+        bounding box test uses the spatial index, giving fast access to a
+        subset of data which the radius test is then applied to.</p><p>The <code class="varname">ST_DWithin(geometry, geometry, distance)</code>
+        function is a handy way of performing an indexed distance search. It
+        works by creating a search rectangle large enough to enclose the
+        distance radius, then performing an exact distance search on the
+        indexed subset of results.</p><p>For example, to find all objects with 100 meters of POINT(1000
+        1000) the following query would work well:</p><pre class="programlisting">SELECT * FROM geotable 
+WHERE ST_DWithin(geocolumn, 'POINT(1000 1000)', 100.0);</pre></td></tr><tr class="question"><td align="left" valign="top"><a name="id2848580"></a><a name="id2848582"></a><b>3.13.</b></td><td align="left" valign="top"><p>How do I perform a coordinate reprojection as part of a
+        query?</p></td></tr><tr class="answer"><td align="left" valign="top"><b></b></td><td align="left" valign="top"><p>To perform a reprojection, both the source and destination
+        coordinate systems must be defined in the SPATIAL_REF_SYS table, and
+        the geometries being reprojected must already have an SRID set on
+        them. Once that is done, a reprojection is as simple as referring to
+        the desired destination SRID. The below projects a geometry to NAD 83 long lat.  
+		The below will only work if the srid of the_geom is not -1 (not undefined spatial ref)</p><pre class="programlisting">SELECT ST_Transform(the_geom,4269) FROM geotable;</pre></td></tr><tr class="question"><td align="left" valign="top"><a name="id2848619"></a><a name="id2848621"></a><b>3.14.</b></td><td align="left" valign="top"><p>I did an ST_AsEWKT and ST_AsText on my rather large geometry and it returned blank field.  What gives?</p></td></tr><tr class="answer"><td align="left" valign="top"><b></b></td><td align="left" valign="top"><p>You are probably using PgAdmin or some other tool that doesn't output large text.  If your geometry is big
+			enough, it will appear blank in these tools. Use PSQL if you really need to see it or output it in WKT.</p><pre class="programlisting">
+				--To check number of geometries are really blank
+				SELECT count(gid) FROM geotable WHERE the_geom IS NULL;</pre></td></tr><tr class="question"><td align="left" valign="top"><a name="id2848648"></a><a name="id2848650"></a><b>3.15.</b></td><td align="left" valign="top"><p>When I do an ST_Intersects, it says my two geometries don't intersect when I KNOW THEY DO. What gives?</p></td></tr><tr class="answer"><td align="left" valign="top"><b></b></td><td align="left" valign="top"><p>This generally happens in two common cases.  Your geometry is invalid -- check <a href="ST_IsValid.html" title="ST_IsValid">ST_IsValid</a>
+			or you are assuming they intersect because ST_AsText truncates the numbers and you have lots of decimals after 
+				it is not showing you.</p></td></tr><tr class="question"><td align="left" valign="top"><a name="id2848674"></a><a name="id2848676"></a><b>3.16.</b></td><td align="left" valign="top"><p>I am releasing software that uses PostGIS, does that mean my software has to be licensed using the GPL like PostGIS? Will I have to publish all my code if I use PostGIS?</p></td></tr><tr class="answer"><td align="left" valign="top"><b></b></td><td align="left" valign="top"><p>Almost certainly not. As an example, consider Oracle database running on Linux. Linux is GPL, Oracle is not, does Oracle running on Linux have to be distributed using the GPL? No. So your software can use a PostgreSQL/PostGIS database as much as it wants and be under any license you like.</p><p>The only exception would be if you made changes to the PostGIS source code, and distributed your changed version of PostGIS. In that case you would have to share the code of your changed PostGIS (but not the code of applications running on top of it). Even in this limited case, you would still only have to distribute source code to people you distributed binaries to. The GPL does not require that you <span class="emphasis"><em>publish</em></span> your source code, only that you share it with people you give binaries to.</p></td></tr></tbody></table></div></div><div class="navfooter"><hr><table width="100%" summary="Navigation footer"><tr><td width="40%" align="left"><a accesskey="p" href="postgis_installation.html">Prev</a> </td><td width="20%" align="center"> </td><td width="40%" align="right"> <a accesskey="n" href="using_postgis_dbmanagement.html">Next</a></td></tr><tr><td width="40%" align="left" valign="top">Chapter 2. Installation </td><td width="20%" align="center"><a accesskey="h" href="index.html">Home</a></td><td width="40%" align="right" valign="top"> Chapter 4. Using PostGIS: Data Management and Queries</td></tr></table></div></body></html>

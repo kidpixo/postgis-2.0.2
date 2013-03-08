@@ -1,0 +1,57 @@
+<html><head><meta http-equiv="Content-Type" content="text/html; charset=ISO-8859-1"><title>CreateTopoGeom</title><link rel="stylesheet" href="style.css" type="text/css"><meta name="generator" content="DocBook XSL Stylesheets V1.69.1"><link rel="start" href="index.html" title="PostGIS 2.0.2SVN Manual"><link rel="up" href="Topology.html#TopoGeometry_Constructors" title="11.8. TopoGeometry Constructors"><link rel="prev" href="AddFace.html" title="AddFace"><link rel="next" href="toTopoGeom.html" title="toTopoGeom"></head><body bgcolor="white" text="black" link="#0000FF" vlink="#840084" alink="#0000FF"><div class="navheader"><table width="100%" summary="Navigation header"><tr><th colspan="3" align="center">CreateTopoGeom</th></tr><tr><td width="20%" align="left"><a accesskey="p" href="AddFace.html">Prev</a> </td><th width="60%" align="center">11.8. TopoGeometry Constructors</th><td width="20%" align="right"> <a accesskey="n" href="toTopoGeom.html">Next</a></td></tr></table><hr></div><div class="refentry" lang="en"><a name="CreateTopoGeom"></a><div class="titlepage"></div><div class="refnamediv"><h2>Name</h2><p>CreateTopoGeom &#8212; Creates a new topo geometry object from topo element array - tg_type: 1:[multi]point, 2:[multi]line, 3:[multi]poly, 4:collection</p></div><div class="refsynopsisdiv"><h2>Synopsis</h2><div class="funcsynopsis"><p><code class="funcdef">topogeometry <b class="fsfunc">CreateTopoGeom</b>(</code>varchar  <var class="pdparam">toponame</var>, integer  <var class="pdparam">tg_type</var>, integer <var class="pdparam">layer_id</var>, topoelementarray <var class="pdparam">tg_objs</var><code>)</code>;</p><p><code class="funcdef">topogeometry <b class="fsfunc">CreateTopoGeom</b>(</code>varchar  <var class="pdparam">toponame</var>, integer  <var class="pdparam">tg_type</var>, integer <var class="pdparam">layer_id</var><code>)</code>;</p></div></div><div class="refsection" lang="en"><a name="id3080376"></a><h2>Description</h2><p>Creates a topogeometry object for layer denoted by layer_id and registers it in the relations table in the <code class="varname">toponame</code> schema.</p><p>tg_type is an integer: 1:[multi]point (punctal), 2:[multi]line (lineal), 3:[multi]poly (areal), 4:collection. layer_id is the layer id in the topology.layer table.</p><p>punctal layers are formed from set of nodes, lineal layers are formed from a set of edges, areal layers are formed from a set of faces,
+                	and collections can be formed from a mixture of nodes, edges, and faces.</p><p>Omitting the array of components generates an empty TopoGeometry object.</p><p>Availability: 1.?</p></div><div class="refsection" lang="en"><a name="id3080416"></a><h2>Examples: Form from existing edges</h2><p>Create a topogeom in ri_topo schema for layer 2 (our ri_roads), of type (2) LINE, for the first edge (we loaded in <code class="varname">ST_CreateTopoGeo</code>.</p><pre class="programlisting">INSERT INTO ri.ri_roads(road_name, topo) VALUES('Unknown', topology.CreateTopoGeom('ri_topo',2,2,'{{1,2}}'::topology.topoelementarray);</pre></div><div class="refsection" lang="en"><a name="id3080439"></a><h2>Examples: Convert an areal geometry to best guess topogeometry</h2><p>Lets say we have geometries that should be formed from a collection of faces. We have for example blockgroups table 
+					and want to know the topo geometry of each block group. If our data was perfectly aligned, we could do this:</p><pre class="programlisting">
+-- create our topo geometry column --
+SELECT topology.AddTopoGeometryColumn(
+	'topo_boston', 
+	'boston', 'blockgroups', 'topo', 'POLYGON');
+	
+-- addtopgeometrycolumn --
+1
+	
+-- update our column assuming 
+-- everything is perfectly aligned with our edges
+UPDATE boston.blockgroups AS bg
+	SET topo = topology.CreateTopoGeom('topo_boston'
+        ,3,1
+        , foo.bfaces)
+FROM (SELECT b.gid,  topology.TopoElementArray_Agg(ARRAY[f.face_id,3]) As bfaces
+	FROM boston.blockgroups As b
+            INNER JOIN topo_boston.face As f ON b.geom &amp;&amp; f.mbr
+        WHERE ST_Covers(b.geom, topology.ST_GetFaceGeometry('topo_boston', f.face_id))
+            GROUP BY b.gid) As foo
+WHERE foo.gid = bg.gid; 
+</pre><pre class="programlisting">
+--the world is rarely perfect allow for some error
+--count the face if 50% of it falls 
+-- within what we think is our blockgroup boundary
+UPDATE boston.blockgroups AS bg
+	SET topo = topology.CreateTopoGeom('topo_boston'
+        ,3,1
+        , foo.bfaces)
+FROM (SELECT b.gid,  topology.TopoElementArray_Agg(ARRAY[f.face_id,3]) As bfaces
+	FROM boston.blockgroups As b
+            INNER JOIN topo_boston.face As f ON b.geom &amp;&amp; f.mbr
+        WHERE ST_Covers(b.geom, topology.ST_GetFaceGeometry('topo_boston', f.face_id))
+        	OR
+ (  ST_Intersects(b.geom, topology.ST_GetFaceGeometry('topo_boston', f.face_id))
+            AND ST_Area(ST_Intersection(b.geom, topology.ST_GetFaceGeometry('topo_boston', f.face_id) ) ) &gt; 
+                ST_Area(topology.ST_GetFaceGeometry('topo_boston', f.face_id))*0.5
+                )
+            GROUP BY b.gid) As foo
+WHERE foo.gid = bg.gid; 
+
+-- and if we wanted to convert our topogeometry back
+-- to a denomalized geometry aligned with our faces and edges 
+-- cast the topo to a geometry
+-- The really cool thing is my new geometries
+-- are now aligned with my tiger street centerlines
+UPDATE boston.blockgroups SET new_geom = topo::geometry;
+</pre></div><div class="refsection" lang="en"><a name="id3080540"></a><h2>See Also</h2><p>
+<a href="AddTopoGeometryColumn.html" title="AddTopoGeometryColumn">AddTopoGeometryColumn</a>,
+<a href="toTopoGeom.html" title="toTopoGeom">toTopoGeom</a>  
+<a href="ST_CreateTopoGeo.html" title="ST_CreateTopoGeo">ST_CreateTopoGeo</a>,
+<a href="ST_GetFaceGeometry.html" title="ST_GetFaceGeometry">ST_GetFaceGeometry</a>,
+<a href="topoelementarray.html" title="topoelementarray">topoelementarray</a>,
+<a href="TopoElementArray_Agg.html" title="TopoElementArray_Agg">TopoElementArray_Agg</a>  
+				</p></div></div><div class="navfooter"><hr><table width="100%" summary="Navigation footer"><tr><td width="40%" align="left"><a accesskey="p" href="AddFace.html">Prev</a> </td><td width="20%" align="center"><a accesskey="u" href="Topology.html#TopoGeometry_Constructors">Up</a></td><td width="40%" align="right"> <a accesskey="n" href="toTopoGeom.html">Next</a></td></tr><tr><td width="40%" align="left" valign="top">AddFace </td><td width="20%" align="center"><a accesskey="h" href="index.html">Home</a></td><td width="40%" align="right" valign="top"> toTopoGeom</td></tr></table></div></body></html>

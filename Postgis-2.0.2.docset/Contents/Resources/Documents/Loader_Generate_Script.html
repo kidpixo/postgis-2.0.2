@@ -1,0 +1,34 @@
+<html><head><meta http-equiv="Content-Type" content="text/html; charset=ISO-8859-1"><title>Loader_Generate_Script</title><link rel="stylesheet" href="style.css" type="text/css"><meta name="generator" content="DocBook XSL Stylesheets V1.69.1"><link rel="start" href="index.html" title="PostGIS 2.0.2SVN Manual"><link rel="up" href="Extras.html#Tiger_Geocoder" title="12.1. Tiger Geocoder"><link rel="prev" href="Install_Missing_Indexes.html" title="Install_Missing_Indexes"><link rel="next" href="Loader_Generate_Census_Script.html" title="Loader_Generate_Census_Script"></head><body bgcolor="white" text="black" link="#0000FF" vlink="#840084" alink="#0000FF"><div class="navheader"><table width="100%" summary="Navigation header"><tr><th colspan="3" align="center">Loader_Generate_Script</th></tr><tr><td width="20%" align="left"><a accesskey="p" href="Install_Missing_Indexes.html">Prev</a> </td><th width="60%" align="center">12.1. Tiger Geocoder</th><td width="20%" align="right"> <a accesskey="n" href="Loader_Generate_Census_Script.html">Next</a></td></tr></table><hr></div><div class="refentry" lang="en"><a name="Loader_Generate_Script"></a><div class="titlepage"></div><div class="refnamediv"><h2>Name</h2><p>Loader_Generate_Script &#8212; Generates a shell script for the specified platform for the specified states that will download Tiger data, stage and load into <code class="varname">tiger_data</code> schema. Each state script is returned as a separate record. Latest version supports Tiger 2010 structural changes and also loads census tract, block groups, and blocks tables.</p></div><div class="refsynopsisdiv"><h2>Synopsis</h2><div class="funcsynopsis"><p><code class="funcdef">setof text <b class="fsfunc">loader_generate_script</b>(</code>text[] <var class="pdparam">param_states</var>, text <var class="pdparam">os</var><code>)</code>;</p></div></div><div class="refsection" lang="en"><a name="id3092119"></a><h2>Description</h2><p>Generates a shell script for the specified platform for the specified states that will download Tiger data, stage and load into <code class="varname">tiger_data</code> schema.  Each state script is returned as a separate record.</p><p>It uses unzip on Linux (7-zip on Windows by default) and wget to do the downloading. It uses <a href="using_postgis_dbmanagement.html#shp2pgsql_usage" title="4.4.2. Using the Loader">Section 4.4.2, &#8220;Using the Loader&#8221;</a> to load in the data. Note the smallest unit it does is a whole state, but you can overwrite this by downloading the files yourself.  It will only
+		process the files in the staging and temp folders.</p><p>It uses the following control tables to control the process and different OS shell syntax variations.</p><div class="orderedlist"><ol type="1"><li><p><code class="varname">loader_variables</code> keeps track of various variables such as census site, year, data and staging schemas</p></li><li><p><code class="varname">loader_platform</code> profiles of various platforms and where the various executables are located.  Comes with windows and linux. More can be added.</p></li><li><p><code class="varname">loader_lookuptables</code> each record defines a kind of table (state, county), whether to process records in it and how to load them in.  Defines the steps to import data, stage data, add, removes columns, indexes, and constraints for each.  Each table is prefixed with the state and inherits from a table in the tiger schema. e.g. creates <code class="varname">tiger_data.ma_faces</code> which inherits from <code class="varname">tiger.faces</code></p></li></ol></div><p>Availability: 2.0.0 to support Tiger 2010 structured data and load census tract (tract), block groups (bg), and blocks (tabblocks) tables .</p></div><div class="refsection" lang="en"><a name="id3092211"></a><h2>Examples</h2><p>Generate script to load up data for 2 states in Windows shell script format.</p><pre class="programlisting">SELECT loader_generate_script(ARRAY['MA','RI'], 'windows') AS result;
+-- result --
+set STATEDIR="\gisdata\www2.census.gov\geo\pvs\tiger2010st\44_Rhode_Island"
+set TMPDIR=\gisdata\temp\
+set UNZIPTOOL="C:\Program Files\7-Zip\7z.exe"
+set WGETTOOL="C:\wget\wget.exe"
+set PGBIN=C:\Program Files\PostgreSQL\8.4\bin\
+set PGPORT=5432
+set PGHOST=localhost
+set PGUSER=postgres
+set PGPASSWORD=yourpasswordhere
+set PGDATABASE=geocoder
+set PSQL="%PGBIN%psql"
+set SHP2PGSQL="%PGBIN%shp2pgsql"
+
+%WGETTOOL% http://www2.census.gov/geo/pvs/tiger2010st/44_Rhode_Island/ --no-parent --relative --recursive --level=2 --accept=zip,txt --mirror --reject=html
+:
+:</pre><p>Generate sh script</p><pre class="programlisting">SELECT loader_generate_script(ARRAY['MA','RI'], 'sh') AS result;
+-- result --
+STATEDIR="/gisdata/www2.census.gov/geo/pvs/tiger2010st/44_Rhode_Island" 
+TMPDIR="/gisdata/temp/"
+UNZIPTOOL=unzip
+PGPORT=5432
+PGHOST=localhost
+PGUSER=postgres
+PGPASSWORD=yourpasswordhere
+PGDATABASE=geocoder
+PSQL=psql
+SHP2PGSQ=shp2pgsql
+
+wget http://www2.census.gov/geo/pvs/tiger2010st/44_Rhode_Island/ --no-parent --relative --recursive --level=2 --accept=zip,txt --mirror --reject=html
+:
+:</pre></div><div class="refsection" lang="en"><a name="id3092259"></a><h2>See Also</h2><p></p></div></div><div class="navfooter"><hr><table width="100%" summary="Navigation footer"><tr><td width="40%" align="left"><a accesskey="p" href="Install_Missing_Indexes.html">Prev</a> </td><td width="20%" align="center"><a accesskey="u" href="Extras.html#Tiger_Geocoder">Up</a></td><td width="40%" align="right"> <a accesskey="n" href="Loader_Generate_Census_Script.html">Next</a></td></tr><tr><td width="40%" align="left" valign="top">Install_Missing_Indexes </td><td width="20%" align="center"><a accesskey="h" href="index.html">Home</a></td><td width="40%" align="right" valign="top"> Loader_Generate_Census_Script</td></tr></table></div></body></html>

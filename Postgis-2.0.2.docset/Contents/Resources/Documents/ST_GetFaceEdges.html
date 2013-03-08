@@ -1,0 +1,28 @@
+<html><head><meta http-equiv="Content-Type" content="text/html; charset=ISO-8859-1"><title>ST_GetFaceEdges</title><link rel="stylesheet" href="style.css" type="text/css"><meta name="generator" content="DocBook XSL Stylesheets V1.69.1"><link rel="start" href="index.html" title="PostGIS 2.0.2SVN Manual"><link rel="up" href="Topology.html#Topology_Accessors" title="11.6. Topology Accessors"><link rel="prev" href="GetTopologyName.html" title="GetTopologyName"><link rel="next" href="ST_GetFaceGeometry.html" title="ST_GetFaceGeometry"></head><body bgcolor="white" text="black" link="#0000FF" vlink="#840084" alink="#0000FF"><div class="navheader"><table width="100%" summary="Navigation header"><tr><th colspan="3" align="center">ST_GetFaceEdges</th></tr><tr><td width="20%" align="left"><a accesskey="p" href="GetTopologyName.html">Prev</a> </td><th width="60%" align="center">11.6. Topology Accessors</th><td width="20%" align="right"> <a accesskey="n" href="ST_GetFaceGeometry.html">Next</a></td></tr></table><hr></div><div class="refentry" lang="en"><a name="ST_GetFaceEdges"></a><div class="titlepage"></div><div class="refnamediv"><h2>Name</h2><p>ST_GetFaceEdges &#8212; Returns a set of ordered edges that bound <code class="varname">aface</code> includes the sequence order.</p></div><div class="refsynopsisdiv"><h2>Synopsis</h2><div class="funcsynopsis"><p><code class="funcdef">getfaceedges_returntype <b class="fsfunc">ST_GetFaceEdges</b>(</code>varchar  <var class="pdparam">atopology</var>, integer  <var class="pdparam">aface</var><code>)</code>;</p></div></div><div class="refsection" lang="en"><a name="id3079089"></a><h2>Description</h2><p>Returns a set of ordered edges that bound <code class="varname">aface</code> includes the sequence order.  Each output consists of a sequence and edgeid. Sequence numbers start with value 1.</p><p>
+Enumeration of each ring edges start from the edge with smallest identifier.
+		</p><p>Availability: 2.0 </p><p><span class="inlinemediaobject"><img src="images/check.png"></span> This method implements the SQL/MM specification. SQL-MM 3 Topo-Geo and Topo-Net 3: Routine Details: X.3.5</p></div><div class="refsection" lang="en"><a name="id3079135"></a><h2>Examples</h2><pre class="programlisting">
+-- Returns the edges bounding face 1
+SELECT (topology.ST_GetFaceEdges('tt', 1)).*;
+-- result --
+ sequence | edge
+----------+------
+        1 |   -4
+        2 |    5
+        3 |    7
+        4 |   -6
+        5 |    1
+        6 |    2
+        7 |    3
+(7 rows)
+</pre><pre class="programlisting">
+-- Returns the sequenc, edge id
+-- , and geometry of the edges that bound face 1
+-- If you just need geom and seq, can use ST_GetFaceGeometry
+SELECT t.seq, t.edge, geom
+FROM topology.ST_GetFaceEdges('tt',1) As t(seq,edge)
+	INNER JOIN tt.edge AS e ON abs(t.edge) = e.edge_id;
+</pre></div><div class="refsection" lang="en"><a name="id3079166"></a><h2>See Also</h2><p>
+<a href="GetRingEdges.html" title="GetRingEdges">GetRingEdges</a>,
+<a href="AddFace.html" title="AddFace">AddFace</a>,
+<a href="ST_GetFaceGeometry.html" title="ST_GetFaceGeometry">ST_GetFaceGeometry</a>
+				</p></div></div><div class="navfooter"><hr><table width="100%" summary="Navigation footer"><tr><td width="40%" align="left"><a accesskey="p" href="GetTopologyName.html">Prev</a> </td><td width="20%" align="center"><a accesskey="u" href="Topology.html#Topology_Accessors">Up</a></td><td width="40%" align="right"> <a accesskey="n" href="ST_GetFaceGeometry.html">Next</a></td></tr><tr><td width="40%" align="left" valign="top">GetTopologyName </td><td width="20%" align="center"><a accesskey="h" href="index.html">Home</a></td><td width="40%" align="right" valign="top"> ST_GetFaceGeometry</td></tr></table></div></body></html>
